@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:sonofy/themes/music_container_clipper.dart';
+import 'package:sonofy/widgets/general/clipper_container.dart';
 import 'package:sonofy/widgets/player/music_bar_progress.dart';
 import 'package:sonofy/widgets/player/play_button.dart';
 import 'package:sonofy/widgets/player/song_info.dart';
@@ -51,36 +51,30 @@ class MusicPlayerScreen extends StatelessWidget {
                 ),
               ),
               SizedBox(height: MediaQuery.of(context).size.height * 0.15),
-              ClipPath(
-                clipper: MusicContainerClipper(),
-                child: Container(
-                  width: double.infinity,
-                  color: Colors.white,
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 48),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const SizedBox(height: 80),
-                      const MusicBarProgress(),
-                      const SizedBox(height: 12),
-                      const SongInfo(),
-                      const SizedBox(height: 32),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          IconButton(
-                            icon: const Icon(Icons.skip_previous, size: 40, color: Colors.black),
-                            onPressed: () {},
-                          ),
-                          PlayButton(),
-                          IconButton(
-                            icon: const Icon(Icons.skip_next, size: 40, color: Colors.black),
-                            onPressed: () {},
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
+              ClipperContainer(
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 48),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const MusicBarProgress(),
+                    const SizedBox(height: 12),
+                    const SongInfo(),
+                    const SizedBox(height: 32),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.skip_previous, size: 40, color: Colors.black),
+                          onPressed: () {},
+                        ),
+                        PlayButton(),
+                        IconButton(
+                          icon: const Icon(Icons.skip_next, size: 40, color: Colors.black),
+                          onPressed: () {},
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
               ),
             ],

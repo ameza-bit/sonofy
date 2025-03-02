@@ -1,5 +1,34 @@
 import 'package:flutter/material.dart';
 
+class ClipperContainer extends StatelessWidget {
+  const ClipperContainer({
+    this.padding,
+    required this.child,
+    super.key,
+  });
+
+  final EdgeInsetsGeometry? padding;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return ClipPath(
+      clipper: MusicContainerClipper(),
+      child: Container(
+        width: double.infinity,
+        color: Colors.white,
+        padding: padding,
+        child: Column(
+          children: [
+            const SizedBox(height: 80),
+            child,
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class MusicContainerClipper extends CustomClipper<Path> {
   @override
   Path getClip(Size size) {

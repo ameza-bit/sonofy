@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:sonofy/themes/music_container_clipper.dart';
+import 'package:sonofy/widgets/general/clipper_container.dart';
 
 class CurvedImageView extends StatelessWidget {
   const CurvedImageView({super.key});
@@ -21,5 +21,3 @@ class CurvedImageView extends StatelessWidget {
     );
   }
 }
-
-
