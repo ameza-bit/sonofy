@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:sonofy/themes/music_container_clipper.dart';
-import 'package:sonofy/widgets/player/music_progress.dart';
+import 'package:sonofy/widgets/player/music_bar_progress.dart';
 import 'package:sonofy/widgets/player/play_button.dart';
 import 'package:sonofy/widgets/player/song_info.dart';
 
@@ -38,7 +38,7 @@ class MusicPlayerScreen extends StatelessWidget {
                       const Text(
                         'NOW PLAYING',
                         style: TextStyle(
-                          fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.w900,
                           fontSize: 16,
                         ),
                       ),
@@ -56,20 +56,15 @@ class MusicPlayerScreen extends StatelessWidget {
                 child: Container(
                   width: double.infinity,
                   color: Colors.white,
-                  padding: const EdgeInsets.all(40),
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 48),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       const SizedBox(height: 80),
-                      // Tiempo y barra de progreso
-                      const MusicProgress(),
-
-                      // Título de la canción y artistas
-                      const SizedBox(height: 10),
+                      const MusicBarProgress(),
+                      const SizedBox(height: 12),
                       const SongInfo(),
-
-                      // Botones de control
-                      const SizedBox(height: 30),
+                      const SizedBox(height: 32),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [

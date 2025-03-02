@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
-class MusicProgress extends StatefulWidget {
-  const MusicProgress({super.key});
+class MusicBarProgress extends StatefulWidget {
+  const MusicBarProgress({super.key});
 
   @override
-  State<MusicProgress> createState() => _MusicProgressState();
+  State<MusicBarProgress> createState() => _MusicBarProgressState();
 }
 
-class _MusicProgressState extends State<MusicProgress> {
+class _MusicBarProgressState extends State<MusicBarProgress> {
   double _currentSliderValue = 0.3; // Reproducción al 30% (1:24 de 2:46)
 
   @override

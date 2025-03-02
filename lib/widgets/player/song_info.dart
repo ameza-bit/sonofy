@@ -14,6 +14,8 @@ class SongInfo extends StatelessWidget {
             fontSize: 24,
             fontWeight: FontWeight.bold,
           ),
+          overflow: TextOverflow.ellipsis,
+          maxLines: 1,
         ),
         const SizedBox(height: 4),
         const Text(
@@ -22,6 +24,8 @@ class SongInfo extends StatelessWidget {
             color: Colors.black54,
             fontSize: 16,
           ),
+          overflow: TextOverflow.ellipsis,
+          maxLines: 1,
         ),
       ],
     );
