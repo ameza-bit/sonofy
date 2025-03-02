@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sonofy/themes/music_container_clipper.dart';
 
 class CurvedImageView extends StatelessWidget {
   const CurvedImageView({super.key});
@@ -9,7 +10,7 @@ class CurvedImageView extends StatelessWidget {
       backgroundColor: Colors.grey,
       body: Center(
         child: ClipPath(
-          clipper: MyCustomClipper(),
+          clipper: MusicContainerClipper(),
           child: Container(
             width: 300,
             height: 300,
@@ -21,29 +22,4 @@ class CurvedImageView extends StatelessWidget {
   }
 }
 
-class MyCustomClipper extends CustomClipper<Path> {
-  @override
-  Path getClip(Size size) {
-    double w = size.width;
-    double h = size.height;
-    double roundness = 80;
 
-    Path path = Path();
-
-    path.lineTo(0, 0);
-    path.lineTo(0, h - roundness);
-    path.quadraticBezierTo(0, h, roundness, h);
-    path.lineTo(w - roundness, h);
-    path.quadraticBezierTo(w, h, w, h - roundness);
-    path.lineTo(w, roundness * 2);
-    path.quadraticBezierTo(w, roundness, w - roundness, roundness);
-    path.lineTo(roundness, roundness);
-    path.quadraticBezierTo(0, roundness, 0, 0);
-    path.close();
-
-    return path;
-  }
-
-  @override
-  bool shouldReclip(covariant CustomClipper<Path> oldClipper) => false;
-}
