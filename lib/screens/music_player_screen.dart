@@ -7,11 +7,92 @@ class MusicPlayerScreen extends StatefulWidget {
   State<MusicPlayerScreen> createState() => _MusicPlayerScreenState();
 }
 
+// CustomClipper para crear el efecto ondulado
+class WaveClipper extends CustomClipper<Path> {
+  @override
+  Path getClip(Size size) {
+    var path = Path();
+
+    // Comenzar desde la esquina superior izquierda
+    path.lineTo(0, 40);
+
+    // Crear el efecto ondulado
+    var firstControlPoint = Offset(size.width / 4, 0);
+    var firstEndPoint = Offset(size.width / 2, 20);
+    path.quadraticBezierTo(firstControlPoint.dx, firstControlPoint.dy, firstEndPoint.dx, firstEndPoint.dy);
+
+    var secondControlPoint = Offset(size.width * 3 / 4, 40);
+    var secondEndPoint = Offset(size.width, 0);
+    path.quadraticBezierTo(secondControlPoint.dx, secondControlPoint.dy, secondEndPoint.dx, secondEndPoint.dy);
+
+    // Completar el path hacia las esquinas inferior derecha e izquierda
+    path.lineTo(size.width, size.height);
+    path.lineTo(0, size.height);
+    path.close();
+
+    return path;
+  }
+
+  @override
+  bool shouldReclip(covariant CustomClipper<Path> oldClipper) => false;
+}
+
 class _MusicPlayerScreenState extends State<MusicPlayerScreen> {
   double _currentSliderValue = 0.3; // Reproducción al 30% (1:24 de 2:46)
 
   @override
   Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: Stack(
+        children: [
+          Container(
+            height: MediaQuery.of(context).size.height * 0.5,
+            decoration: BoxDecoration(
+              color: Colors.grey[900],
+              image: const DecorationImage(
+                image: NetworkImage('https://centenaries.ucd.ie/wp-content/uploads/2017/05/placeholder-400x600.png'),
+                fit: BoxFit.cover,
+                opacity: 0.8,
+              ),
+            ),
+          ),
+          Column(
+            children: [
+              SizedBox(height: MediaQuery.of(context).size.height * 0.4),
+              Container(
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: const BorderRadius.only(
+                    topRight: Radius.circular(80),
+                  ),
+                ),
+                padding: const EdgeInsets.all(20),
+                child: Center(
+                  child: const Text(
+                    'Title',
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+              Expanded(
+                child: Container(
+                  width: double.infinity,
+                  color: Colors.white,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+
+    // ignore: dead_code
     return Scaffold(
       body: Column(
         children: [
@@ -21,7 +102,7 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen> {
               decoration: BoxDecoration(
                 color: Colors.grey[900],
                 image: const DecorationImage(
-                  image: NetworkImage('https://via.placeholder.com/400x600'),
+                  image: NetworkImage('https://centenaries.ucd.ie/wp-content/uploads/2017/05/placeholder-400x600.png'),
                   fit: BoxFit.cover,
                   opacity: 0.8,
                 ),
@@ -58,7 +139,7 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen> {
               ),
             ),
           ),
-          
+
           // Sección inferior con controles de reproducción
           Container(
             decoration: const BoxDecoration(
@@ -102,11 +183,11 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen> {
                     },
                   ),
                 ),
-                
+
                 // Título de la canción y artistas
                 const SizedBox(height: 10),
                 const Text(
-                  'Different World (feat. COR...', 
+                  'Different World (feat. COR...',
                   style: TextStyle(
                     color: Colors.black,
                     fontSize: 24,
@@ -121,7 +202,7 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen> {
                     fontSize: 16,
                   ),
                 ),
-                
+
                 // Botones de control
                 const SizedBox(height: 30),
                 Row(
@@ -151,7 +232,7 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen> {
                     ),
                   ],
                 ),
-                
+
                 // Botón de lyrics
                 const SizedBox(height: 20),
                 Container(
