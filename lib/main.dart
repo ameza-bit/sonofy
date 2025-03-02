@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:sonofy/screens/music_player_screen.dart';
+import 'package:sonofy/themes/main_thene.dart';
 
 void main() {
   runApp(const MainApp());
@@ -9,12 +11,10 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      home: Scaffold(
-        body: Center(
-          child: Text('Hello World!'),
-        ),
-      ),
+    return MaterialApp(
+      title: 'Sonofy',
+      theme: MainThene.lightTheme,
+      home: const MusicPlayerScreen(),
     );
   }
 }
