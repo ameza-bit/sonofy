@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:sonofy/screens/test_screen.dart';
+import 'package:sonofy/screens/music_player_screen.dart';
 
 void main() {
   runApp(const MainApp());
@@ -16,7 +16,7 @@ class MainApp extends StatelessWidget {
         primarySwatch: Colors.deepPurple,
         brightness: Brightness.dark,
       ),
-      home: const CurvedImageView(),
+      home: const MusicPlayerScreen(),
     );
   }
 }
