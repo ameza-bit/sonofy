@@ -18,15 +18,18 @@ class BottomSheetPlayer extends StatelessWidget {
           child: Row(
             spacing: 16,
             children: [
-              Container(
-                width: 60,
-                height: 60,
-                decoration: BoxDecoration(
-                  color: Colors.black,
-                  borderRadius: BorderRadius.circular(50),
-                  image: const DecorationImage(
-                    image: NetworkImage('https://centenaries.ucd.ie/wp-content/uploads/2017/05/placeholder-400x600.png'),
-                    fit: BoxFit.cover,
+              Hero(
+                tag: "song-image-cover",
+                child: Container(
+                  width: 60,
+                  height: 60,
+                  decoration: BoxDecoration(
+                    color: Colors.black,
+                    borderRadius: BorderRadius.circular(50),
+                    image: const DecorationImage(
+                      image: NetworkImage('https://centenaries.ucd.ie/wp-content/uploads/2017/05/placeholder-400x600.png'),
+                      fit: BoxFit.cover,
+                    ),
                   ),
                 ),
               ),

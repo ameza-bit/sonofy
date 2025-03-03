@@ -13,14 +13,17 @@ class MusicPlayerScreen extends StatelessWidget {
     return Scaffold(
       body: Stack(
         children: [
-          Container(
-            height: MediaQuery.of(context).size.height * 0.5,
-            decoration: BoxDecoration(
-              color: Colors.grey[900],
-              image: const DecorationImage(
-                image: NetworkImage('https://centenaries.ucd.ie/wp-content/uploads/2017/05/placeholder-400x600.png'),
-                fit: BoxFit.cover,
-                opacity: 0.8,
+          Hero(
+            tag: "song-image-cover",
+            child: Container(
+              height: MediaQuery.of(context).size.height * 0.5,
+              decoration: BoxDecoration(
+                color: Colors.grey[900],
+                image: const DecorationImage(
+                  image: NetworkImage('https://centenaries.ucd.ie/wp-content/uploads/2017/05/placeholder-400x600.png'),
+                  fit: BoxFit.cover,
+                  opacity: 0.8,
+                ),
               ),
             ),
           ),
