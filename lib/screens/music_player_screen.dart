@@ -5,6 +5,7 @@ import 'package:sonofy/widgets/player/play_button.dart';
 import 'package:sonofy/widgets/player/song_info.dart';
 
 class MusicPlayerScreen extends StatelessWidget {
+  static const String routeName = 'music_player';
   const MusicPlayerScreen({super.key});
 
   @override

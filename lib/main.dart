@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:sonofy/screens/home_screen.dart';
+import 'package:sonofy/routes/routes.dart';
 import 'package:sonofy/themes/main_thene.dart';
 
+final navigatorKey = GlobalKey<NavigatorState>();
 void main() {
   runApp(const MainApp());
 }
@@ -11,10 +12,10 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return MaterialApp.router(
       title: 'Sonofy',
+      routerConfig: Routes.getGoRoutes(navigatorKey),
       theme: MainThene.lightTheme,
-      home: const HomeScreen(),
     );
   }
 }

@@ -3,6 +3,7 @@ import 'package:sonofy/widgets/general/bottom_sheet_player.dart';
 import 'package:sonofy/widgets/general/song_card.dart';
 
 class HomeScreen extends StatelessWidget {
+  static const String routeName = 'home';
   const HomeScreen({super.key});
 
   @override
