@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 
 class PlayButton extends StatelessWidget {
-  const PlayButton({super.key});
+  const PlayButton({this.size = 80, super.key});
+
+  final double size;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 80,
-      height: 80,
+      width: size,
+      height: size,
       decoration: const BoxDecoration(
         shape: BoxShape.circle,
         gradient: LinearGradient(

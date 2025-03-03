@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:sonofy/screens/music_player_screen.dart';
+import 'package:sonofy/screens/home_screen.dart';
 import 'package:sonofy/themes/main_thene.dart';
 
 void main() {
@@ -14,7 +14,7 @@ class MainApp extends StatelessWidget {
     return MaterialApp(
       title: 'Sonofy',
       theme: MainThene.lightTheme,
-      home: const MusicPlayerScreen(),
+      home: const HomeScreen(),
     );
   }
 }

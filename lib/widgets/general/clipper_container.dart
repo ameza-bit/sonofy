@@ -19,6 +19,7 @@ class ClipperContainer extends StatelessWidget {
         color: Colors.white,
         padding: padding,
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
             const SizedBox(height: 80),
             child,
