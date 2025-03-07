@@ -9,20 +9,28 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        margin: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            SongCard(),
-            SongCard(),
-            SongCard(),
-            SongCard(),
-          ],
+      body: SafeArea(
+        child: Container(
+          margin: const EdgeInsets.all(24),
+          child: ListView(
+            children: [
+              SongCard(),
+              SongCard(),
+              SongCard(),
+              SongCard(),
+              SongCard(),
+              SongCard(),
+              SongCard(),
+              SongCard(),
+              SongCard(),
+              SongCard(),
+              SongCard(),
+              SongCard(),
+              const SizedBox(height: 75),
+            ],
+          ),
         ),
       ),
-      resizeToAvoidBottomInset: false,
       bottomSheet: BottomSheetPlayer(),
     );
   }
