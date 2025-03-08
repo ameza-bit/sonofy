@@ -4,7 +4,6 @@ import 'package:provider/provider.dart';
 import 'package:sonofy/models/song.dart';
 import 'package:sonofy/providers/player_provider.dart';
 import 'package:sonofy/screens/music_player_screen.dart';
-import 'package:sonofy/widgets/player/song_info.dart';
 
 class SongCard extends StatelessWidget {
   const SongCard(this.song, {super.key});
@@ -12,6 +11,7 @@ class SongCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    PlayerProvider playerWatcher = context.watch<PlayerProvider>();
     PlayerProvider playerReader = context.read<PlayerProvider>();
 
     Widget playButton = Container(
@@ -29,7 +29,7 @@ class SongCard extends StatelessWidget {
       ),
     );
 
-    if (true) {
+    if (playerWatcher.currentSong?.id == song.id) {
       playButton = Container(
         width: 48,
         height: 48,
@@ -52,11 +52,8 @@ class SongCard extends StatelessWidget {
 
     return InkWell(
       onTap: () async {
-        await playerReader.play().then((_) {
-          if (context.mounted) {
-            context.goNamed(MusicPlayerScreen.routeName);
-          }
-        });
+        playerReader.currentSong = song;
+        context.goNamed(MusicPlayerScreen.routeName);
       },
       child: Container(
         width: double.infinity,
@@ -70,7 +67,33 @@ class SongCard extends StatelessWidget {
           spacing: 12,
           children: [
             playButton,
-            Expanded(child: SongInfo(isBottomSheet: true)),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    song.title,
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.start,
+                    maxLines: 1,
+                  ),
+                  Text(
+                    song.artist,
+                    style: TextStyle(
+                      color: Colors.black54,
+                      fontSize: 14,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
+                  ),
+                ],
+              ),
+            ),
             Text(
               '2:46',
               style: TextStyle(color: Colors.black54),

@@ -11,7 +11,7 @@ class Song {
     required this.id,
     required this.title,
     required this.musicSource,
-    this.artist = '',
+    this.artist = 'Unknown Artist',
     this.coverUrl = '',
   });
 }

@@ -18,27 +18,34 @@ class PlayerProvider extends ChangeNotifier {
     Song(
       id: 3,
       title: "Survive the Night",
+      artist: "MandoPony",
       musicSource: AssetSource('music/Survive the Night.mp3'),
     ),
     Song(
       id: 4,
       title: "Why, or why not",
+      artist: "Hiroyuki Sawano",
       musicSource: AssetSource('music/Why, or why not.mp3'),
     ),
   ];
 
+  Song? _currentSong;
+
   List<Song> get playlist => _playlist;
 
-  bool get isPlaying => player.state == PlayerState.playing;
-
-  Future<void> play() async {
-    try {
-      await player.setSource(AssetSource('music/wasteland.mp3'));
-      await player.resume();
-    } catch (e) {
-      debugPrint('Error Playing: $e');
+  bool get hasSong => _currentSong != null;
+  Song? get currentSong => _currentSong;
+  set currentSong(Song? song) {
+    _currentSong = song;
+    if (song != null) {
+      player.setSource(song.musicSource).then((_) {
+        player.resume();
+      });
     }
+    notifyListeners();
   }
+
+  bool get isPlaying => player.state == PlayerState.playing;
 
   void toggleState() {
     if (isPlaying) {
