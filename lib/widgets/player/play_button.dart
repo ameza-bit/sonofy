@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:sonofy/providers/player_provider.dart';
 
 class PlayButton extends StatelessWidget {
   const PlayButton({this.size = 80, super.key});
@@ -7,6 +9,9 @@ class PlayButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    PlayerProvider playerWatcher = context.watch<PlayerProvider>();
+    PlayerProvider playerReader = context.read<PlayerProvider>();
+
     return Container(
       width: size,
       height: size,
@@ -17,8 +22,12 @@ class PlayButton extends StatelessWidget {
         ),
       ),
       child: IconButton(
-        icon: const Icon(Icons.play_arrow, size: 40, color: Colors.white),
-        onPressed: () {},
+        icon: Icon(
+          playerWatcher.isPlaying ? Icons.pause : Icons.play_arrow,
+          size: 40,
+          color: Colors.white,
+        ),
+        onPressed: () => playerReader.toggleState(),
       ),
     );
   }

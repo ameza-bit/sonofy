@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
+import 'package:sonofy/providers/player_provider.dart';
 import 'package:sonofy/widgets/general/clipper_container.dart';
 import 'package:sonofy/widgets/player/music_bar_progress.dart';
 import 'package:sonofy/widgets/player/play_button.dart';
@@ -11,17 +13,19 @@ class MusicPlayerScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    PlayerProvider playerWatcher = context.watch<PlayerProvider>();
+
     return Scaffold(
       body: Stack(
         children: [
           Hero(
             tag: "song-image-cover",
             child: Container(
-              height: MediaQuery.of(context).size.height * 0.5,
+              height: MediaQuery.of(context).size.height * 0.8,
               decoration: BoxDecoration(
                 color: Colors.grey[900],
-                image: const DecorationImage(
-                  image: NetworkImage('https://centenaries.ucd.ie/wp-content/uploads/2017/05/placeholder-400x600.png'),
+                image: DecorationImage(
+                  image: NetworkImage(playerWatcher.currentSong?.songCover ?? 'https://centenaries.ucd.ie/wp-content/uploads/2017/05/placeholder-400x600.png'),
                   fit: BoxFit.cover,
                   opacity: 0.8,
                 ),
@@ -40,13 +44,6 @@ class MusicPlayerScreen extends StatelessWidget {
                         icon: const Icon(Icons.arrow_back_ios),
                         onPressed: () => context.pop(),
                       ),
-                      const Text(
-                        'NOW PLAYING',
-                        style: TextStyle(
-                          fontWeight: FontWeight.w900,
-                          fontSize: 16,
-                        ),
-                      ),
                       IconButton(
                         icon: const Icon(Icons.favorite_border),
                         onPressed: () {},
@@ -55,16 +52,16 @@ class MusicPlayerScreen extends StatelessWidget {
                   ),
                 ),
               ),
-              SizedBox(height: MediaQuery.of(context).size.height * 0.15),
+              SizedBox(height: MediaQuery.of(context).size.height * 0.35),
               ClipperContainer(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 48),
+                padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 24),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     const MusicBarProgress(),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 8),
                     const SongInfo(),
-                    const SizedBox(height: 32),
+                    const SizedBox(height: 24),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:sonofy/providers/player_provider.dart';
 
 class SongInfo extends StatelessWidget {
   const SongInfo({this.isBottomSheet = false, super.key});
@@ -7,10 +9,13 @@ class SongInfo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    PlayerProvider playerWatcher = context.watch<PlayerProvider>();
+
     return Column(
+      crossAxisAlignment: !isBottomSheet ? CrossAxisAlignment.center : CrossAxisAlignment.start,
       children: [
         Text(
-          'Different World (feat. COR...',
+          playerWatcher.currentSong?.title ?? '',
           style: TextStyle(
             color: Colors.black,
             fontSize: isBottomSheet ? 18 : 24,
@@ -21,7 +26,7 @@ class SongInfo extends StatelessWidget {
         ),
         if (!isBottomSheet) const SizedBox(height: 4),
         Text(
-          'Alan Walker, K-391 & Sofia Carson',
+          playerWatcher.currentSong?.artist ?? '',
           style: TextStyle(
             color: Colors.black54,
             fontSize: isBottomSheet ? 14 : 16,

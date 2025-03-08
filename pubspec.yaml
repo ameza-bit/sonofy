@@ -7,9 +7,11 @@ environment:
   sdk: ^3.6.0
 
 dependencies:
+  audioplayers: ^6.3.0
   flutter:
     sdk: flutter
   go_router: ^14.8.1
+  provider: ^6.1.2
 
 dev_dependencies:
   flutter_test:
@@ -18,3 +20,7 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+
+  assets:
+    - assets/
+    - assets/music/
