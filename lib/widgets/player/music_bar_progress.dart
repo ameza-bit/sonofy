@@ -30,6 +30,9 @@ class _MusicBarProgressState extends State<MusicBarProgress> {
     final durationText = _formatDuration(duration);
 
     return Column(
+      mainAxisSize: MainAxisSize.min,
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,

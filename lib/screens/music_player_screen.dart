@@ -21,7 +21,7 @@ class MusicPlayerScreen extends StatelessWidget {
           Hero(
             tag: "song-image-cover",
             child: Container(
-              height: MediaQuery.of(context).size.height * 0.5,
+              height: MediaQuery.of(context).size.height * 0.8,
               decoration: BoxDecoration(
                 color: Colors.grey[900],
                 image: DecorationImage(
@@ -52,16 +52,16 @@ class MusicPlayerScreen extends StatelessWidget {
                   ),
                 ),
               ),
-              SizedBox(height: MediaQuery.of(context).size.height * 0.15),
+              SizedBox(height: MediaQuery.of(context).size.height * 0.35),
               ClipperContainer(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 48),
+                padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 24),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     const MusicBarProgress(),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 8),
                     const SongInfo(),
-                    const SizedBox(height: 32),
+                    const SizedBox(height: 24),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
