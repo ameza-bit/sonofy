@@ -46,8 +46,7 @@ class PlayerProvider extends ChangeNotifier {
 
   bool get isPlaying => player.state == PlayerState.playing;
 
-  // Constructor con listeners para actualizar posición y duración
-  Future<void> setCurrentSong(Song song) async {
+  void init() {
     // Escuchar cambios de posición
     player.onPositionChanged.listen((position) {
       _position = position;
@@ -59,7 +58,10 @@ class PlayerProvider extends ChangeNotifier {
       _duration = duration;
       notifyListeners();
     });
+  }
 
+  // Constructor con listeners para actualizar posición y duración
+  Future<void> setCurrentSong(Song song) async {
     try {
       _currentSong = song;
       await player.setSource(song.musicSource);
