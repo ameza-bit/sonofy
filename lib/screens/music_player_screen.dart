@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:sonofy/widgets/general/clipper_container.dart';
 import 'package:sonofy/widgets/player/music_bar_progress.dart';
 import 'package:sonofy/widgets/player/play_button.dart';
 import 'package:sonofy/widgets/player/song_info.dart';
 
 class MusicPlayerScreen extends StatelessWidget {
+  static const String routeName = 'music_player';
   const MusicPlayerScreen({super.key});
 
   @override
@@ -12,14 +14,17 @@ class MusicPlayerScreen extends StatelessWidget {
     return Scaffold(
       body: Stack(
         children: [
-          Container(
-            height: MediaQuery.of(context).size.height * 0.5,
-            decoration: BoxDecoration(
-              color: Colors.grey[900],
-              image: const DecorationImage(
-                image: NetworkImage('https://centenaries.ucd.ie/wp-content/uploads/2017/05/placeholder-400x600.png'),
-                fit: BoxFit.cover,
-                opacity: 0.8,
+          Hero(
+            tag: "song-image-cover",
+            child: Container(
+              height: MediaQuery.of(context).size.height * 0.5,
+              decoration: BoxDecoration(
+                color: Colors.grey[900],
+                image: const DecorationImage(
+                  image: NetworkImage('https://centenaries.ucd.ie/wp-content/uploads/2017/05/placeholder-400x600.png'),
+                  fit: BoxFit.cover,
+                  opacity: 0.8,
+                ),
               ),
             ),
           ),
@@ -33,7 +38,7 @@ class MusicPlayerScreen extends StatelessWidget {
                     children: [
                       IconButton(
                         icon: const Icon(Icons.arrow_back_ios),
-                        onPressed: () {},
+                        onPressed: () => context.pop(),
                       ),
                       const Text(
                         'NOW PLAYING',

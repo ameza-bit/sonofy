@@ -8,7 +8,7 @@ class MainThene {
         brightness: Brightness.dark,
         scaffoldBackgroundColor: backgroundColor,
         bottomSheetTheme: BottomSheetThemeData(
-          backgroundColor: backgroundColor,
+          backgroundColor: Colors.transparent,
         ),
       );
 }

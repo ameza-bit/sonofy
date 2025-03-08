@@ -3,25 +3,34 @@ import 'package:sonofy/widgets/general/bottom_sheet_player.dart';
 import 'package:sonofy/widgets/general/song_card.dart';
 
 class HomeScreen extends StatelessWidget {
+  static const String routeName = 'home';
   const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        margin: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            SongCard(),
-            SongCard(),
-            SongCard(),
-            SongCard(),
-          ],
+      body: SafeArea(
+        child: Container(
+          margin: const EdgeInsets.all(24),
+          child: ListView(
+            children: [
+              SongCard(),
+              SongCard(),
+              SongCard(),
+              SongCard(),
+              SongCard(),
+              SongCard(),
+              SongCard(),
+              SongCard(),
+              SongCard(),
+              SongCard(),
+              SongCard(),
+              SongCard(),
+              const SizedBox(height: 75),
+            ],
+          ),
         ),
       ),
-      resizeToAvoidBottomInset: false,
       bottomSheet: BottomSheetPlayer(),
     );
   }
