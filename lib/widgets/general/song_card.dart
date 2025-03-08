@@ -14,18 +14,21 @@ class SongCard extends StatelessWidget {
     PlayerProvider playerWatcher = context.watch<PlayerProvider>();
     PlayerProvider playerReader = context.read<PlayerProvider>();
 
-    Widget playButton = Container(
-      width: 48,
-      height: 48,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(25),
-        border: Border.all(color: Colors.purple, width: 2),
-      ),
-      child: Icon(
-        Icons.play_arrow,
-        color: Colors.purple,
-        size: 32,
+    Widget playButton = InkWell(
+      onTap: () => playerReader.setCurrentSong(song),
+      child: Container(
+        width: 48,
+        height: 48,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(25),
+          border: Border.all(color: Colors.purple, width: 2),
+        ),
+        child: Icon(
+          Icons.play_arrow,
+          color: Colors.purple,
+          size: 32,
+        ),
       ),
     );
 
@@ -40,12 +43,12 @@ class SongCard extends StatelessWidget {
           ),
         ),
         child: IconButton(
-          icon: const Icon(
-            Icons.pause,
+          icon: Icon(
+            playerWatcher.isPlaying ? Icons.pause : Icons.play_arrow,
             color: Colors.white,
             size: 28,
           ),
-          onPressed: () {},
+          onPressed: () => playerReader.toggleState(),
         ),
       );
     }

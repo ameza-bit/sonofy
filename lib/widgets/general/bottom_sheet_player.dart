@@ -24,65 +24,61 @@ class BottomSheetPlayer extends StatelessWidget {
     DecorationImage? songCover;
     if (playerWatcher.currentSong != null) {
       songCover = DecorationImage(
-        image: NetworkImage(playerWatcher.currentSong?.songCover ?? 'https://centenaries.ucd.ie/wp-content/uploads/2017/05/placeholder-400x600.png'),
+        image: NetworkImage(
+          playerWatcher.currentSong?.songCover ?? 'https://centenaries.ucd.ie/wp-content/uploads/2017/05/placeholder-400x600.png',
+        ),
         fit: BoxFit.cover,
       );
     }
 
-    Widget container = ClipperContainer(
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-      child: SafeArea(
-        child: Row(
-          spacing: 16,
-          children: [
-            // Contenedor con borde de progreso
-            Container(
-              padding: const EdgeInsets.all(2), // Reducido para dar espacio al borde de progreso
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(50),
-                gradient: LinearGradient(
-                  colors: [Colors.deepPurple, Colors.purple],
+    return GestureDetector(
+      onTap: () {
+        if (playerWatcher.currentSong != null) {
+          context.goNamed(MusicPlayerScreen.routeName);
+        }
+      },
+      child: ClipperContainer(
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+        child: SafeArea(
+          child: Row(
+            spacing: 16,
+            children: [
+              // Contenedor con borde de progreso
+              Container(
+                padding: const EdgeInsets.all(2), // Reducido para dar espacio al borde de progreso
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(50),
+                  gradient: LinearGradient(
+                    colors: [Colors.deepPurple, Colors.purple],
+                  ),
                 ),
-              ),
-              child: CustomPaint(
-                foregroundPainter: ProgressBorderPainter(
-                  progress: sliderValue,
-                  progressColor: Colors.deepPurple,
-                  backgroundColor: Colors.transparent,
-                  strokeWidth: 2.0,
-                ),
-                child: Hero(
-                  tag: "song-image-cover",
-                  child: Container(
-                    width: 60,
-                    height: 60,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(50),
-                      image: songCover,
+                child: CustomPaint(
+                  foregroundPainter: ProgressBorderPainter(
+                    progress: sliderValue,
+                    progressColor: Colors.deepPurple,
+                    backgroundColor: Colors.transparent,
+                    strokeWidth: 2.0,
+                  ),
+                  child: Hero(
+                    tag: "song-image-cover",
+                    child: Container(
+                      width: 60,
+                      height: 60,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(50),
+                        image: songCover,
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
-            Expanded(child: SongInfo(isBottomSheet: true)),
-            if (playerWatcher.currentSong != null) PlayButton(size: 60),
-          ],
+              Expanded(child: SongInfo(isBottomSheet: true)),
+              if (playerWatcher.currentSong != null) PlayButton(size: 60),
+            ],
+          ),
         ),
       ),
     );
-
-    if (playerWatcher.currentSong != null) {
-      container = InkWell(
-        onTap: () {
-          if (playerWatcher.currentSong != null) {
-            context.goNamed(MusicPlayerScreen.routeName);
-          }
-        },
-        child: container,
-      );
-    }
-
-    return container;
   }
 }
 
