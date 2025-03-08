@@ -7,13 +7,15 @@ class PlayerProvider extends ChangeNotifier {
   final List<Song> _playlist = [
     Song(
       id: 1,
-      title: "wasteland",
+      title: "Wasteland",
       musicSource: AssetSource('music/Wasteland.mp3'),
+      coverUrl: "https://i.scdn.co/image/ab67616d00001e0290d7c2223cf5fa97a2fcf993",
     ),
     Song(
       id: 2,
       title: "Kokoro no Kara",
       musicSource: AssetSource('music/Kokoro no Kara.mp3'),
+      coverUrl: "https://i1.sndcdn.com/artworks-tV6EFRdr6N148eFK-icc92w-t500x500.jpg",
     ),
     Song(
       id: 3,

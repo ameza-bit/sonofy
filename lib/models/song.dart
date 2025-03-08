@@ -14,4 +14,6 @@ class Song {
     this.artist = 'Unknown Artist',
     this.coverUrl = '',
   });
+
+  String get songCover => coverUrl.isNotEmpty ? coverUrl : 'https://via.placeholder.com/150?text=${title[0]}';
 }
