@@ -32,23 +32,44 @@ class PlayerProvider extends ChangeNotifier {
   ];
 
   Song? _currentSong;
+  // Añadir propiedades para posición y duración
+  Duration _position = Duration.zero;
+  Duration _duration = Duration.zero;
 
   List<Song> get playlist => _playlist;
 
-  bool get hasSong => _currentSong != null;
+  // Getters para la posición y duración
+  Duration get position => _position;
+  Duration get duration => _duration;
+
   Song? get currentSong => _currentSong;
-  set currentSong(Song? song) {
-    _currentSong = song;
-    if (song != null) {
-      player.setSource(song.musicSource).then((_) {
-        player.resume();
-        notifyListeners();
-      });
-    }
-    notifyListeners();
-  }
 
   bool get isPlaying => player.state == PlayerState.playing;
+
+  // Constructor con listeners para actualizar posición y duración
+  Future<void> setCurrentSong(Song song) async {
+    // Escuchar cambios de posición
+    player.onPositionChanged.listen((position) {
+      _position = position;
+      notifyListeners();
+    });
+
+    // Escuchar cambios de duración
+    player.onDurationChanged.listen((duration) {
+      _duration = duration;
+      notifyListeners();
+    });
+
+    try {
+      _currentSong = song;
+      await player.setSource(song.musicSource);
+      await player.resume();
+    } catch (e) {
+      debugPrint("Error on setCurrentSong: $e");
+    } finally {
+      notifyListeners();
+    }
+  }
 
   void toggleState() {
     if (isPlaying) {
@@ -57,5 +78,10 @@ class PlayerProvider extends ChangeNotifier {
       player.resume();
     }
     notifyListeners();
+  }
+
+  // Método para buscar una posición específica en la canción
+  Future<void> seek(Duration position) async {
+    await player.seek(position);
   }
 }

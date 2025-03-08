@@ -52,7 +52,7 @@ class SongCard extends StatelessWidget {
 
     return InkWell(
       onTap: () async {
-        playerReader.currentSong = song;
+        playerReader.setCurrentSong(song);
         context.goNamed(MusicPlayerScreen.routeName);
       },
       child: Container(
