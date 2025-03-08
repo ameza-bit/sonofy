@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:sonofy/widgets/general/clipper_container.dart';
 import 'package:sonofy/widgets/player/music_bar_progress.dart';
 import 'package:sonofy/widgets/player/play_button.dart';
@@ -37,7 +38,7 @@ class MusicPlayerScreen extends StatelessWidget {
                     children: [
                       IconButton(
                         icon: const Icon(Icons.arrow_back_ios),
-                        onPressed: () {},
+                        onPressed: () => context.pop(),
                       ),
                       const Text(
                         'NOW PLAYING',
