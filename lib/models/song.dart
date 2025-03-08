@@ -15,5 +15,5 @@ class Song {
     this.coverUrl = '',
   });
 
-  String get songCover => coverUrl.isNotEmpty ? coverUrl : 'https://via.placeholder.com/150?text=${title[0]}';
+  String get songCover => coverUrl.isNotEmpty ? coverUrl : 'https://placehold.co/600x400?text=${title.replaceAll(' ', '_')}';
 }

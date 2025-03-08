@@ -12,7 +12,7 @@ class SongInfo extends StatelessWidget {
     PlayerProvider playerWatcher = context.watch<PlayerProvider>();
 
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: !isBottomSheet ? CrossAxisAlignment.center : CrossAxisAlignment.start,
       children: [
         Text(
           playerWatcher.currentSong?.title ?? '',

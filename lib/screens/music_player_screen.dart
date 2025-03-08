@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
+import 'package:sonofy/providers/player_provider.dart';
 import 'package:sonofy/widgets/general/clipper_container.dart';
 import 'package:sonofy/widgets/player/music_bar_progress.dart';
 import 'package:sonofy/widgets/player/play_button.dart';
@@ -11,6 +13,8 @@ class MusicPlayerScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    PlayerProvider playerWatcher = context.watch<PlayerProvider>();
+
     return Scaffold(
       body: Stack(
         children: [
@@ -20,8 +24,8 @@ class MusicPlayerScreen extends StatelessWidget {
               height: MediaQuery.of(context).size.height * 0.5,
               decoration: BoxDecoration(
                 color: Colors.grey[900],
-                image: const DecorationImage(
-                  image: NetworkImage('https://centenaries.ucd.ie/wp-content/uploads/2017/05/placeholder-400x600.png'),
+                image: DecorationImage(
+                  image: NetworkImage(playerWatcher.currentSong?.songCover ?? 'https://centenaries.ucd.ie/wp-content/uploads/2017/05/placeholder-400x600.png'),
                   fit: BoxFit.cover,
                   opacity: 0.8,
                 ),
@@ -39,13 +43,6 @@ class MusicPlayerScreen extends StatelessWidget {
                       IconButton(
                         icon: const Icon(Icons.arrow_back_ios),
                         onPressed: () => context.pop(),
-                      ),
-                      const Text(
-                        'NOW PLAYING',
-                        style: TextStyle(
-                          fontWeight: FontWeight.w900,
-                          fontSize: 16,
-                        ),
                       ),
                       IconButton(
                         icon: const Icon(Icons.favorite_border),

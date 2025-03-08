@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:sonofy/providers/player_provider.dart';
 
 class MusicBarProgress extends StatefulWidget {
   const MusicBarProgress({super.key});
@@ -12,6 +14,8 @@ class _MusicBarProgressState extends State<MusicBarProgress> {
 
   @override
   Widget build(BuildContext context) {
+    PlayerProvider playerWatcher = context.watch<PlayerProvider>();
+
     return Column(
       children: [
         Row(

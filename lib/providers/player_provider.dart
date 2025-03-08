@@ -42,6 +42,7 @@ class PlayerProvider extends ChangeNotifier {
     if (song != null) {
       player.setSource(song.musicSource).then((_) {
         player.resume();
+        notifyListeners();
       });
     }
     notifyListeners();
