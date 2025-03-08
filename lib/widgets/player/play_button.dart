@@ -9,7 +9,8 @@ class PlayButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    PlayerProvider player = context.read<PlayerProvider>();
+    PlayerProvider playerWatcher = context.watch<PlayerProvider>();
+    PlayerProvider playerReader = context.read<PlayerProvider>();
 
     return Container(
       width: size,
@@ -21,10 +22,12 @@ class PlayButton extends StatelessWidget {
         ),
       ),
       child: IconButton(
-        icon: const Icon(Icons.play_arrow, size: 40, color: Colors.white),
-        onPressed: () {
-          player.play();
-        },
+        icon: Icon(
+          playerWatcher.isPlaying ? Icons.pause : Icons.play_arrow,
+          size: 40,
+          color: Colors.white,
+        ),
+        onPressed: () => playerReader.toggleState(),
       ),
     );
   }
