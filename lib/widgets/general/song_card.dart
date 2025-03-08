@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:sonofy/models/song.dart';
 import 'package:sonofy/providers/player_provider.dart';
 import 'package:sonofy/screens/music_player_screen.dart';
 import 'package:sonofy/widgets/player/song_info.dart';
 
 class SongCard extends StatelessWidget {
-  const SongCard({super.key});
+  const SongCard(this.song, {super.key});
+  final Song song;
 
   @override
   Widget build(BuildContext context) {
