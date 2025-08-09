@@ -1,0 +1,74 @@
+{
+  "app": {
+    "title": "sonofy",
+    "language": {
+      "spanish": "Español",
+      "english": "English"
+    },
+    "theme": {
+      "light": "Light",
+      "dark": "Dark",
+      "system": "System"
+    }
+  },
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "open": "Open",
+    "edit": "Edit",
+    "create": "Create",
+    "apply": "Apply",
+    "close": "Close",
+    "retry": "Retry",
+    "options": "Options",
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "confirmation": "Confirmation",
+    "yes": "Yes",
+    "no": "No",
+    "undo": "Undo",
+    "reset": "Reset",
+    "dont_ask_again": "Don't ask again",
+    "required": "This field is required",
+    "min_length": "Must be at least {min} characters long",
+    "max_length": "Cannot be more than {max} characters long",
+    "alphanumeric_only": "Only letters, numbers and spaces are allowed",
+    "invalid_email": "Invalid email format",
+    "invalid_url": "Invalid URL",
+    "invalid_image_url": "URL must be a valid image (.jpg, .png, .gif, etc.)",
+    "url_might_not_be_image": "This URL might not be an image. Try anyway if you're sure.",
+    "cors_warning": "This URL might have CORS issues. We'll use a proxy to load it."
+  },
+  "errors": {
+    "something_went_wrong": "Oops! Something went wrong",
+    "page_not_found": "We couldn't find the page you're looking for.",
+    "generic_error": "An unexpected error occurred"
+  },
+  "settings": {
+    "title": "Settings",
+    "appearance": "Appearance",
+    "dark_mode": "Dark Mode",
+    "primary_color": "Primary Color",
+    "...": "...",
+    "choose_color": "Choose color",
+    "font_size": "Font Size",
+    "font_size_extra_small": "Extra Small",
+    "font_size_small": "Small",
+    "font_size_medium_small": "Medium-Small",
+    "font_size_medium": "Medium",
+    "font_size_medium_large": "Medium-Large",
+    "font_size_large": "Large",
+    "font_size_extra_large": "Extra Large",
+    "font_size_giant": "Giant",
+    "language": "Language",
+    "app_language": "App Language",
+    "security": "Security",
+    "biometric_auth": "Biometric Authentication",
+    "biometric_auth_desc": "Use fingerprint or facial recognition to access the app",
+    "preferences": "Preferences",
+    "undo_confirmation": "Confirm Undo",
+    "undo_confirmation_desc": "Show confirmation dialog when undoing swaps"
+  }
+}

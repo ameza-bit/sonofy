@@ -1,0 +1,74 @@
+{
+  "app": {
+    "title": "sonofy",
+    "language": {
+      "spanish": "Español",
+      "english": "English"
+    },
+    "theme": {
+      "light": "Claro",
+      "dark": "Oscuro",
+      "system": "Sistema"
+    }
+  },
+  "common": {
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "delete": "Eliminar",
+    "open": "Abrir",
+    "edit": "Editar",
+    "create": "Crear",
+    "apply": "Aplicar",
+    "close": "Cerrar",
+    "retry": "Reintentar",
+    "options": "Opciones",
+    "loading": "Cargando...",
+    "error": "Error",
+    "success": "Éxito",
+    "confirmation": "Confirmación",
+    "yes": "Sí",
+    "no": "No",
+    "undo": "Deshacer",
+    "reset": "Reiniciar",
+    "dont_ask_again": "No volver a preguntar",
+    "required": "Este campo es requerido",
+    "min_length": "Debe tener al menos {min} caracteres",
+    "max_length": "No puede tener más de {max} caracteres",
+    "alphanumeric_only": "Solo se permiten letras, números y espacios",
+    "invalid_email": "Formato de email inválido",
+    "invalid_url": "URL inválida",
+    "invalid_image_url": "La URL debe ser una imagen válida (.jpg, .png, .gif, etc.)",
+    "url_might_not_be_image": "Esta URL podría no ser una imagen. Inténtalo de todas formas si estás seguro.",
+    "cors_warning": "Esta URL podría tener problemas de CORS. Usaremos un proxy para cargarla."
+  },
+  "errors": {
+    "something_went_wrong": "¡Ups! Algo salió mal",
+    "page_not_found": "No pudimos encontrar la página que buscas.",
+    "generic_error": "Ha ocurrido un error inesperado"
+  },
+  "settings": {
+    "title": "Configuración",
+    "appearance": "Apariencia",
+    "dark_mode": "Modo Oscuro",
+    "primary_color": "Color Principal",
+    "...": "...",
+    "choose_color": "Elegir color",
+    "font_size": "Tamaño de Letra",
+    "font_size_extra_small": "Extra Pequeño",
+    "font_size_small": "Pequeño",
+    "font_size_medium_small": "Medio-Pequeño",
+    "font_size_medium": "Medio",
+    "font_size_medium_large": "Medio-Grande",
+    "font_size_large": "Grande",
+    "font_size_extra_large": "Extra Grande",
+    "font_size_giant": "Gigante",
+    "language": "Idioma",
+    "app_language": "Idioma de la Aplicación",
+    "security": "Seguridad",
+    "biometric_auth": "Autenticación Biométrica",
+    "biometric_auth_desc": "Utiliza huella digital o reconocimiento facial para acceder a la app",
+    "preferences": "Preferencias",
+    "undo_confirmation": "Confirmar Deshacer",
+    "undo_confirmation_desc": "Mostrar diálogo de confirmación al deshacer intercambios"
+  }
+}
