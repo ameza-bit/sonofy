@@ -2,6 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sonofy/core/extensions/color_extensions.dart';
+import 'package:sonofy/core/themes/music_colors.dart';
 import 'package:sonofy/presentation/blocs/settings/settings_cubit.dart';
 import 'package:sonofy/presentation/blocs/settings/settings_state.dart';
 import 'package:sonofy/presentation/views/settings/color_picker_dialog.dart';
@@ -55,16 +56,8 @@ class _AppearanceSectionState extends State<AppearanceSection> {
       builder: (context, state) {
         final primaryColor = state.settings.primaryColor;
 
-        final availableColors = [
-          Colors.indigo.shade700,
-          Colors.blue.shade700,
-          Colors.teal.shade700,
-          Colors.green.shade700,
-          Colors.amber.shade700,
-          Colors.orange.shade700,
-          Colors.red.shade700,
-          Colors.purple.shade700,
-        ];
+        // Usar la paleta de colores predefinida de MusicColors
+        const availableColors = MusicColors.availableColors;
 
         return SectionCard(
           title: context.tr('settings.appearance'),
