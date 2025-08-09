@@ -17,3 +17,43 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+
+  assets:
+    - assets/translations/
+
+  fonts:
+    - family: SF_UI_Display
+      fonts:
+        - asset: assets\fonts\sf-ui-display-cufonfonts\sf-ui-display-medium-58646be638f96.otf
+        - asset: assets\fonts\sf-ui-display-cufonfonts\sf-ui-display-bold-58646a511e3d9.otf
+    - family: FontAwesomeSolid
+      fonts:
+        - asset: assets/fonts/font_awesome/fa-solid-900.ttf
+    - family: FontAwesomeRegular
+      fonts:
+        - asset: assets/fonts/font_awesome/fa-regular-400.ttf
+    - family: FontAwesomeLight
+      fonts:
+        - asset: assets/fonts/font_awesome/fa-light-300.ttf
+    - family: FontAwesomeThin
+      fonts:
+        - asset: assets/fonts/font_awesome/fa-thin-100.ttf
+    - family: FontAwesomeBrands
+      fonts:
+        - asset: assets/fonts/font_awesome/fa-brands-400.ttf
+    - family: FontAwesomeDuotone
+      fonts:
+        - asset: assets/fonts/font_awesome/fa-duotone-900.ttf
+    - family: FontAwesomeSharpSolid
+      fonts:
+        - asset: assets/fonts/font_awesome/fa-sharp-solid-900.ttf
+    - family: FontAwesomeSharpRegular
+      fonts:
+        - asset: assets/fonts/font_awesome/fa-sharp-regular-400.ttf
+    - family: FontAwesomeSharpLight
+      fonts:
+        - asset: assets/fonts/font_awesome/fa-sharp-light-300.ttf
+    - family: FontAwesomeSharpThin
+      fonts:
+        - asset: assets/fonts/font_awesome/fa-sharp-thin-100.ttf
+
