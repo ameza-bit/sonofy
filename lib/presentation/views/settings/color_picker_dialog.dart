@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 
 class ColorPickerDialog extends StatefulWidget {
   const ColorPickerDialog({
-    super.key,
     required this.colors,
     required this.selectedColor,
     required this.onColorSelected,
+    super.key,
   });
 
   final List<Color> colors;

@@ -72,7 +72,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
         const SizedBox(height: 8),
         TextFormField(
           controller: widget.controller,
-          obscureText: widget.isPassword ? _obscureText : false,
+          obscureText: widget.isPassword && _obscureText,
           keyboardType: widget.keyboardType,
           validator: widget.validator,
           onChanged: widget.onChanged,
