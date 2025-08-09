@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:sonofy/core/themes/neutral_theme.dart';
+import 'package:sonofy/core/themes/music_colors.dart';
 
 class MainTheme {
-  static ThemeData get lightTheme => _createLightTheme(Colors.indigo.shade700);
-  static ThemeData get darkTheme => _createDarkTheme(Colors.indigo.shade700);
+  static ThemeData get lightTheme => _createLightTheme(MusicColors.defaultPrimary);
+  static ThemeData get darkTheme => _createDarkTheme(MusicColors.defaultPrimary);
 
   // Create light theme with custom primary color
   static ThemeData createLightTheme(Color primaryColor) =>
@@ -25,22 +26,63 @@ class MainTheme {
     return ThemeData(
       fontFamily: 'SF_UI_Display',
       brightness: Brightness.light,
-      scaffoldBackgroundColor: NeutralTheme.offWhite,
+      scaffoldBackgroundColor: MusicColors.background,
       primaryColor: primaryColor,
       colorScheme: ColorScheme.light(
         primary: primaryColor,
         secondary: secondary,
-        surface: NeutralTheme.offWhite,
+        surface: MusicColors.surface,
+        onSecondary: MusicColors.textOnGradient,
+        onSurface: MusicColors.darkGrey,
+        outline: MusicColors.lightGrey,
+        error: MusicColors.error,
       ),
       appBarTheme: const AppBarTheme(
-        backgroundColor: Colors.white,
-        foregroundColor: NeutralTheme.oilBlack,
+        backgroundColor: Colors.transparent,
+        foregroundColor: MusicColors.darkGrey,
         elevation: 0,
+        scrolledUnderElevation: 0,
+        centerTitle: false,
       ),
-      cardColor: Colors.white,
-      dividerColor: Colors.grey.shade200,
-      iconTheme: IconThemeData(color: Colors.grey.shade700),
-      textTheme: _createTextTheme(Colors.black87),
+      cardColor: MusicColors.surface,
+      cardTheme: CardThemeData(
+        color: MusicColors.surface,
+        elevation: 2,
+        shadowColor: MusicColors.cardShadow,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+      ),
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: primaryColor,
+          foregroundColor: MusicColors.textOnGradient,
+          elevation: 2,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+        ),
+      ),
+      dividerColor: MusicColors.subtleBorder,
+      iconTheme: const IconThemeData(color: MusicColors.mediumGrey),
+      textTheme: _createTextTheme(MusicColors.darkGrey),
+      bottomNavigationBarTheme: BottomNavigationBarThemeData(
+        backgroundColor: MusicColors.surface,
+        selectedItemColor: primaryColor,
+        unselectedItemColor: MusicColors.iconInactive,
+        elevation: 8,
+        type: BottomNavigationBarType.fixed,
+      ),
+      sliderTheme: SliderThemeData(
+        activeTrackColor: primaryColor,
+        inactiveTrackColor: MusicColors.progressInactive,
+        thumbColor: primaryColor,
+        overlayColor: MusicColors.generateLightVariant(primaryColor),
+        valueIndicatorColor: primaryColor,
+        trackHeight: 4.0,
+        thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 8.0),
+      ),
     );
   }
 
@@ -79,16 +121,57 @@ class MainTheme {
         primary: primaryLight,
         secondary: secondary,
         surface: NeutralTheme.oilBlack,
+        surfaceContainerLowest: NeutralTheme.blackOpacity,
+        onSecondary: MusicColors.textOnGradient,
+        outline: Colors.grey.shade600,
+        error: MusicColors.error,
       ),
       appBarTheme: const AppBarTheme(
-        backgroundColor: NeutralTheme.oilBlack,
+        backgroundColor: Colors.transparent,
         foregroundColor: Colors.white,
         elevation: 0,
+        scrolledUnderElevation: 0,
+        centerTitle: false,
       ),
       cardColor: NeutralTheme.blackOpacity,
+      cardTheme: CardThemeData(
+        color: NeutralTheme.blackOpacity,
+        elevation: 4,
+        shadowColor: Colors.black.withValues(alpha: 0.3),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+      ),
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: primaryColor,
+          foregroundColor: MusicColors.textOnGradient,
+          elevation: 3,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+        ),
+      ),
       dividerColor: Colors.grey.shade800,
       iconTheme: IconThemeData(color: Colors.grey.shade300),
       textTheme: _createTextTheme(Colors.white),
+      bottomNavigationBarTheme: BottomNavigationBarThemeData(
+        backgroundColor: NeutralTheme.oilBlack,
+        selectedItemColor: primaryLight,
+        unselectedItemColor: Colors.grey.shade500,
+        elevation: 8,
+        type: BottomNavigationBarType.fixed,
+      ),
+      sliderTheme: SliderThemeData(
+        activeTrackColor: primaryLight,
+        inactiveTrackColor: Colors.grey.shade700,
+        thumbColor: primaryLight,
+        overlayColor: primaryLight.withValues(alpha: 0.3),
+        valueIndicatorColor: primaryLight,
+        trackHeight: 4.0,
+        thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 8.0),
+      ),
     );
   }
 

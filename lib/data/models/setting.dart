@@ -15,7 +15,7 @@ class Settings {
 
   Settings({
     this.themeMode = ThemeMode.system,
-    this.primaryColor = const Color(0xFF3949AB),
+    this.primaryColor = const Color(0xFF5C42FF),
     this.fontSize = 1.0,
     this.language = Language.spanish,
     this.biometricEnabled = false,
@@ -23,7 +23,7 @@ class Settings {
 
   factory Settings.fromJson(Map<String, dynamic> json) => Settings(
     themeMode: ThemeMode.values[json['isDarkMode'] ?? 0],
-    primaryColor: Color(json['primaryColor'] ?? 0xFF3949AB),
+    primaryColor: Color(json['primaryColor'] ?? 0xFF5C42FF),
     fontSize: (json['fontSize'] ?? 1.0).toDouble(),
     language: Language.values[json['language'] ?? 0],
     biometricEnabled: json['biometricEnabled'] ?? false,

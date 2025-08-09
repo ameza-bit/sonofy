@@ -1,6 +1,6 @@
 // lib/core/constants/app_constants.dart
 
-/// Constantes para toda la aplicación mindshift
+/// Constantes para toda la aplicación
 /// Centraliza dimensiones, breakpoints, duración de animaciones,
 /// y otros valores constantes para mantener consistencia en la UI.
 ///
