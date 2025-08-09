@@ -32,13 +32,10 @@ class MainTheme {
         primary: primaryColor,
         secondary: secondary,
         surface: MusicColors.surface,
-        surfaceContainerLowest: MusicColors.surface,
-        onPrimary: MusicColors.textOnGradient,
         onSecondary: MusicColors.textOnGradient,
         onSurface: MusicColors.darkGrey,
         outline: MusicColors.lightGrey,
         error: MusicColors.error,
-        onError: MusicColors.pureWhite,
       ),
       appBarTheme: const AppBarTheme(
         backgroundColor: Colors.transparent,
@@ -48,7 +45,7 @@ class MainTheme {
         centerTitle: false,
       ),
       cardColor: MusicColors.surface,
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         color: MusicColors.surface,
         elevation: 2,
         shadowColor: MusicColors.cardShadow,
@@ -125,12 +122,9 @@ class MainTheme {
         secondary: secondary,
         surface: NeutralTheme.oilBlack,
         surfaceContainerLowest: NeutralTheme.blackOpacity,
-        onPrimary: MusicColors.textOnGradient,
         onSecondary: MusicColors.textOnGradient,
-        onSurface: Colors.white,
         outline: Colors.grey.shade600,
         error: MusicColors.error,
-        onError: MusicColors.pureWhite,
       ),
       appBarTheme: const AppBarTheme(
         backgroundColor: Colors.transparent,
@@ -140,7 +134,7 @@ class MainTheme {
         centerTitle: false,
       ),
       cardColor: NeutralTheme.blackOpacity,
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         color: NeutralTheme.blackOpacity,
         elevation: 4,
         shadowColor: Colors.black.withValues(alpha: 0.3),

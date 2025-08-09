@@ -188,8 +188,6 @@ class AuthThemeData {
   LinearGradient get buttonGradient {
     return LinearGradient(
       colors: [gradientColor, primaryColor],
-      begin: Alignment.centerLeft,
-      end: Alignment.centerRight,
     );
   }
   
@@ -405,7 +403,7 @@ class PlaylistItem extends StatelessWidget {
                     if (duration != null) ...[
                       Text(
                         duration!,
-                        style: TextStyle(
+                        style: const TextStyle(
                           color: MusicColors.lightGrey,
                           fontSize: 12,
                         ),

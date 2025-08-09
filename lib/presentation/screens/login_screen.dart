@@ -193,7 +193,7 @@ class LoginScreen extends StatelessWidget {
                           vertical: authTheme.buttonHeight / 3.5,
                         ),
                         onPressed: () {
-                          // TODO: Implementar login
+                          // TODO(developer): Implementar login
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
                               content: Text('Login functionality coming soon!'),
@@ -225,7 +225,7 @@ class LoginScreen extends StatelessWidget {
                       // Forgot password
                       TextButton(
                         onPressed: () {
-                          // TODO: Implementar forgot password
+                          // TODO(developer): Implementar forgot password
                         },
                         child: Text(
                           'Forgot Password?',
@@ -312,7 +312,7 @@ class LoginScreen extends StatelessWidget {
                   ),
                   TextButton(
                     onPressed: () {
-                      // TODO: Navegar a Sign Up
+                      // TODO(developer): Navegar a Sign Up
                     },
                     child: Text(
                       'Sign Up',

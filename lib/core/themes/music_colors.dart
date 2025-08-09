@@ -25,7 +25,7 @@ class MusicColors {
   static const Color background = Color(0xFFF0F0F0);
   
   /// Superficie de cards y elementos - #FFFFFF
-  static const Color surface = Color(0xFFFFFFFF);
+  static const Color surface = Color(0xFFFFFFFE);
   
   /// Negro profundo para textos principales - #090909
   static const Color deepBlack = Color(0xFF090909);
