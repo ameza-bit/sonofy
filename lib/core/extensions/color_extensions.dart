@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:samva/core/themes/app_colors.dart';
+import 'package:sonofy/core/themes/app_colors.dart';
 
 /// Extensión para BuildContext que proporciona acceso simplificado
 /// a los colores de la aplicación

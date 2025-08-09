@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:samva/core/extensions/theme_extensions.dart';
-import 'package:samva/core/themes/app_colors.dart';
+import 'package:sonofy/core/extensions/theme_extensions.dart';
+import 'package:sonofy/core/themes/app_colors.dart';
 
 /// Botón primario de la aplicación, utilizado para acciones principales.
 ///
@@ -44,10 +44,9 @@ class PrimaryButton extends StatelessWidget {
         style: ElevatedButton.styleFrom(
           backgroundColor: theme.primaryColor,
           foregroundColor: Colors.white,
-          disabledBackgroundColor:
-              AppColors.isDarkMode(context)
-                  ? Colors.grey.shade800
-                  : Colors.grey.shade300,
+          disabledBackgroundColor: AppColors.isDarkMode(context)
+              ? Colors.grey.shade800
+              : Colors.grey.shade300,
           disabledForegroundColor: AppColors.textDisabled(context),
           padding: buttonPadding,
           shape: RoundedRectangleBorder(borderRadius: buttonRadius),

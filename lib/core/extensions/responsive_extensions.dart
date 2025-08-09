@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:samva/core/constants/app_constants.dart';
+import 'package:sonofy/core/constants/app_constants.dart';
 
 /// Extensión para BuildContext que proporciona métodos para detectar
 /// el tipo de dispositivo y otras características responsivas

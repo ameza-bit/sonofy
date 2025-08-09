@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:samva/presentation/blocs/settings/settings_cubit.dart';
+import 'package:sonofy/presentation/blocs/settings/settings_cubit.dart';
 
 extension ThemeExtensions on ThemeData {
   // Obtener el factor de escala configurado por el usuario

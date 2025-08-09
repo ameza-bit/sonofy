@@ -1,5 +1,5 @@
 import 'dart:io';
-import 'package:samva/data/models/setting.dart';
+import 'package:sonofy/data/models/setting.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Preferences {

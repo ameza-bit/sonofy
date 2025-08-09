@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:samva/presentation/blocs/settings/settings_cubit.dart';
-import 'package:samva/presentation/blocs/settings/settings_state.dart';
+import 'package:sonofy/presentation/blocs/settings/settings_cubit.dart';
+import 'package:sonofy/presentation/blocs/settings/settings_state.dart';
 
 /// Extension para hacer los iconos responsivos al tamaño de fuente
 extension ResponsiveIcon on BuildContext {
@@ -39,8 +39,12 @@ extension ResponsiveIcon on BuildContext {
   double _getScaledIconSize(double baseSize, double fontScale) {
     // Aplicar escalado pero con límites razonables para iconos
     // Los iconos no deberían escalar tanto como el texto
-    final scaleFactor = (fontScale - 1.0) * 0.5 + 1.0; // Reduce el factor de escala
-    return (baseSize * scaleFactor).clamp(12.0, 48.0); // Límites mínimo y máximo
+    final scaleFactor =
+        (fontScale - 1.0) * 0.5 + 1.0; // Reduce el factor de escala
+    return (baseSize * scaleFactor).clamp(
+      12.0,
+      48.0,
+    ); // Límites mínimo y máximo
   }
 }
 
@@ -60,15 +64,14 @@ class AppResponsiveIcon extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<SettingsCubit, SettingsState>(
-      buildWhen: (previous, current) => 
+      buildWhen: (previous, current) =>
           previous.settings.fontSize != current.settings.fontSize,
       builder: (context, state) {
-        final scaledSize = context._getScaledIconSize(baseSize, state.settings.fontSize);
-        return Icon(
-          icon,
-          size: scaledSize,
-          color: color,
+        final scaledSize = context._getScaledIconSize(
+          baseSize,
+          state.settings.fontSize,
         );
+        return Icon(icon, size: scaledSize, color: color);
       },
     );
   }

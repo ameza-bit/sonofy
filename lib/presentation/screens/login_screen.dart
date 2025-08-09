@@ -1,8 +1,8 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:samva/presentation/screens/settings_screen.dart';
-import 'package:samva/presentation/widgets/common/font_awesome/font_awesome_flutter.dart';
+import 'package:sonofy/presentation/screens/settings_screen.dart';
+import 'package:sonofy/presentation/widgets/common/font_awesome/font_awesome_flutter.dart';
 
 class LoginScreen extends StatelessWidget {
   static const String routeName = 'login';

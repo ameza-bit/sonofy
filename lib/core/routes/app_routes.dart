@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:samva/presentation/screens/login_screen.dart';
-import 'package:samva/presentation/screens/settings_screen.dart';
-import 'package:samva/presentation/screens/splash_screen.dart';
+import 'package:sonofy/presentation/screens/login_screen.dart';
+import 'package:sonofy/presentation/screens/settings_screen.dart';
+import 'package:sonofy/presentation/screens/splash_screen.dart';
 
 class AppRoutes {
   // Variable para controlar si ya se mostró el splash

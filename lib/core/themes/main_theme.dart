@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:samva/core/themes/neutral_theme.dart';
+import 'package:sonofy/core/themes/neutral_theme.dart';
 
 class MainTheme {
   static ThemeData get lightTheme => _createLightTheme(Colors.indigo.shade700);

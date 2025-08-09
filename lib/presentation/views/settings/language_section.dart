@@ -1,13 +1,13 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:samva/core/enums/language.dart';
-import 'package:samva/core/extensions/color_extensions.dart';
-import 'package:samva/presentation/blocs/settings/settings_cubit.dart';
-import 'package:samva/presentation/blocs/settings/settings_state.dart';
-import 'package:samva/presentation/widgets/common/font_awesome/font_awesome_flutter.dart';
-import 'package:samva/presentation/widgets/common/section_card.dart';
-import 'package:samva/presentation/widgets/common/section_item.dart';
+import 'package:sonofy/core/enums/language.dart';
+import 'package:sonofy/core/extensions/color_extensions.dart';
+import 'package:sonofy/presentation/blocs/settings/settings_cubit.dart';
+import 'package:sonofy/presentation/blocs/settings/settings_state.dart';
+import 'package:sonofy/presentation/widgets/common/font_awesome/font_awesome_flutter.dart';
+import 'package:sonofy/presentation/widgets/common/section_card.dart';
+import 'package:sonofy/presentation/widgets/common/section_item.dart';
 
 class LanguageSection extends StatelessWidget {
   const LanguageSection({super.key});
@@ -37,13 +37,12 @@ class LanguageSection extends StatelessWidget {
                     context.setLocale(Locale(value.code));
                   }
                 },
-                items:
-                    Language.values.map<DropdownMenuItem<Language>>((value) {
-                      return DropdownMenuItem<Language>(
-                        value: value,
-                        child: Text('${value.flag} ${value.name}'),
-                      );
-                    }).toList(),
+                items: Language.values.map<DropdownMenuItem<Language>>((value) {
+                  return DropdownMenuItem<Language>(
+                    value: value,
+                    child: Text('${value.flag} ${value.name}'),
+                  );
+                }).toList(),
               ),
             ),
           ],

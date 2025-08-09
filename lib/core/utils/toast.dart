@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:samva/main.dart' show navigatorKey;
+import 'package:sonofy/main.dart' show navigatorKey;
 
 class Toast {
   static void show(

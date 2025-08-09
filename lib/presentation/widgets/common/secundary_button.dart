@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:samva/core/extensions/theme_extensions.dart';
-import 'package:samva/core/themes/app_colors.dart';
+import 'package:sonofy/core/extensions/theme_extensions.dart';
+import 'package:sonofy/core/themes/app_colors.dart';
 
 /// Botón secundario de la aplicación, utilizado para acciones secundarias.
 ///
@@ -42,42 +42,41 @@ class SecondaryButton extends StatelessWidget {
     final buttonRadius = borderRadius ?? BorderRadius.circular(12);
 
     // Usar el ButtonStyle correcto según si es outlined o no
-    final ButtonStyle buttonStyle =
-        outlined
-            ? OutlinedButton.styleFrom(
-              foregroundColor: theme.primaryColor,
-              side: BorderSide(color: theme.primaryColor),
-              backgroundColor: Colors.transparent,
-              disabledForegroundColor: AppColors.textDisabled(context),
-              padding: buttonPadding,
-              shape: RoundedRectangleBorder(borderRadius: buttonRadius),
-            )
-            : ElevatedButton.styleFrom(
-              backgroundColor: isDark ? Colors.black12 : Colors.grey.shade100,
-              foregroundColor: theme.primaryColor,
-              disabledBackgroundColor:
-                  isDark ? Colors.grey.shade900 : Colors.grey.shade200,
-              disabledForegroundColor: AppColors.textDisabled(context),
-              padding: buttonPadding,
-              shape: RoundedRectangleBorder(borderRadius: buttonRadius),
-              elevation: 0,
-            );
+    final ButtonStyle buttonStyle = outlined
+        ? OutlinedButton.styleFrom(
+            foregroundColor: theme.primaryColor,
+            side: BorderSide(color: theme.primaryColor),
+            backgroundColor: Colors.transparent,
+            disabledForegroundColor: AppColors.textDisabled(context),
+            padding: buttonPadding,
+            shape: RoundedRectangleBorder(borderRadius: buttonRadius),
+          )
+        : ElevatedButton.styleFrom(
+            backgroundColor: isDark ? Colors.black12 : Colors.grey.shade100,
+            foregroundColor: theme.primaryColor,
+            disabledBackgroundColor: isDark
+                ? Colors.grey.shade900
+                : Colors.grey.shade200,
+            disabledForegroundColor: AppColors.textDisabled(context),
+            padding: buttonPadding,
+            shape: RoundedRectangleBorder(borderRadius: buttonRadius),
+            elevation: 0,
+          );
 
     return SizedBox(
       width: fullWidth ? double.infinity : null,
       height: height,
-      child:
-          outlined
-              ? OutlinedButton(
-                onPressed: isLoading ? null : onPressed,
-                style: buttonStyle,
-                child: _buildContent(context),
-              )
-              : ElevatedButton(
-                onPressed: isLoading ? null : onPressed,
-                style: buttonStyle,
-                child: _buildContent(context),
-              ),
+      child: outlined
+          ? OutlinedButton(
+              onPressed: isLoading ? null : onPressed,
+              style: buttonStyle,
+              child: _buildContent(context),
+            )
+          : ElevatedButton(
+              onPressed: isLoading ? null : onPressed,
+              style: buttonStyle,
+              child: _buildContent(context),
+            ),
     );
   }
 

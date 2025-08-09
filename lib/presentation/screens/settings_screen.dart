@@ -1,9 +1,9 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:samva/core/extensions/responsive_extensions.dart';
-import 'package:samva/presentation/views/settings/appearance_section.dart';
-import 'package:samva/presentation/views/settings/language_section.dart';
-import 'package:samva/presentation/views/settings/security_section.dart';
+import 'package:sonofy/core/extensions/responsive_extensions.dart';
+import 'package:sonofy/presentation/views/settings/appearance_section.dart';
+import 'package:sonofy/presentation/views/settings/language_section.dart';
+import 'package:sonofy/presentation/views/settings/security_section.dart';
 
 class SettingsScreen extends StatelessWidget {
   static const String routeName = 'settings';

@@ -1,13 +1,13 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:samva/core/extensions/color_extensions.dart';
-import 'package:samva/presentation/blocs/settings/settings_cubit.dart';
-import 'package:samva/presentation/blocs/settings/settings_state.dart';
-import 'package:samva/presentation/views/settings/color_picker_dialog.dart';
-import 'package:samva/presentation/widgets/common/font_awesome/font_awesome_flutter.dart';
-import 'package:samva/presentation/widgets/common/section_card.dart';
-import 'package:samva/presentation/widgets/common/section_item.dart';
+import 'package:sonofy/core/extensions/color_extensions.dart';
+import 'package:sonofy/presentation/blocs/settings/settings_cubit.dart';
+import 'package:sonofy/presentation/blocs/settings/settings_state.dart';
+import 'package:sonofy/presentation/views/settings/color_picker_dialog.dart';
+import 'package:sonofy/presentation/widgets/common/font_awesome/font_awesome_flutter.dart';
+import 'package:sonofy/presentation/widgets/common/section_card.dart';
+import 'package:sonofy/presentation/widgets/common/section_item.dart';
 
 class AppearanceSection extends StatefulWidget {
   const AppearanceSection({super.key});
@@ -26,12 +26,11 @@ class _AppearanceSectionState extends State<AppearanceSection> {
   ) {
     showDialog(
       context: context,
-      builder:
-          (context) => ColorPickerDialog(
-            colors: availableColors,
-            selectedColor: selectedColor,
-            onColorSelected: context.read<SettingsCubit>().updatePrimaryColor,
-          ),
+      builder: (context) => ColorPickerDialog(
+        colors: availableColors,
+        selectedColor: selectedColor,
+        onColorSelected: context.read<SettingsCubit>().updatePrimaryColor,
+      ),
     );
   }
 
@@ -85,13 +84,14 @@ class _AppearanceSectionState extends State<AppearanceSection> {
                     context.read<SettingsCubit>().updateIsDarkMode(value);
                   }
                 },
-                items:
-                    ThemeMode.values.map<DropdownMenuItem<ThemeMode>>((value) {
-                      return DropdownMenuItem<ThemeMode>(
-                        value: value,
-                        child: Text(context.tr('app.theme.${value.name}')),
-                      );
-                    }).toList(),
+                items: ThemeMode.values.map<DropdownMenuItem<ThemeMode>>((
+                  value,
+                ) {
+                  return DropdownMenuItem<ThemeMode>(
+                    value: value,
+                    child: Text(context.tr('app.theme.${value.name}')),
+                  );
+                }).toList(),
               ),
             ),
             SectionItem(
@@ -99,12 +99,8 @@ class _AppearanceSectionState extends State<AppearanceSection> {
               title: context.tr('settings.primary_color'),
               iconColor: primaryColor,
               trailing: GestureDetector(
-                onTap:
-                    () => _showColorPicker(
-                      context,
-                      primaryColor,
-                      availableColors,
-                    ),
+                onTap: () =>
+                    _showColorPicker(context, primaryColor, availableColors),
                 child: Container(
                   width: 30,
                   height: 30,
@@ -129,8 +125,8 @@ class _AppearanceSectionState extends State<AppearanceSection> {
                   divisions: 4,
                   label: _getFontSizeLabel(context, _currentFontSize),
                   activeColor: primaryColor,
-                  onChanged:
-                      (value) => setState(() => _currentFontSize = value),
+                  onChanged: (value) =>
+                      setState(() => _currentFontSize = value),
                   onChangeEnd: context.read<SettingsCubit>().updateFontSize,
                 ),
               ),

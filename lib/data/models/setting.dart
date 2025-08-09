@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:samva/core/enums/language.dart';
+import 'package:sonofy/core/enums/language.dart';
 
 Settings settingsFromJson(String str) => Settings.fromJson(json.decode(str));
 String settingsToJson(Settings data) => json.encode(data.toJson());

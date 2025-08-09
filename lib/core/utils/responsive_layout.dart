@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:samva/core/constants/app_constants.dart';
+import 'package:sonofy/core/constants/app_constants.dart';
 
 /// Responsive layout utility for consistent responsive design
 class ResponsiveLayout extends StatelessWidget {
@@ -19,7 +19,7 @@ class ResponsiveLayout extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final screenWidth = constraints.maxWidth;
-        
+
         if (AppBreakpoints.isMobile(screenWidth)) {
           return mobile;
         } else if (AppBreakpoints.isTablet(screenWidth)) {
@@ -34,11 +34,7 @@ class ResponsiveLayout extends StatelessWidget {
 
 /// Responsive value utility
 class ResponsiveValue<T> {
-  const ResponsiveValue({
-    required this.mobile,
-    this.tablet,
-    this.web,
-  });
+  const ResponsiveValue({required this.mobile, this.tablet, this.web});
 
   final T mobile;
   final T? tablet;
@@ -46,7 +42,7 @@ class ResponsiveValue<T> {
 
   T getValue(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-    
+
     if (AppBreakpoints.isMobile(screenWidth)) {
       return mobile;
     } else if (AppBreakpoints.isTablet(screenWidth)) {
@@ -85,8 +81,9 @@ class ResponsiveGrid extends StatelessWidget {
         // Calculate optimal item width
         final availableWidth = constraints.maxWidth;
         final itemsPerRow = (availableWidth / maxItemWidth).floor().clamp(1, 4);
-        final itemWidth = (availableWidth - (spacing * (itemsPerRow - 1))) / itemsPerRow;
-        
+        final itemWidth =
+            (availableWidth - (spacing * (itemsPerRow - 1))) / itemsPerRow;
+
         return Wrap(
           spacing: spacing,
           runSpacing: runSpacing ?? spacing,
@@ -124,7 +121,7 @@ class ResponsiveColumns extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final screenWidth = constraints.maxWidth;
-        
+
         int columns;
         if (AppBreakpoints.isMobile(screenWidth)) {
           columns = minColumns;
@@ -133,7 +130,7 @@ class ResponsiveColumns extends StatelessWidget {
         } else {
           columns = maxColumns;
         }
-        
+
         return GridView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
@@ -171,7 +168,7 @@ class ResponsivePadding extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final screenWidth = constraints.maxWidth;
-        
+
         EdgeInsets padding;
         if (AppBreakpoints.isMobile(screenWidth)) {
           padding = mobile;
@@ -180,11 +177,8 @@ class ResponsivePadding extends StatelessWidget {
         } else {
           padding = web ?? const EdgeInsets.all(AppSpacing.xl);
         }
-        
-        return Padding(
-          padding: padding,
-          child: child,
-        );
+
+        return Padding(padding: padding, child: child);
       },
     );
   }
@@ -216,7 +210,7 @@ class ResponsiveText extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final screenWidth = constraints.maxWidth;
-        
+
         TextStyle? style;
         if (AppBreakpoints.isMobile(screenWidth)) {
           style = mobileStyle;
@@ -225,7 +219,7 @@ class ResponsiveText extends StatelessWidget {
         } else {
           style = webStyle ?? tabletStyle ?? mobileStyle;
         }
-        
+
         return Text(
           text,
           style: style,
@@ -260,7 +254,7 @@ class ResponsiveContainer extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final screenWidth = constraints.maxWidth;
-        
+
         double containerMaxWidth;
         if (AppBreakpoints.isMobile(screenWidth)) {
           containerMaxWidth = screenWidth;
@@ -269,16 +263,14 @@ class ResponsiveContainer extends StatelessWidget {
         } else {
           containerMaxWidth = maxWidth ?? AppBreakpoints.webComponentMaxWidth;
         }
-        
+
         return Container(
           width: double.infinity,
           padding: padding,
           margin: margin,
           alignment: alignment,
           child: ConstrainedBox(
-            constraints: BoxConstraints(
-              maxWidth: containerMaxWidth,
-            ),
+            constraints: BoxConstraints(maxWidth: containerMaxWidth),
             child: child,
           ),
         );
@@ -305,11 +297,7 @@ extension ResponsiveExtensions on BuildContext {
   bool get isWeb => AppBreakpoints.isWeb(screenWidth);
 
   /// Get responsive value based on screen size
-  T responsive<T>({
-    required T mobile,
-    T? tablet,
-    T? web,
-  }) {
+  T responsive<T>({required T mobile, T? tablet, T? web}) {
     if (isMobile) {
       return mobile;
     } else if (isTablet) {

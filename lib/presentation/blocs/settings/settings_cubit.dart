@@ -2,10 +2,10 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart' show ThemeMode;
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:samva/core/enums/language.dart';
-import 'package:samva/data/models/setting.dart';
-import 'package:samva/domain/repositories/settings_repository.dart';
-import 'package:samva/presentation/blocs/settings/settings_state.dart';
+import 'package:sonofy/core/enums/language.dart';
+import 'package:sonofy/data/models/setting.dart';
+import 'package:sonofy/domain/repositories/settings_repository.dart';
+import 'package:sonofy/presentation/blocs/settings/settings_state.dart';
 
 class SettingsCubit extends Cubit<SettingsState> {
   final SettingsRepository _settingsRepository;

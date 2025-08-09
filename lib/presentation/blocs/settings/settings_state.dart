@@ -1,4 +1,4 @@
-import 'package:samva/data/models/setting.dart';
+import 'package:sonofy/data/models/setting.dart';
 
 class SettingsState {
   final Settings settings;

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show TextInputFormatter;
-import 'package:samva/core/extensions/color_extensions.dart';
-import 'package:samva/core/extensions/theme_extensions.dart';
-import 'package:samva/presentation/widgets/common/font_awesome/font_awesome_flutter.dart';
+import 'package:sonofy/core/extensions/color_extensions.dart';
+import 'package:sonofy/core/extensions/theme_extensions.dart';
+import 'package:sonofy/presentation/widgets/common/font_awesome/font_awesome_flutter.dart';
 
 class CustomTextField extends StatefulWidget {
   final TextEditingController controller;
@@ -99,32 +99,30 @@ class _CustomTextFieldState extends State<CustomTextField> {
               color: context.textSecondary,
               size: context.scaleIcon(18),
             ),
-            suffixIcon:
-                widget.isPassword
-                    ? IconButton(
-                      icon: Icon(
-                        _obscureText
-                            ? FontAwesomeIcons.lightEyeSlash
-                            : FontAwesomeIcons.lightEye,
-                        size: context.scaleIcon(18),
-                        color:
-                            isDark
-                                ? Colors.grey.shade400
-                                : Colors.grey.shade600,
-                      ),
-                      onPressed: () {
-                        setState(() {
-                          _obscureText = !_obscureText;
-                        });
-                      },
-                    )
-                    : widget.suffixIcon != null
-                    ? Icon(
-                      widget.suffixIcon,
-                      color: context.textSecondary,
+            suffixIcon: widget.isPassword
+                ? IconButton(
+                    icon: Icon(
+                      _obscureText
+                          ? FontAwesomeIcons.lightEyeSlash
+                          : FontAwesomeIcons.lightEye,
                       size: context.scaleIcon(18),
-                    )
-                    : null,
+                      color: isDark
+                          ? Colors.grey.shade400
+                          : Colors.grey.shade600,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _obscureText = !_obscureText;
+                      });
+                    },
+                  )
+                : widget.suffixIcon != null
+                ? Icon(
+                    widget.suffixIcon,
+                    color: context.textSecondary,
+                    size: context.scaleIcon(18),
+                  )
+                : null,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:samva/core/extensions/theme_extensions.dart';
+import 'package:sonofy/core/extensions/theme_extensions.dart';
 
 class SectionItem extends StatelessWidget {
   final IconData icon;
@@ -64,10 +64,9 @@ class SectionItem extends StatelessWidget {
                         subtitle!,
                         style: TextStyle(
                           fontSize: subtitleSize,
-                          color:
-                              isDark
-                                  ? Colors.grey.shade400
-                                  : Colors.grey.shade600,
+                          color: isDark
+                              ? Colors.grey.shade400
+                              : Colors.grey.shade600,
                         ),
                       ),
                     ),
