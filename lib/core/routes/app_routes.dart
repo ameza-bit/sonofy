@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:sonofy/presentation/screens/login_screen.dart';
+import 'package:sonofy/presentation/screens/library_screen.dart';
 import 'package:sonofy/presentation/screens/settings_screen.dart';
 import 'package:sonofy/presentation/screens/splash_screen.dart';
 
@@ -20,16 +20,16 @@ class AppRoutes {
         },
         routes: [
           GoRoute(
-            path: LoginScreen.routeName,
-            name: LoginScreen.routeName,
-            builder: (context, state) => const LoginScreen(),
-          ),
-          GoRoute(
-            path: SettingsScreen.routeName,
-            name: SettingsScreen.routeName,
-            builder: (context, state) => const SettingsScreen(),
+            path: LibraryScreen.routeName,
+            name: LibraryScreen.routeName,
+            builder: (context, state) => const LibraryScreen(),
           ),
         ],
+      ),
+      GoRoute(
+        path: '/${SettingsScreen.routeName}',
+        name: SettingsScreen.routeName,
+        builder: (context, state) => const SettingsScreen(),
       ),
     ];
 
@@ -43,17 +43,15 @@ class AppRoutes {
         ),
       ),
       redirect: (context, state) {
-        // final FirebaseAuth auth = FirebaseAuth.instance;
         final isSplashRoute = state.matchedLocation == '/';
-        // final isAuthenticated = auth.currentUser != null;
+        final isRedirectedFromSplash = state.uri.queryParameters.containsKey(
+          'redirected',
+        );
 
-        if (_hasShownSplash) {
-          if (isSplashRoute) {
-            return '/${LoginScreen.routeName}';
-            // return isAuthenticated ? "/${HomeScreen.routeName}" : "/${LoginScreen.routeName}";
-          }
-        } else if (!isSplashRoute) {
-          return '/?redirected=${state.uri.path}';
+        // Si ya se mostró el splash y estamos en la ruta raíz sin parámetros de redirección,
+        // redirigir a la biblioteca
+        if (_hasShownSplash && isSplashRoute && !isRedirectedFromSplash) {
+          return '/${LibraryScreen.routeName}';
         }
 
         return null;
