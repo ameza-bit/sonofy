@@ -65,7 +65,7 @@ class _BottomPlayerState extends State<BottomPlayer> {
                       radius: _isPlaying ? 24 : 20,
                       backgroundColor: context.musicLightGrey,
                       backgroundImage: const NetworkImage(
-                        'https://webcolours.ca/wp-content/uploads/2020/10/webcolours-unknown.png',
+                        'https://static.wikia.nocookie.net/hellokitty/images/2/20/Sanrio_Characters_My_Sweet_Piano_Image002.jpg/revision/latest?cb=20170327084137',
                       ),
                     ),
                   ],

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sonofy/presentation/screens/library_screen.dart';
+import 'package:sonofy/presentation/screens/player_screen.dart';
 import 'package:sonofy/presentation/screens/settings_screen.dart';
 import 'package:sonofy/presentation/screens/splash_screen.dart';
 
@@ -23,6 +24,13 @@ class AppRoutes {
             path: LibraryScreen.routeName,
             name: LibraryScreen.routeName,
             builder: (context, state) => const LibraryScreen(),
+            routes: [
+              GoRoute(
+                path: PlayerScreen.routeName,
+                name: PlayerScreen.routeName,
+                builder: (context, state) => const PlayerScreen(),
+              ),
+            ],
           ),
         ],
       ),
