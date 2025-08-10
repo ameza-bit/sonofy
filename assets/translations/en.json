@@ -75,6 +75,7 @@
     "title": "Library"
   },
   "player": {
+    "now_playing": "Now Playing",
     "lyrics": "Lyrics"
   }
 }

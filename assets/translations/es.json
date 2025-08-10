@@ -75,6 +75,7 @@
     "title": "Biblioteca"
   },
   "player": {
+    "now_playing": "Sonando",
     "lyrics": "Letras"
   }
 }
