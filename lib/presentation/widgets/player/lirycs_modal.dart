@@ -36,36 +36,58 @@ class LyricsModal extends StatelessWidget {
 
         return Scaffold(
           backgroundColor: Colors.transparent,
-          body: Hero(
-            tag: 'lyrics_container',
-            child: SizedBox(
-              width: double.infinity,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 24.0,
-                  vertical: 16.0,
-                ),
-                child: Column(
-                  children: [
-                    GestureDetector(
-                      onTap: () => context.pop(),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
+          body: SafeArea(
+            child: Hero(
+              tag: 'lyrics_container',
+              child: SizedBox(
+                width: double.infinity,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24.0,
+                    vertical: 16.0,
+                  ),
+                  child: Column(
+                    children: [
+                      GestureDetector(
+                        onTap: () => context.pop(),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              context.tr('player.lyrics'),
+                              textAlign: TextAlign.center,
+                              style: TextStyle(fontSize: context.scaleText(12)),
+                            ),
+                            Icon(
+                              FontAwesomeIcons.lightChevronDown,
+                              color: primaryColor,
+                              size: 12,
+                            ),
+                          ],
+                        ),
+                      ),
+                      ListView(
+                        shrinkWrap: true,
                         children: [
-                          Text(
-                            context.tr('player.lyrics'),
-                            textAlign: TextAlign.center,
-                            style: TextStyle(fontSize: context.scaleText(12)),
-                          ),
-                          Icon(
-                            FontAwesomeIcons.lightChevronDown,
-                            color: primaryColor,
-                            size: 12,
-                          ),
+                          for (int i = 0; i < 10; i++) ...[
+                            ListTile(
+                              title: Text(
+                                'Lyric $i',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: context.scaleText(16),
+                                ),
+                              ),
+                              onTap: () {
+                                // Handle lyric tap
+                              },
+                            ),
+                          ],
                         ],
                       ),
-                    ),
-                  ],
+                      const SizedBox(height: 150),
+                    ],
+                  ),
                 ),
               ),
             ),
