@@ -60,7 +60,7 @@ class PlayerScreen extends StatelessWidget {
           ),
           Column(
             children: [
-              SizedBox(height: size.height * 0.45),
+              const Spacer(),
               Hero(
                 tag: 'player_container',
                 child: Material(
@@ -104,6 +104,7 @@ class PlayerScreen extends StatelessWidget {
                   ),
                 ),
               ),
+              const SizedBox(height: 50),
             ],
           ),
         ],

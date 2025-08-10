@@ -64,7 +64,20 @@ class LibraryScreen extends StatelessWidget {
         resizeToAvoidBottomInset: false,
         bottomSheet: GestureDetector(
           onTap: () => context.pushNamed(PlayerScreen.routeName),
-          child: const BottomPlayer(),
+          child: Stack(
+            children: [
+              Positioned(
+                bottom: 0,
+                left: 0,
+                right: 0,
+                child: Container(
+                  height: 80,
+                  color: Theme.of(context).cardColor,
+                ),
+              ),
+              const BottomPlayer(),
+            ],
+          ),
         ),
       ),
     );
