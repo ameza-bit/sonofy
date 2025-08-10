@@ -70,5 +70,8 @@
     "preferences": "Preferences",
     "undo_confirmation": "Confirm Undo",
     "undo_confirmation_desc": "Show confirmation dialog when undoing swaps"
+  },
+  "library": {
+    "title": "Library"
   }
 }

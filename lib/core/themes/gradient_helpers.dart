@@ -5,20 +5,24 @@ import 'package:sonofy/core/themes/music_colors.dart';
 /// primario configurado por el usuario. Proporciona widgets reutilizables
 /// y funciones de utilidad para mantener consistencia visual.
 class GradientHelpers {
-  
   /// Crea un gradiente lineal estándar de la aplicación
-  static LinearGradient createLinear(Color primaryColor, {
+  static LinearGradient createLinear(
+    Color primaryColor, {
     AlignmentGeometry begin = Alignment.topLeft,
     AlignmentGeometry end = Alignment.bottomRight,
   }) {
-    return MusicColors.createMusicGradient(primaryColor, begin: begin, end: end);
+    return MusicColors.createMusicGradient(
+      primaryColor,
+      begin: begin,
+      end: end,
+    );
   }
-  
+
   /// Crea un gradiente circular para botones y elementos redondos
   static RadialGradient createCircular(Color primaryColor) {
     return MusicColors.createCircularGradient(primaryColor);
   }
-  
+
   /// Crea un gradiente horizontal para barras de progreso
   static LinearGradient createHorizontal(Color primaryColor) {
     return MusicColors.createMusicGradient(
@@ -27,7 +31,7 @@ class GradientHelpers {
       end: Alignment.centerRight,
     );
   }
-  
+
   /// Crea un gradiente vertical para fondos
   static LinearGradient createVertical(Color primaryColor) {
     return MusicColors.createMusicGradient(
@@ -137,12 +141,12 @@ class CircularGradientButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      elevation: elevation,
-      shape: const CircleBorder(),
-      child: InkWell(
-        onTap: onPressed,
-        customBorder: const CircleBorder(),
+    return InkWell(
+      onTap: onPressed,
+      customBorder: const CircleBorder(),
+      child: Material(
+        elevation: elevation,
+        shape: const CircleBorder(),
         child: Ink(
           width: size,
           height: size,
@@ -285,7 +289,8 @@ class GradientSlider extends StatelessWidget {
 /// Extensiones para aplicar gradientes fácilmente a widgets existentes
 extension GradientExtensions on Widget {
   /// Envuelve el widget en un GradientContainer
-  Widget withGradient(Color primaryColor, {
+  Widget withGradient(
+    Color primaryColor, {
     BorderRadius? borderRadius,
     EdgeInsetsGeometry? padding,
   }) {
@@ -296,9 +301,10 @@ extension GradientExtensions on Widget {
       child: this,
     );
   }
-  
+
   /// Aplica un gradiente como fondo usando un DecoratedBox
-  Widget withGradientBackground(Color primaryColor, {
+  Widget withGradientBackground(
+    Color primaryColor, {
     BorderRadius? borderRadius,
   }) {
     return DecoratedBox(
