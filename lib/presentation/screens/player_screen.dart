@@ -46,10 +46,10 @@ class PlayerScreen extends StatelessWidget {
       ),
       body: Stack(
         children: [
-          Image.network(
+          Image.asset(
             width: double.infinity,
             height: size.height * 0.6,
-            'https://static.wikia.nocookie.net/hellokitty/images/2/20/Sanrio_Characters_My_Sweet_Piano_Image002.jpg/revision/latest?cb=20170327084137',
+            'assets/images/piano.png',
             fit: BoxFit.fitHeight,
             colorBlendMode: BlendMode.darken,
           ),
