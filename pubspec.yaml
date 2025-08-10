@@ -24,6 +24,7 @@ flutter:
 
   assets:
     - assets/translations/
+    - assets/images/
 
   fonts:
     - family: SF_UI_Display

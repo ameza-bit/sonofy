@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:sonofy/core/transitions/player_transition.dart';
 import 'package:sonofy/presentation/screens/library_screen.dart';
 import 'package:sonofy/presentation/screens/player_screen.dart';
 import 'package:sonofy/presentation/screens/settings_screen.dart';
@@ -28,7 +29,12 @@ class AppRoutes {
               GoRoute(
                 path: PlayerScreen.routeName,
                 name: PlayerScreen.routeName,
-                builder: (context, state) => const PlayerScreen(),
+                pageBuilder: (context, state) => PlayerSlideTransition(
+                  child: const PlayerScreen(),
+                  key: state.pageKey,
+                  name: state.name,
+                  arguments: state.extra,
+                ),
               ),
             ],
           ),

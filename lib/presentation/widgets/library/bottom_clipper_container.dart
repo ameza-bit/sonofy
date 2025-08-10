@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sonofy/core/extensions/color_extensions.dart';
 
 class BottomClipperContainer extends StatelessWidget {
   const BottomClipperContainer({required this.child, this.padding, super.key});
@@ -8,17 +9,31 @@ class BottomClipperContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ClipPath(
-      clipper: _MusicContainerClipper(),
-      child: Container(
-        width: double.infinity,
-        color: Theme.of(context).cardColor,
-        padding: padding,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [const SizedBox(height: 80), child],
+    return Stack(
+      children: [
+        Positioned(
+          left: 0,
+          right: 0,
+          bottom: 4,
+          top: -4,
+          child: ClipPath(
+            clipper: _MusicContainerClipper(),
+            child: ColoredBox(color: context.musicDeepBlack.withAlpha(12)),
+          ),
         ),
-      ),
+        ClipPath(
+          clipper: _MusicContainerClipper(),
+          child: Container(
+            width: double.infinity,
+            color: Theme.of(context).cardColor,
+            padding: padding,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [const SizedBox(height: 80), child],
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

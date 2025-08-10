@@ -55,7 +55,7 @@ class LibraryScreen extends StatelessWidget {
                   const SongCard(),
                   const SongCard(),
                   const SongCard(),
-                  const SizedBox(height: 120.0),
+                  const SizedBox(height: 140.0),
                 ],
               ),
             ),
@@ -64,7 +64,20 @@ class LibraryScreen extends StatelessWidget {
         resizeToAvoidBottomInset: false,
         bottomSheet: GestureDetector(
           onTap: () => context.pushNamed(PlayerScreen.routeName),
-          child: const BottomPlayer(),
+          child: Stack(
+            children: [
+              Positioned(
+                bottom: 0,
+                left: 0,
+                right: 0,
+                child: Container(
+                  height: 80,
+                  color: Theme.of(context).cardColor,
+                ),
+              ),
+              const BottomPlayer(),
+            ],
+          ),
         ),
       ),
     );

@@ -15,8 +15,7 @@ class PlayerScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final mediaQuery = MediaQuery.of(context);
-
+    final size = MediaQuery.of(context).size;
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
@@ -47,58 +46,65 @@ class PlayerScreen extends StatelessWidget {
       ),
       body: Stack(
         children: [
-          Image.network(
+          Image.asset(
             width: double.infinity,
-            height: mediaQuery.size.height * 0.6,
-            'https://static.wikia.nocookie.net/hellokitty/images/2/20/Sanrio_Characters_My_Sweet_Piano_Image002.jpg/revision/latest?cb=20170327084137',
+            height: size.height * 0.6,
+            'assets/images/piano.png',
             fit: BoxFit.fitHeight,
             colorBlendMode: BlendMode.darken,
           ),
           Container(
             width: double.infinity,
-            height: mediaQuery.size.height * 0.6,
+            height: size.height * 0.6,
             color: context.musicDeepBlack.withValues(alpha: 0.5),
           ),
           Column(
             children: [
-              SizedBox(height: mediaQuery.size.height * 0.45),
-              BottomClipperContainer(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 28,
-                  vertical: 24,
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    const PlayerSlider(),
-                    const SizedBox(height: 16),
-                    Text(
-                      'Different world of music',
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: context.scaleText(20),
-                        fontWeight: FontWeight.bold,
-                      ),
+              const Spacer(),
+              Hero(
+                tag: 'player_container',
+                child: Material(
+                  type: MaterialType.transparency,
+                  child: BottomClipperContainer(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 28,
+                      vertical: 24,
                     ),
-                    Text(
-                      'Manage your library settings and preferences.',
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: context.scaleText(12),
-                        color: context.musicLightGrey,
-                      ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        const PlayerSlider(),
+                        const SizedBox(height: 16),
+                        Text(
+                          'Different world of music',
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: context.scaleText(20),
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text(
+                          'Manage your library settings and preferences.',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: context.scaleText(12),
+                            color: context.musicLightGrey,
+                          ),
+                        ),
+                        const SizedBox(height: 30),
+                        const PlayerControl(),
+                      ],
                     ),
-                    const SizedBox(height: 30),
-                    const PlayerControl(),
-                  ],
+                  ),
                 ),
               ),
+              const SizedBox(height: 50),
             ],
           ),
         ],

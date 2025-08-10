@@ -54,6 +54,8 @@ class _SongCardState extends State<SongCard> {
                       children: [
                         Text(
                           'Different world of music',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                           style: TextStyle(
                             fontSize: context.scaleText(16),
                             fontWeight: FontWeight.bold,
@@ -61,6 +63,8 @@ class _SongCardState extends State<SongCard> {
                         ),
                         Text(
                           'Alan Walker',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                           style: TextStyle(
                             fontSize: context.scaleText(12),
                             color: context.musicLightGrey,
