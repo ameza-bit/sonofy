@@ -43,7 +43,7 @@ class _SongCardState extends State<SongCard> {
                           ? FontAwesomeIcons.solidPause
                           : FontAwesomeIcons.solidPlay,
                       color: _isPlaying ? context.musicWhite : primaryColor,
-                      size: 24,
+                      size: 20,
                     ),
                   ),
                   Expanded(
