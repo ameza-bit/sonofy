@@ -18,31 +18,34 @@ class PlayerLyrics extends StatelessWidget {
 
         return GestureDetector(
           onTap: () => LyricsModal.show(context),
-          child: SizedBox(
-            width: double.infinity,
-            child: ClipRRect(
-              borderRadius: const BorderRadius.vertical(
-                top: Radius.circular(100.0),
-              ),
-              child: Material(
-                color: Theme.of(context).cardColor,
-                child: SafeArea(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          FontAwesomeIcons.lightChevronUp,
-                          color: primaryColor,
-                          size: 12,
-                        ),
-                        Text(
-                          context.tr('player.lyrics'),
-                          textAlign: TextAlign.center,
-                          style: TextStyle(fontSize: context.scaleText(12)),
-                        ),
-                      ],
+          child: Hero(
+            tag: 'lyrics_container',
+            child: SizedBox(
+              width: double.infinity,
+              child: ClipRRect(
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(100.0),
+                ),
+                child: Material(
+                  color: Theme.of(context).cardColor,
+                  child: SafeArea(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            FontAwesomeIcons.lightChevronUp,
+                            color: primaryColor,
+                            size: 12,
+                          ),
+                          Text(
+                            context.tr('player.lyrics'),
+                            textAlign: TextAlign.center,
+                            style: TextStyle(fontSize: context.scaleText(12)),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),

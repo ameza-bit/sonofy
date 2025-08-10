@@ -36,34 +36,37 @@ class LyricsModal extends StatelessWidget {
 
         return Scaffold(
           backgroundColor: Colors.transparent,
-          body: SizedBox(
-            width: double.infinity,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 24.0,
-                vertical: 16.0,
-              ),
-              child: Column(
-                children: [
-                  GestureDetector(
-                    onTap: () => context.pop(),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          context.tr('player.lyrics'),
-                          textAlign: TextAlign.center,
-                          style: TextStyle(fontSize: context.scaleText(12)),
-                        ),
-                        Icon(
-                          FontAwesomeIcons.lightChevronDown,
-                          color: primaryColor,
-                          size: 12,
-                        ),
-                      ],
+          body: Hero(
+            tag: 'lyrics_container',
+            child: SizedBox(
+              width: double.infinity,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24.0,
+                  vertical: 16.0,
+                ),
+                child: Column(
+                  children: [
+                    GestureDetector(
+                      onTap: () => context.pop(),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            context.tr('player.lyrics'),
+                            textAlign: TextAlign.center,
+                            style: TextStyle(fontSize: context.scaleText(12)),
+                          ),
+                          Icon(
+                            FontAwesomeIcons.lightChevronDown,
+                            color: primaryColor,
+                            size: 12,
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
