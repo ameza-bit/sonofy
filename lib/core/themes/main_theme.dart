@@ -3,8 +3,10 @@ import 'package:sonofy/core/themes/neutral_theme.dart';
 import 'package:sonofy/core/themes/music_colors.dart';
 
 class MainTheme {
-  static ThemeData get lightTheme => _createLightTheme(MusicColors.defaultPrimary);
-  static ThemeData get darkTheme => _createDarkTheme(MusicColors.defaultPrimary);
+  static ThemeData get lightTheme =>
+      _createLightTheme(MusicColors.defaultPrimary);
+  static ThemeData get darkTheme =>
+      _createDarkTheme(MusicColors.defaultPrimary);
 
   // Create light theme with custom primary color
   static ThemeData createLightTheme(Color primaryColor) =>
@@ -49,9 +51,7 @@ class MainTheme {
         color: MusicColors.surface,
         elevation: 2,
         shadowColor: MusicColors.cardShadow,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
@@ -82,6 +82,9 @@ class MainTheme {
         valueIndicatorColor: primaryColor,
         trackHeight: 4.0,
         thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 8.0),
+      ),
+      bottomSheetTheme: const BottomSheetThemeData(
+        backgroundColor: Colors.transparent,
       ),
     );
   }
@@ -138,9 +141,7 @@ class MainTheme {
         color: NeutralTheme.blackOpacity,
         elevation: 4,
         shadowColor: Colors.black.withValues(alpha: 0.3),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
@@ -171,6 +172,9 @@ class MainTheme {
         valueIndicatorColor: primaryLight,
         trackHeight: 4.0,
         thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 8.0),
+      ),
+      bottomSheetTheme: const BottomSheetThemeData(
+        backgroundColor: Colors.transparent,
       ),
     );
   }

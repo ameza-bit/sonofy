@@ -2,6 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:sonofy/core/extensions/theme_extensions.dart';
 import 'package:sonofy/presentation/widgets/common/font_awesome/font_awesome_flutter.dart';
+import 'package:sonofy/presentation/widgets/library/bottom_player.dart';
 import 'package:sonofy/presentation/widgets/library/song_card.dart';
 
 class LibraryScreen extends StatelessWidget {
@@ -56,6 +57,8 @@ class LibraryScreen extends StatelessWidget {
             ),
           ),
         ),
+        resizeToAvoidBottomInset: false,
+        bottomSheet: const BottomPlayer(),
       ),
     );
   }
