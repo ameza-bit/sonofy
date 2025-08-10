@@ -1,11 +1,8 @@
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:sonofy/core/extensions/color_extensions.dart';
-import 'package:sonofy/core/extensions/theme_extensions.dart';
-import 'package:sonofy/presentation/blocs/settings/settings_cubit.dart';
-import 'package:sonofy/presentation/blocs/settings/settings_state.dart';
-import 'package:sonofy/presentation/widgets/common/font_awesome/font_awesome_flutter.dart';
+import 'package:sonofy/presentation/widgets/library/bottom_clipper_container.dart';
+import 'package:sonofy/presentation/widgets/player/player_app_bar.dart';
+import 'package:sonofy/presentation/widgets/player/player_body.dart';
+import 'package:sonofy/presentation/widgets/player/player_lyrics.dart';
 
 class PlayerScreen extends StatelessWidget {
   static const String routeName = 'player';
@@ -13,69 +10,32 @@ class PlayerScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<SettingsCubit, SettingsState>(
-      builder: (context, state) {
-        final primaryColor = state.settings.primaryColor;
+    final mediaQuery = MediaQuery.of(context);
 
-        return Scaffold(
-          appBar: AppBar(
-            title: Text(
-              context.tr('player.now_playing'),
-              style: TextStyle(
-                color: context.musicWhite,
-                fontSize: context.scaleText(20),
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            centerTitle: true,
-            backgroundColor: primaryColor,
-            elevation: 0,
-            leading: IconButton(
-              icon: Icon(
-                FontAwesomeIcons.solidArrowLeft,
-                color: context.musicWhite,
-                size: 20,
-              ),
-              onPressed: () => Navigator.of(context).pop(),
-            ),
-          ),
-
-          bottomNavigationBar: SizedBox(
+    return Scaffold(
+      extendBodyBehindAppBar: true,
+      appBar: const PlayerAppBar(),
+      body: Stack(
+        children: [
+          Image.network(
             width: double.infinity,
-            child: ClipRRect(
-              borderRadius: const BorderRadius.vertical(
-                top: Radius.circular(100.0),
-              ),
-              child: Material(
-                color: context.musicWhite,
-                child: SafeArea(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          FontAwesomeIcons.lightChevronUp,
-                          color: primaryColor,
-                          size: 12,
-                        ),
-                        Text(
-                          context.tr('player.lyrics'),
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            color: context.musicMediumGrey,
-                            fontSize: context.scaleText(12),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ),
+            height: mediaQuery.size.height * 0.6,
+            'https://static.wikia.nocookie.net/hellokitty/images/2/20/Sanrio_Characters_My_Sweet_Piano_Image002.jpg/revision/latest?cb=20170327084137',
+            fit: BoxFit.fitHeight,
+            colorBlendMode: BlendMode.darken,
           ),
-        );
-      },
+          Column(
+            children: [
+              SizedBox(height: mediaQuery.size.height * 0.45),
+              const BottomClipperContainer(
+                padding: EdgeInsets.symmetric(horizontal: 28, vertical: 24),
+                child: PlayerBody(),
+              ),
+            ],
+          ),
+        ],
+      ),
+      bottomNavigationBar: const PlayerLyrics(),
     );
   }
 }
