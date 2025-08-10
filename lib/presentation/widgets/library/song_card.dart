@@ -24,6 +24,7 @@ class _SongCardState extends State<SongCard> {
         final primaryColor = state.settings.primaryColor;
 
         return Card(
+          margin: const EdgeInsets.symmetric(vertical: 4.0),
           child: InkWell(
             onTap: () => setState(() => _isPlaying = !_isPlaying),
             child: Padding(
