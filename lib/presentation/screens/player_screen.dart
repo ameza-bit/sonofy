@@ -80,7 +80,6 @@ class PlayerScreen extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                        color: context.musicDeepBlack,
                         fontSize: context.scaleText(20),
                         fontWeight: FontWeight.bold,
                       ),
@@ -92,7 +91,7 @@ class PlayerScreen extends StatelessWidget {
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: context.scaleText(12),
-                        color: context.musicDarkGrey,
+                        color: context.musicLightGrey,
                       ),
                     ),
                     const SizedBox(height: 30),

@@ -59,8 +59,11 @@ class _SongCardState extends State<SongCard> {
                           ),
                         ),
                         Text(
-                          'Manage your library settings and preferences.',
-                          style: TextStyle(fontSize: context.scaleText(12)),
+                          'Alan Walker',
+                          style: TextStyle(
+                            fontSize: context.scaleText(12),
+                            color: context.musicLightGrey,
+                          ),
                         ),
                       ],
                     ),

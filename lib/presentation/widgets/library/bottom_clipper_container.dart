@@ -12,7 +12,7 @@ class BottomClipperContainer extends StatelessWidget {
       clipper: _MusicContainerClipper(),
       child: Container(
         width: double.infinity,
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         padding: padding,
         child: Column(
           mainAxisSize: MainAxisSize.min,

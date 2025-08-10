@@ -87,7 +87,10 @@ class _BottomPlayerState extends State<BottomPlayer> {
                         'Manage your library settings and preferences.',
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: TextStyle(fontSize: context.scaleText(12)),
+                        style: TextStyle(
+                          fontSize: context.scaleText(12),
+                          color: context.musicLightGrey,
+                        ),
                       ),
                     ],
                   ),

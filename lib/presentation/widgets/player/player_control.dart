@@ -28,11 +28,7 @@ class _PlayerControlState extends State<PlayerControl> {
           children: [
             IconButton(
               onPressed: () {},
-              icon: Icon(
-                FontAwesomeIcons.lightBackward,
-                size: 30,
-                color: context.musicDeepBlack,
-              ),
+              icon: const Icon(FontAwesomeIcons.solidBackward, size: 30.0),
             ),
             CircularGradientButton(
               size: 80,
@@ -49,11 +45,7 @@ class _PlayerControlState extends State<PlayerControl> {
             ),
             IconButton(
               onPressed: () {},
-              icon: Icon(
-                FontAwesomeIcons.lightForward,
-                size: 30,
-                color: context.musicDeepBlack,
-              ),
+              icon: const Icon(FontAwesomeIcons.solidForward, size: 30.0),
             ),
           ],
         );
