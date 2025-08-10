@@ -1,6 +1,8 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:sonofy/core/extensions/theme_extensions.dart';
+import 'package:sonofy/presentation/screens/settings_screen.dart';
 import 'package:sonofy/presentation/widgets/common/font_awesome/font_awesome_flutter.dart';
 import 'package:sonofy/presentation/widgets/library/bottom_player.dart';
 import 'package:sonofy/presentation/widgets/library/song_card.dart';
@@ -24,7 +26,7 @@ class LibraryScreen extends StatelessWidget {
             const Spacer(),
             IconButton(
               icon: const Icon(FontAwesomeIcons.lightGear),
-              onPressed: () {},
+              onPressed: () => context.pushNamed(SettingsScreen.routeName),
             ),
           ],
         ),
@@ -52,6 +54,7 @@ class LibraryScreen extends StatelessWidget {
                   const SongCard(),
                   const SongCard(),
                   const SongCard(),
+                  const SizedBox(height: 120.0),
                 ],
               ),
             ),

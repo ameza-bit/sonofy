@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sonofy/core/extensions/color_extensions.dart';
@@ -17,7 +19,22 @@ class BottomPlayer extends StatefulWidget {
 
 class _BottomPlayerState extends State<BottomPlayer> {
   bool _isPlaying = false;
-  double _progress = 0.3;
+  double _progress = 0.0;
+
+  @override
+  void initState() {
+    super.initState();
+    Timer.periodic(const Duration(milliseconds: 100), (timer) {
+      if (_isPlaying) {
+        setState(() {
+          _progress += 0.01;
+          if (_progress >= 1) {
+            _progress = 0;
+          }
+        });
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -31,29 +48,27 @@ class _BottomPlayerState extends State<BottomPlayer> {
             child: Row(
               spacing: 16,
               children: [
-                Container(
-                  width: 56,
-                  height: 56,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    gradient: LinearGradient(
-                      colors: [primaryColor, primaryColor.withAlpha(255 ~/ 2)],
-                    ),
-                  ),
-                  child: Center(
-                    child: Container(
-                      width: 48,
-                      height: 48,
-                      decoration: BoxDecoration(
-                        color: context.musicLightGrey,
-                        shape: BoxShape.circle,
+                Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    SizedBox(
+                      width: 56,
+                      height: 56,
+                      child: CircularProgressIndicator(
+                        value: _progress,
+                        strokeWidth: 3,
+                        backgroundColor: primaryColor.withValues(alpha: 0.2),
+                        valueColor: AlwaysStoppedAnimation(primaryColor),
                       ),
-                      child: Image.network(
+                    ),
+                    CircleAvatar(
+                      radius: _isPlaying ? 24 : 20,
+                      backgroundColor: context.musicLightGrey,
+                      backgroundImage: const NetworkImage(
                         'https://webcolours.ca/wp-content/uploads/2020/10/webcolours-unknown.png',
-                        fit: BoxFit.cover,
                       ),
                     ),
-                  ),
+                  ],
                 ),
                 Expanded(
                   child: Column(
