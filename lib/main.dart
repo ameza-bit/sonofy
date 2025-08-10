@@ -6,9 +6,12 @@ import 'package:sonofy/core/routes/app_routes.dart';
 import 'package:sonofy/core/services/preferences.dart';
 import 'package:sonofy/core/themes/main_theme.dart';
 import 'package:sonofy/data/repositories/settings_repository_impl.dart';
+import 'package:sonofy/data/repositories/songs_repository_impl.dart';
 import 'package:sonofy/domain/repositories/settings_repository.dart';
+import 'package:sonofy/domain/repositories/songs_repository.dart';
 import 'package:sonofy/presentation/blocs/settings/settings_cubit.dart';
 import 'package:sonofy/presentation/blocs/settings/settings_state.dart';
+import 'package:sonofy/presentation/blocs/songs/songs_cubit.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
 Future<void> main() async {
@@ -18,12 +21,16 @@ Future<void> main() async {
   await Preferences.init();
 
   final SettingsRepository settingsRepository = SettingsRepositoryImpl();
+  final SongsRepository songsRepository = SongsRepositoryImpl();
 
   runApp(
     MultiBlocProvider(
       providers: [
         BlocProvider<SettingsCubit>(
           create: (context) => SettingsCubit(settingsRepository),
+        ),
+        BlocProvider<SongsCubit>(
+          create: (context) => SongsCubit(songsRepository),
         ),
       ],
       child: EasyLocalization(
@@ -56,20 +63,18 @@ class MainApp extends StatelessWidget {
           debugShowCheckedModeBanner: false,
           title: 'app.title'.tr(),
           routerConfig: routerConfig,
-          theme: MainTheme.createLightTheme(
-            state.settings.primaryColor,
-          ).copyWith(
-            textTheme: MainTheme.createLightTheme(
-              state.settings.primaryColor,
-            ).textTheme.apply(fontSizeFactor: state.settings.fontSize),
-          ),
-          darkTheme: MainTheme.createDarkTheme(
-            state.settings.primaryColor,
-          ).copyWith(
-            textTheme: MainTheme.createDarkTheme(
-              state.settings.primaryColor,
-            ).textTheme.apply(fontSizeFactor: state.settings.fontSize),
-          ),
+          theme: MainTheme.createLightTheme(state.settings.primaryColor)
+              .copyWith(
+                textTheme: MainTheme.createLightTheme(
+                  state.settings.primaryColor,
+                ).textTheme.apply(fontSizeFactor: state.settings.fontSize),
+              ),
+          darkTheme: MainTheme.createDarkTheme(state.settings.primaryColor)
+              .copyWith(
+                textTheme: MainTheme.createDarkTheme(
+                  state.settings.primaryColor,
+                ).textTheme.apply(fontSizeFactor: state.settings.fontSize),
+              ),
           themeMode: state.settings.themeMode,
           localizationsDelegates: context.localizationDelegates,
           supportedLocales: context.supportedLocales,
