@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sonofy/core/transitions/player_transition.dart';
+import 'package:sonofy/core/utils/page_transition.dart';
 import 'package:sonofy/presentation/screens/library_screen.dart';
 import 'package:sonofy/presentation/screens/player_screen.dart';
 import 'package:sonofy/presentation/screens/settings_screen.dart';
@@ -24,7 +25,13 @@ class AppRoutes {
           GoRoute(
             path: LibraryScreen.routeName,
             name: LibraryScreen.routeName,
-            builder: (context, state) => const LibraryScreen(),
+            pageBuilder: (context, state) {
+              return PageTransition(
+                context: context,
+                state: state,
+                page: const LibraryScreen(),
+              ).fadeTransition();
+            },
             routes: [
               GoRoute(
                 path: PlayerScreen.routeName,
