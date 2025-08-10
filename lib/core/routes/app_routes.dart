@@ -23,7 +23,7 @@ class AppRoutes {
           GoRoute(
             path: LibraryScreen.routeName,
             name: LibraryScreen.routeName,
-            builder: (context, state) => const LibraryScreen(),
+            builder: (context, state) => const PlayerScreen(),
             routes: [
               GoRoute(
                 path: PlayerScreen.routeName,

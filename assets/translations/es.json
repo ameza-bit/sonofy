@@ -73,5 +73,8 @@
   },
   "library": {
     "title": "Biblioteca"
+  },
+  "player": {
+    "lyrics": "Letras"
   }
 }
