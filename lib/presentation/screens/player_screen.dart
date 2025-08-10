@@ -62,11 +62,15 @@ class PlayerScreen extends StatelessWidget {
           Column(
             children: [
               SizedBox(height: mediaQuery.size.height * 0.45),
-              BottomClipperContainer(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 28,
-                  vertical: 24,
-                ),
+              Hero(
+                tag: 'player_container',
+                child: Material(
+                  type: MaterialType.transparency,
+                  child: BottomClipperContainer(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 28,
+                      vertical: 24,
+                    ),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -97,6 +101,8 @@ class PlayerScreen extends StatelessWidget {
                     const SizedBox(height: 30),
                     const PlayerControl(),
                   ],
+                ),
+                  ),
                 ),
               ),
             ],

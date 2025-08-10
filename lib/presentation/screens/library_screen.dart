@@ -55,7 +55,7 @@ class LibraryScreen extends StatelessWidget {
                   const SongCard(),
                   const SongCard(),
                   const SongCard(),
-                  const SizedBox(height: 120.0),
+                  const SizedBox(height: 140.0),
                 ],
               ),
             ),

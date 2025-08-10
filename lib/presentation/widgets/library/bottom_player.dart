@@ -42,9 +42,13 @@ class _BottomPlayerState extends State<BottomPlayer> {
       builder: (context, state) {
         final primaryColor = state.settings.primaryColor;
 
-        return BottomClipperContainer(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-          child: SafeArea(
+        return Hero(
+          tag: 'player_container',
+          child: Material(
+            type: MaterialType.transparency,
+            child: BottomClipperContainer(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+              child: SafeArea(
             child: Row(
               spacing: 16,
               children: [
@@ -109,6 +113,8 @@ class _BottomPlayerState extends State<BottomPlayer> {
                   ),
                 ),
               ],
+            ),
+          ),
             ),
           ),
         );
