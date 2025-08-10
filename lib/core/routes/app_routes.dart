@@ -25,13 +25,11 @@ class AppRoutes {
           GoRoute(
             path: LibraryScreen.routeName,
             name: LibraryScreen.routeName,
-            pageBuilder: (context, state) {
-              return PageTransition(
-                context: context,
-                state: state,
-                page: const LibraryScreen(),
-              ).fadeTransition();
-            },
+            pageBuilder: (context, state) => PageTransition(
+              context: context,
+              state: state,
+              page: const LibraryScreen(),
+            ).fadeTransition(),
             routes: [
               GoRoute(
                 path: PlayerScreen.routeName,
