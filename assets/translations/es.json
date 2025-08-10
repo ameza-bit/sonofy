@@ -70,5 +70,8 @@
     "preferences": "Preferencias",
     "undo_confirmation": "Confirmar Deshacer",
     "undo_confirmation_desc": "Mostrar diálogo de confirmación al deshacer intercambios"
+  },
+  "library": {
+    "title": "Biblioteca"
   }
 }
