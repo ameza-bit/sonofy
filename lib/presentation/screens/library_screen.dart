@@ -1,7 +1,10 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sonofy/core/extensions/theme_extensions.dart';
+import 'package:sonofy/presentation/blocs/songs/songs_cubit.dart';
+import 'package:sonofy/presentation/blocs/songs/songs_state.dart';
 import 'package:sonofy/presentation/screens/player_screen.dart';
 import 'package:sonofy/presentation/screens/settings_screen.dart';
 import 'package:sonofy/presentation/widgets/common/font_awesome/font_awesome_flutter.dart';
@@ -35,28 +38,24 @@ class LibraryScreen extends StatelessWidget {
           child: SingleChildScrollView(
             child: Container(
               margin: const EdgeInsets.symmetric(horizontal: 24.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    context.tr('library.title'),
-                    style: TextStyle(
-                      fontSize: context.scaleText(24),
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 16.0),
-                  const SongCard(),
-                  const SongCard(),
-                  const SongCard(),
-                  const SongCard(),
-                  const SongCard(),
-                  const SongCard(),
-                  const SongCard(),
-                  const SongCard(),
-                  const SongCard(),
-                  const SizedBox(height: 140.0),
-                ],
+              child: BlocBuilder<SongsCubit, SongsState>(
+                builder: (context, state) {
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        context.tr('library.title'),
+                        style: TextStyle(
+                          fontSize: context.scaleText(24),
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 16.0),
+                      for (final _ in state.songs) const SongCard(),
+                      const SizedBox(height: 140.0),
+                    ],
+                  );
+                },
               ),
             ),
           ),
