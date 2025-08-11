@@ -71,6 +71,8 @@ class AppSpacing {
 
   /// Padding lateral para contenido en web
   static const double contentPaddingWeb = 80.0;
+
+  static const double bottomSheetHeight = 140.0;
 }
 
 /// Dimensiones de elementos de UI

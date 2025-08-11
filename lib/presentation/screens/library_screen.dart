@@ -2,6 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:sonofy/core/constants/app_constants.dart';
 import 'package:sonofy/core/extensions/theme_extensions.dart';
 import 'package:sonofy/presentation/blocs/songs/songs_cubit.dart';
 import 'package:sonofy/presentation/blocs/songs/songs_state.dart';
@@ -37,6 +38,16 @@ class LibraryScreen extends StatelessWidget {
         body: SafeArea(
           child: BlocBuilder<SongsCubit, SongsState>(
             builder: (context, state) {
+              if (state.isLoading) {
+                return const Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Expanded(child: Center(child: CircularProgressIndicator())),
+                    SizedBox(height: AppSpacing.bottomSheetHeight),
+                  ],
+                );
+              }
+
               return ListView.builder(
                 padding: const EdgeInsets.symmetric(horizontal: 24.0),
                 itemCount: state.songs.length + 2,
@@ -58,7 +69,7 @@ class LibraryScreen extends StatelessWidget {
                     );
                   } else if (index == state.songs.length + 1) {
                     // Espacio final
-                    return const SizedBox(height: 140.0);
+                    return const SizedBox(height: AppSpacing.bottomSheetHeight);
                   } else {
                     // Canción
                     final song = state.songs[index - 1];
