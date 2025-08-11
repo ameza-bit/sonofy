@@ -5,38 +5,32 @@ final class PlayerRepositoryImpl implements PlayerRepository {
   final player = AudioPlayer();
 
   @override
-  Future<void> play(String url) {
-    // TODO(Armando): implement play
-    throw UnimplementedError();
+  Future<void> play(String url) async {
+    await player.play(UrlSource(url));
   }
 
   @override
-  Future<void> pause() {
-    // TODO(Armando): implement pause
-    throw UnimplementedError();
+  Future<void> pause() async {
+    await player.pause();
   }
 
   @override
-  Future<void> stop() {
-    // TODO(Armando): implement stop
-    throw UnimplementedError();
+  Future<void> stop() async {
+    await player.stop();
   }
 
   @override
-  Future<void> seek(Duration position) {
-    // TODO(Armando): implement seek
-    throw UnimplementedError();
+  Future<void> seek(Duration position) async {
+    await player.seek(position);
   }
 
   @override
-  Future<Duration> getCurrentPosition() {
-    // TODO(Armando): implement getCurrentPosition
-    throw UnimplementedError();
+  Future<Duration?> getCurrentPosition() async {
+    return player.getCurrentPosition();
   }
 
   @override
-  Future<Duration> getDuration() {
-    // TODO(Armando): implement getDuration
-    throw UnimplementedError();
+  Future<Duration?> getDuration() async {
+    return player.getDuration();
   }
 }
