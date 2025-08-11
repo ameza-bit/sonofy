@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:on_audio_query_pluse/on_audio_query.dart';
 import 'package:sonofy/core/extensions/color_extensions.dart';
 import 'package:sonofy/core/extensions/theme_extensions.dart';
 import 'package:sonofy/core/themes/gradient_helpers.dart';
@@ -51,9 +52,6 @@ class _BottomPlayerState extends State<BottomPlayer> {
             final currentSong = state.currentSong;
             final hasSelected = state.hasSelectedSong;
 
-            final songImage = hasSelected
-                ? 'assets/images/piano.png'
-                : 'assets/images/placeholder.png';
             final songName = currentSong?.title ?? '';
             final artistName =
                 currentSong?.artist ?? currentSong?.composer ?? '';
@@ -90,10 +88,26 @@ class _BottomPlayerState extends State<BottomPlayer> {
                                   ),
                                 ),
                               ),
-                              CircleAvatar(
-                                radius: _isPlaying ? 24 : 20,
-                                backgroundColor: context.musicLightGrey,
-                                backgroundImage: AssetImage(songImage),
+
+                              QueryArtworkWidget(
+                                id: currentSong?.id ?? -1,
+                                type: ArtworkType.AUDIO,
+                                artworkWidth: (_isPlaying ? 24 : 20) * 2,
+                                artworkHeight: (_isPlaying ? 24 : 20) * 2,
+                                errorBuilder: (_, _, _) => CircleAvatar(
+                                  radius: _isPlaying ? 24 : 20,
+                                  backgroundColor: context.musicLightGrey,
+                                  backgroundImage: AssetImage(
+                                    context.imagePlaceholder,
+                                  ),
+                                ),
+                                nullArtworkWidget: CircleAvatar(
+                                  radius: _isPlaying ? 24 : 20,
+                                  backgroundColor: context.musicLightGrey,
+                                  backgroundImage: AssetImage(
+                                    context.imagePlaceholder,
+                                  ),
+                                ),
                               ),
                             ],
                           ),

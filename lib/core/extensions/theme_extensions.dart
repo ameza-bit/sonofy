@@ -54,4 +54,8 @@ extension BuildContextExtensions on BuildContext {
   double scaleIcon(double size) {
     return scaleText(size);
   }
+
+  String get imagePlaceholder {
+    return 'assets/images/placeholder.png';
+  }
 }
