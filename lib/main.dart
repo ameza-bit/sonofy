@@ -9,6 +9,7 @@ import 'package:sonofy/data/repositories/settings_repository_impl.dart';
 import 'package:sonofy/data/repositories/songs_repository_impl.dart';
 import 'package:sonofy/domain/repositories/settings_repository.dart';
 import 'package:sonofy/domain/repositories/songs_repository.dart';
+import 'package:sonofy/presentation/blocs/player/player_cubit.dart';
 import 'package:sonofy/presentation/blocs/settings/settings_cubit.dart';
 import 'package:sonofy/presentation/blocs/settings/settings_state.dart';
 import 'package:sonofy/presentation/blocs/songs/songs_cubit.dart';
@@ -32,6 +33,7 @@ Future<void> main() async {
         BlocProvider<SongsCubit>(
           create: (context) => SongsCubit(songsRepository),
         ),
+        BlocProvider<PlayerCubit>(create: (context) => PlayerCubit()),
       ],
       child: EasyLocalization(
         supportedLocales: const [Locale('es')],

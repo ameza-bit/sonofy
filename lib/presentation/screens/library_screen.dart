@@ -2,7 +2,9 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:sonofy/core/constants/app_constants.dart';
 import 'package:sonofy/core/extensions/theme_extensions.dart';
+import 'package:sonofy/presentation/blocs/player/player_cubit.dart';
 import 'package:sonofy/presentation/blocs/songs/songs_cubit.dart';
 import 'package:sonofy/presentation/blocs/songs/songs_state.dart';
 import 'package:sonofy/presentation/screens/player_screen.dart';
@@ -37,6 +39,16 @@ class LibraryScreen extends StatelessWidget {
         body: SafeArea(
           child: BlocBuilder<SongsCubit, SongsState>(
             builder: (context, state) {
+              if (state.isLoading) {
+                return const Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Expanded(child: Center(child: CircularProgressIndicator())),
+                    SizedBox(height: AppSpacing.bottomSheetHeight),
+                  ],
+                );
+              }
+
               return ListView.builder(
                 padding: const EdgeInsets.symmetric(horizontal: 24.0),
                 itemCount: state.songs.length + 2,
@@ -58,11 +70,20 @@ class LibraryScreen extends StatelessWidget {
                     );
                   } else if (index == state.songs.length + 1) {
                     // Espacio final
-                    return const SizedBox(height: 140.0);
+                    return const SizedBox(height: AppSpacing.bottomSheetHeight);
                   } else {
                     // Canción
                     final song = state.songs[index - 1];
-                    return SongCard(song: song);
+                    return InkWell(
+                      onTap: () {
+                        context.read<PlayerCubit>().setPlayingSong(
+                          state.songs,
+                          index - 1,
+                        );
+                        context.pushNamed(PlayerScreen.routeName);
+                      },
+                      child: SongCard(song: song),
+                    );
                   }
                 },
               );
@@ -70,22 +91,18 @@ class LibraryScreen extends StatelessWidget {
           ),
         ),
         resizeToAvoidBottomInset: false,
-        bottomSheet: GestureDetector(
-          onTap: () => context.pushNamed(PlayerScreen.routeName),
-          child: Stack(
-            children: [
-              Positioned(
-                bottom: 0,
-                left: 0,
-                right: 0,
-                child: Container(
-                  height: 80,
-                  color: Theme.of(context).cardColor,
-                ),
-              ),
-              const BottomPlayer(),
-            ],
-          ),
+        bottomSheet: Stack(
+          children: [
+            Positioned(
+              bottom: 0,
+              left: 0,
+              right: 0,
+              child: Container(height: 80, color: Theme.of(context).cardColor),
+            ),
+            BottomPlayer(
+              onTap: () => context.pushNamed(PlayerScreen.routeName),
+            ),
+          ],
         ),
       ),
     );

@@ -2,6 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:sonofy/core/constants/app_constants.dart';
 import 'package:sonofy/core/extensions/color_extensions.dart';
 import 'package:sonofy/core/extensions/theme_extensions.dart';
 import 'package:sonofy/presentation/blocs/settings/settings_cubit.dart';
@@ -85,7 +86,7 @@ class LyricsModal extends StatelessWidget {
                           ],
                         ],
                       ),
-                      const SizedBox(height: 150),
+                      const SizedBox(height: AppSpacing.bottomSheetHeight),
                     ],
                   ),
                 ),
@@ -93,22 +94,19 @@ class LyricsModal extends StatelessWidget {
             ),
           ),
           resizeToAvoidBottomInset: false,
-          bottomSheet: GestureDetector(
-            onTap: () => context.pop(),
-            child: Stack(
-              children: [
-                Positioned(
-                  bottom: 0,
-                  left: 0,
-                  right: 0,
-                  child: Container(
-                    height: 80,
-                    color: Theme.of(context).cardColor,
-                  ),
+          bottomSheet: Stack(
+            children: [
+              Positioned(
+                bottom: 0,
+                left: 0,
+                right: 0,
+                child: Container(
+                  height: 80,
+                  color: Theme.of(context).cardColor,
                 ),
-                const BottomPlayer(),
-              ],
-            ),
+              ),
+              BottomPlayer(onTap: () => context.pop()),
+            ],
           ),
         );
       },
