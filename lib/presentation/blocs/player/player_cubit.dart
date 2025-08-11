@@ -15,21 +15,29 @@ class PlayerCubit extends Cubit<PlayerState> {
     );
   }
 
-  void nextSong() {
-    final currentIndex = state.currentIndex;
+  Future<void> nextSong() async {
+    var currentIndex = state.currentIndex;
     if (currentIndex < state.playlist.length - 1) {
-      emit(state.copyWith(currentIndex: currentIndex + 1));
+      currentIndex = currentIndex + 1;
     } else {
-      emit(state.copyWith(currentIndex: 0));
+      currentIndex = 0;
     }
+    final bool isPlaying = await _playerRepository.play(
+      state.playlist[currentIndex].data,
+    );
+    emit(state.copyWith(currentIndex: currentIndex, isPlaying: isPlaying));
   }
 
-  void previousSong() {
-    final currentIndex = state.currentIndex;
+  Future<void> previousSong() async {
+    var currentIndex = state.currentIndex;
     if (currentIndex > 0) {
-      emit(state.copyWith(currentIndex: currentIndex - 1));
+      currentIndex = currentIndex - 1;
     } else {
-      emit(state.copyWith(currentIndex: state.playlist.length - 1));
+      currentIndex = state.playlist.length - 1;
     }
+    final bool isPlaying = await _playerRepository.play(
+      state.playlist[currentIndex].data,
+    );
+    emit(state.copyWith(currentIndex: currentIndex, isPlaying: isPlaying));
   }
 }
