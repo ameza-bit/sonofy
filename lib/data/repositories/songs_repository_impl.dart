@@ -1,5 +1,4 @@
 import 'package:on_audio_query_pluse/on_audio_query.dart';
-import 'package:sonofy/data/models/song.dart';
 import 'package:sonofy/domain/repositories/songs_repository.dart';
 
 final class SongsRepositoryImpl implements SongsRepository {
@@ -18,17 +17,13 @@ final class SongsRepositoryImpl implements SongsRepository {
   }
 
   @override
-  Future<List<Song>> getSongsFromDevice() async {
+  Future<List<SongModel>> getSongsFromDevice() async {
     final bool canContinue = await _configureAudioQuery();
 
     if (!canContinue) {
       return [];
     }
 
-    await _audioQuery.querySongs().then((value) {
-      print('Canciones encontradas: ${value.length}');
-    });
-
-    return [Song.empty(), Song.empty(), Song.empty()];
+    return _audioQuery.querySongs();
   }
 }

@@ -35,29 +35,38 @@ class LibraryScreen extends StatelessWidget {
           ],
         ),
         body: SafeArea(
-          child: SingleChildScrollView(
-            child: Container(
-              margin: const EdgeInsets.symmetric(horizontal: 24.0),
-              child: BlocBuilder<SongsCubit, SongsState>(
-                builder: (context, state) {
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        context.tr('library.title'),
-                        style: TextStyle(
-                          fontSize: context.scaleText(24),
-                          fontWeight: FontWeight.bold,
+          child: BlocBuilder<SongsCubit, SongsState>(
+            builder: (context, state) {
+              return ListView.builder(
+                padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                itemCount: state.songs.length + 2,
+                itemBuilder: (context, index) {
+                  if (index == 0) {
+                    // Título
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          context.tr('library.title'),
+                          style: TextStyle(
+                            fontSize: context.scaleText(24),
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 16.0),
-                      for (final _ in state.songs) const SongCard(),
-                      const SizedBox(height: 140.0),
-                    ],
-                  );
+                        const SizedBox(height: 16.0),
+                      ],
+                    );
+                  } else if (index == state.songs.length + 1) {
+                    // Espacio final
+                    return const SizedBox(height: 140.0);
+                  } else {
+                    // Canción
+                    final song = state.songs[index - 1];
+                    return SongCard(song: song);
+                  }
                 },
-              ),
-            ),
+              );
+            },
           ),
         ),
         resizeToAvoidBottomInset: false,

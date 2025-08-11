@@ -1,15 +1,15 @@
-import 'package:sonofy/data/models/song.dart';
+import 'package:on_audio_query_pluse/on_audio_query.dart';
 
 class SongsState {
-  final List<Song> songs;
-  final Song? selectedSong;
+  final List<SongModel> songs;
+  final SongModel? selectedSong;
   final String? error;
 
   SongsState({required this.songs, this.selectedSong, this.error});
 
   SongsState.initial() : songs = [], selectedSong = null, error = null;
 
-  SongsState copyWith({List<Song>? songs, Song? selectedSong, String? error}) {
+  SongsState copyWith({List<SongModel>? songs, SongModel? selectedSong, String? error}) {
     return SongsState(
       songs: songs ?? this.songs,
       selectedSong: selectedSong ?? this.selectedSong,

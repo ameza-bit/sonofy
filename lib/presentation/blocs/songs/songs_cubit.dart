@@ -12,9 +12,6 @@ class SongsCubit extends Cubit<SongsState> {
   Future<void> _loadSongs() async {
     try {
       final songs = await _songsRepository.getSongsFromDevice();
-      for (final song in songs) {
-        print('Cargando canción: ${song.title}');
-      }
       emit(state.copyWith(songs: songs));
     } catch (e) {
       emit(state.copyWith(error: e.toString()));

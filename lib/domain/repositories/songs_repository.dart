@@ -1,5 +1,5 @@
-import 'package:sonofy/data/models/song.dart';
+import 'package:on_audio_query_pluse/on_audio_query.dart';
 
 abstract class SongsRepository {
-  Future<List<Song>> getSongsFromDevice();
+  Future<List<SongModel>> getSongsFromDevice();
 }
