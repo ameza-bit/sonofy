@@ -8,9 +8,15 @@ class PlayerCubit extends Cubit<PlayerState> {
 
   PlayerCubit(this._playerRepository) : super(PlayerState.initial());
 
-  void setPlayingSong(List<SongModel> songs, int i) {
-    _playerRepository.play(songs[i].uri!);
-    emit(state.copyWith(playlist: songs, currentIndex: i));
+  Future<void> setPlayingSong(List<SongModel> songs, int i) async {
+    try {
+      final bool isPlaying = await _playerRepository.play(songs[i].data);
+      emit(
+        state.copyWith(playlist: songs, currentIndex: i, isPlaying: isPlaying),
+      );
+    } catch (e) {
+      print('Error playing song: $e');
+    }
   }
 
   void nextSong() {

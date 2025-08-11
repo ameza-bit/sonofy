@@ -5,24 +5,30 @@ final class PlayerRepositoryImpl implements PlayerRepository {
   final player = AudioPlayer();
 
   @override
-  Future<void> play(String url) async {
-    await player.play(UrlSource(url));
+  Future<bool> play(String url) async {
+    await player.play(DeviceFileSource(url));
+    return isPlaying();
   }
 
   @override
-  Future<void> pause() async {
+  Future<bool> pause() async {
     await player.pause();
+    return isPlaying();
   }
 
   @override
-  Future<void> stop() async {
+  Future<bool> stop() async {
     await player.stop();
+    return isPlaying();
   }
 
   @override
   Future<void> seek(Duration position) async {
     await player.seek(position);
   }
+
+  @override
+  bool isPlaying() => player.state == PlayerState.playing;
 
   @override
   Future<Duration?> getCurrentPosition() async {
