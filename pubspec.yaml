@@ -30,8 +30,8 @@ flutter:
   fonts:
     - family: SF_UI_Display
       fonts:
-        - asset: assets\fonts\sf-ui-display-cufonfonts\sf-ui-display-medium-58646be638f96.otf
-        - asset: assets\fonts\sf-ui-display-cufonfonts\sf-ui-display-bold-58646a511e3d9.otf
+        - asset: assets/fonts/sf-ui-display-cufonfonts/sf-ui-display-medium-58646be638f96.otf
+        - asset: assets/fonts/sf-ui-display-cufonfonts/sf-ui-display-bold-58646a511e3d9.otf
     - family: FontAwesomeSolid
       fonts:
         - asset: assets/fonts/font_awesome/fa-solid-900.ttf
