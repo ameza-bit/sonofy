@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:on_audio_query_pluse/on_audio_query.dart';
 import 'package:sonofy/core/extensions/color_extensions.dart';
 import 'package:sonofy/core/extensions/theme_extensions.dart';
 import 'package:sonofy/core/themes/gradient_helpers.dart';
+import 'package:sonofy/core/utils/duration_minutes.dart';
 import 'package:sonofy/presentation/blocs/settings/settings_cubit.dart';
 import 'package:sonofy/presentation/blocs/settings/settings_state.dart';
 import 'package:sonofy/presentation/widgets/common/font_awesome/font_awesome_flutter.dart';
 
 class SongCard extends StatefulWidget {
-  const SongCard({super.key});
+  const SongCard({required this.song, super.key});
+  final SongModel song;
 
   @override
   State<SongCard> createState() => _SongCardState();
@@ -53,7 +56,7 @@ class _SongCardState extends State<SongCard> {
                       spacing: 4,
                       children: [
                         Text(
-                          'Different world of music',
+                          widget.song.title,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
@@ -62,7 +65,9 @@ class _SongCardState extends State<SongCard> {
                           ),
                         ),
                         Text(
-                          'Alan Walker',
+                          widget.song.artist ??
+                              widget.song.composer ??
+                              'Desconocido',
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
@@ -74,7 +79,7 @@ class _SongCardState extends State<SongCard> {
                     ),
                   ),
                   Text(
-                    '3:45',
+                    DurationMinutes.format(widget.song.duration ?? 0),
                     style: TextStyle(
                       fontSize: context.scaleText(12),
                       color: context.musicLightGrey,

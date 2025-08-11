@@ -1,22 +1,35 @@
 PODS:
   - Flutter (1.0.0)
+  - on_audio_query_ios (0.0.1):
+    - Flutter
+    - SwiftyBeaver
   - shared_preferences_foundation (0.0.1):
     - Flutter
     - FlutterMacOS
+  - SwiftyBeaver (1.9.5)
 
 DEPENDENCIES:
   - Flutter (from `Flutter`)
+  - on_audio_query_ios (from `.symlinks/plugins/on_audio_query_ios/ios`)
   - shared_preferences_foundation (from `.symlinks/plugins/shared_preferences_foundation/darwin`)
+
+SPEC REPOS:
+  trunk:
+    - SwiftyBeaver
 
 EXTERNAL SOURCES:
   Flutter:
     :path: Flutter
+  on_audio_query_ios:
+    :path: ".symlinks/plugins/on_audio_query_ios/ios"
   shared_preferences_foundation:
     :path: ".symlinks/plugins/shared_preferences_foundation/darwin"
 
 SPEC CHECKSUMS:
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
+  on_audio_query_ios: 28a780e2d0d85d92d500ba6e12c6c8167022b2fa
   shared_preferences_foundation: 9e1978ff2562383bd5676f64ec4e9aa8fa06a6f7
+  SwiftyBeaver: 84069991dd5dca07d7069100985badaca7f0ce82
 
 PODFILE CHECKSUM: 4305caec6b40dde0ae97be1573c53de1882a07e5
 
