@@ -9,6 +9,7 @@ final class PlayerRepositoryImpl implements PlayerRepository {
 
   @override
   Future<bool> play(String url) async {
+    await player.stop();
     await player.play(DeviceFileSource(url));
     return isPlaying();
   }
