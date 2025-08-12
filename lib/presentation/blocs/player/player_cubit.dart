@@ -40,4 +40,9 @@ class PlayerCubit extends Cubit<PlayerState> {
     );
     emit(state.copyWith(currentIndex: currentIndex, isPlaying: isPlaying));
   }
+
+  Future<void> togglePlayPause() async {
+    final bool isPlaying = await _playerRepository.togglePlayPause();
+    emit(state.copyWith(isPlaying: isPlaying));
+  }
 }

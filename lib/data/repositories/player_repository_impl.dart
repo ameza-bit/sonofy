@@ -28,6 +28,16 @@ final class PlayerRepositoryImpl implements PlayerRepository {
   }
 
   @override
+  Future<bool> togglePlayPause() async {
+    if (isPlaying()) {
+      await player.pause();
+    } else {
+      await player.resume();
+    }
+    return isPlaying();
+  }
+
+  @override
   bool isPlaying() => player.state == PlayerState.playing;
 
   @override
