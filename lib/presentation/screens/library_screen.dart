@@ -4,7 +4,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sonofy/core/constants/app_constants.dart';
 import 'package:sonofy/core/extensions/theme_extensions.dart';
-import 'package:sonofy/presentation/blocs/player/player_cubit.dart';
 import 'package:sonofy/presentation/blocs/songs/songs_cubit.dart';
 import 'package:sonofy/presentation/blocs/songs/songs_state.dart';
 import 'package:sonofy/presentation/screens/player_screen.dart';
@@ -73,16 +72,9 @@ class LibraryScreen extends StatelessWidget {
                     return const SizedBox(height: AppSpacing.bottomSheetHeight);
                   } else {
                     // Canción
-                    final song = state.songs[index - 1];
-                    return InkWell(
-                      onTap: () {
-                        context.read<PlayerCubit>().setPlayingSong(
-                          state.songs,
-                          index - 1,
-                        );
-                        context.pushNamed(PlayerScreen.routeName);
-                      },
-                      child: SongCard(song: song),
+                    return SongCard(
+                      playlist: state.songs,
+                      song: state.songs[index - 1],
                     );
                   }
                 },
