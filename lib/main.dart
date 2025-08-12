@@ -36,7 +36,9 @@ Future<void> main() async {
         BlocProvider<SongsCubit>(
           create: (context) => SongsCubit(songsRepository),
         ),
-        BlocProvider<PlayerCubit>(create: (context) => PlayerCubit(playerRepository)),
+        BlocProvider<PlayerCubit>(
+          create: (context) => PlayerCubit(playerRepository),
+        ),
       ],
       child: EasyLocalization(
         supportedLocales: const [Locale('es')],
