@@ -1,29 +1,53 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:on_audio_query_pluse/on_audio_query.dart';
+import 'package:sonofy/domain/repositories/player_repository.dart';
 import 'package:sonofy/presentation/blocs/player/player_state.dart';
 
 class PlayerCubit extends Cubit<PlayerState> {
-  PlayerCubit() : super(PlayerState.initial());
+  final PlayerRepository _playerRepository;
 
-  void setPlayingSong(List<SongModel> songs, int i) {
-    emit(state.copyWith(playlist: songs, currentIndex: i));
+  PlayerCubit(this._playerRepository) : super(PlayerState.initial());
+
+  Future<void> setPlayingSong(List<SongModel> playlist, SongModel song) async {
+    final index = playlist.indexWhere((s) => s.id == song.id);
+    final bool isPlaying = await _playerRepository.play(song.data);
+    emit(
+      state.copyWith(
+        playlist: playlist,
+        currentIndex: index,
+        isPlaying: isPlaying,
+      ),
+    );
   }
 
-  void nextSong() {
-    final currentIndex = state.currentIndex;
+  Future<void> nextSong() async {
+    var currentIndex = state.currentIndex;
     if (currentIndex < state.playlist.length - 1) {
-      emit(state.copyWith(currentIndex: currentIndex + 1));
+      currentIndex = currentIndex + 1;
     } else {
-      emit(state.copyWith(currentIndex: 0));
+      currentIndex = 0;
     }
+    final bool isPlaying = await _playerRepository.play(
+      state.playlist[currentIndex].data,
+    );
+    emit(state.copyWith(currentIndex: currentIndex, isPlaying: isPlaying));
   }
 
-  void previousSong() {
-    final currentIndex = state.currentIndex;
+  Future<void> previousSong() async {
+    var currentIndex = state.currentIndex;
     if (currentIndex > 0) {
-      emit(state.copyWith(currentIndex: currentIndex - 1));
+      currentIndex = currentIndex - 1;
     } else {
-      emit(state.copyWith(currentIndex: state.playlist.length - 1));
+      currentIndex = state.playlist.length - 1;
     }
+    final bool isPlaying = await _playerRepository.play(
+      state.playlist[currentIndex].data,
+    );
+    emit(state.copyWith(currentIndex: currentIndex, isPlaying: isPlaying));
+  }
+
+  Future<void> togglePlayPause() async {
+    final bool isPlaying = await _playerRepository.togglePlayPause();
+    emit(state.copyWith(isPlaying: isPlaying));
   }
 }

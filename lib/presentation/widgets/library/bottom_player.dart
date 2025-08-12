@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:on_audio_query_pluse/on_audio_query.dart';
@@ -13,33 +11,10 @@ import 'package:sonofy/presentation/blocs/settings/settings_state.dart';
 import 'package:sonofy/presentation/widgets/common/font_awesome/font_awesome_flutter.dart';
 import 'package:sonofy/presentation/widgets/library/bottom_clipper_container.dart';
 
-class BottomPlayer extends StatefulWidget {
+class BottomPlayer extends StatelessWidget {
   const BottomPlayer({this.onTap, super.key});
 
   final void Function()? onTap;
-
-  @override
-  State<BottomPlayer> createState() => _BottomPlayerState();
-}
-
-class _BottomPlayerState extends State<BottomPlayer> {
-  bool _isPlaying = false;
-  double _progress = 0.0;
-
-  @override
-  void initState() {
-    super.initState();
-    Timer.periodic(const Duration(milliseconds: 100), (timer) {
-      if (_isPlaying) {
-        setState(() {
-          _progress += 0.01;
-          if (_progress >= 1) {
-            _progress = 0;
-          }
-        });
-      }
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -51,13 +26,14 @@ class _BottomPlayerState extends State<BottomPlayer> {
           builder: (context, state) {
             final currentSong = state.currentSong;
             final hasSelected = state.hasSelectedSong;
+            final isPlaying = state.isPlaying;
 
             final songName = currentSong?.title ?? '';
             final artistName =
                 currentSong?.artist ?? currentSong?.composer ?? '';
 
             return GestureDetector(
-              onTap: hasSelected ? widget.onTap : null,
+              onTap: hasSelected ? onTap : null,
               child: Hero(
                 tag: 'player_container',
                 child: Material(
@@ -78,7 +54,7 @@ class _BottomPlayerState extends State<BottomPlayer> {
                                 width: 56,
                                 height: 56,
                                 child: CircularProgressIndicator(
-                                  value: _progress,
+                                  value: 0.3,
                                   strokeWidth: 3,
                                   backgroundColor: primaryColor.withValues(
                                     alpha: 0.2,
@@ -92,17 +68,17 @@ class _BottomPlayerState extends State<BottomPlayer> {
                               QueryArtworkWidget(
                                 id: currentSong?.id ?? -1,
                                 type: ArtworkType.AUDIO,
-                                artworkWidth: (_isPlaying ? 24 : 20) * 2,
-                                artworkHeight: (_isPlaying ? 24 : 20) * 2,
+                                artworkWidth: (isPlaying ? 24 : 20) * 2,
+                                artworkHeight: (isPlaying ? 24 : 20) * 2,
                                 errorBuilder: (_, _, _) => CircleAvatar(
-                                  radius: _isPlaying ? 24 : 20,
+                                  radius: isPlaying ? 24 : 20,
                                   backgroundColor: context.musicLightGrey,
                                   backgroundImage: AssetImage(
                                     context.imagePlaceholder,
                                   ),
                                 ),
                                 nullArtworkWidget: CircleAvatar(
-                                  radius: _isPlaying ? 24 : 20,
+                                  radius: isPlaying ? 24 : 20,
                                   backgroundColor: context.musicLightGrey,
                                   backgroundImage: AssetImage(
                                     context.imagePlaceholder,
@@ -140,16 +116,16 @@ class _BottomPlayerState extends State<BottomPlayer> {
                             CircularGradientButton(
                               size: 40,
                               elevation: 1,
-                              primaryColor: _isPlaying
+                              primaryColor: isPlaying
                                   ? primaryColor
                                   : context.musicWhite,
                               onPressed: () =>
-                                  setState(() => _isPlaying = !_isPlaying),
+                                  context.read<PlayerCubit>().togglePlayPause(),
                               child: Icon(
-                                _isPlaying
+                                isPlaying
                                     ? FontAwesomeIcons.solidPause
                                     : FontAwesomeIcons.solidPlay,
-                                color: _isPlaying
+                                color: isPlaying
                                     ? context.musicWhite
                                     : primaryColor,
                                 size: 16,
