@@ -64,9 +64,22 @@ class PlayerCubit extends Cubit<PlayerState> {
     while (!isClosed) {
       if (state.isPlaying) {
         final position = await _playerRepository.getCurrentPosition();
+        final currentPositionMs = position?.inMilliseconds ?? 0;
+
         if (!_positionController!.isClosed) {
-          _positionController!.add(position?.inMilliseconds ?? 0);
+          _positionController!.add(currentPositionMs);
         }
+
+        final currentSong = state.currentSong;
+        if (currentSong != null && currentPositionMs > 0) {
+          final songDurationMs = currentSong.duration ?? 0;
+          final isNearEnd = currentPositionMs >= (songDurationMs - 1000);
+
+          if (isNearEnd && state.hasSelectedSong && state.playlist.length > 1) {
+            await nextSong();
+          }
+        }
+
         await Future.delayed(const Duration(milliseconds: 500));
       } else {
         final position = await _playerRepository.getCurrentPosition();
