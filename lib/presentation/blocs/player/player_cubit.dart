@@ -52,11 +52,13 @@ class PlayerCubit extends Cubit<PlayerState> {
   }
 
   Stream<int> getCurrentSongPosition() async* {
-    while (true) {
+    while (state.isPlaying) {
       final position = await _playerRepository.getCurrentPosition();
       yield position?.inMilliseconds ?? 0;
-      await Future.delayed(const Duration(seconds: 1));
+      await Future.delayed(const Duration(milliseconds: 500));
     }
+    final position = await _playerRepository.getCurrentPosition();
+    yield position?.inMilliseconds ?? 0;
   }
 
   Future<void> seekTo(Duration position) async {
