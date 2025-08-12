@@ -30,17 +30,14 @@ final class PlayerRepositoryImpl implements PlayerRepository {
   }
 
   @override
-  Future<void> seek(Duration position) async {
+  Future<bool> seek(Duration position) async {
     await player.seek(position);
+    await player.resume();
+    return isPlaying();
   }
 
   @override
   Future<Duration?> getCurrentPosition() async {
     return player.getCurrentPosition();
-  }
-
-  @override
-  Future<Duration?> getDuration() async {
-    return player.getDuration();
   }
 }

@@ -60,6 +60,7 @@ class PlayerCubit extends Cubit<PlayerState> {
   }
 
   Future<void> seekTo(Duration position) async {
-    await _playerRepository.seek(position);
+    final bool isPlaying = await _playerRepository.seek(position);
+    emit(state.copyWith(isPlaying: isPlaying));
   }
 }
