@@ -5,6 +5,9 @@ final class PlayerRepositoryImpl implements PlayerRepository {
   final player = AudioPlayer();
 
   @override
+  bool isPlaying() => player.state == PlayerState.playing;
+
+  @override
   Future<bool> play(String url) async {
     await player.play(DeviceFileSource(url));
     return isPlaying();
@@ -14,17 +17,6 @@ final class PlayerRepositoryImpl implements PlayerRepository {
   Future<bool> pause() async {
     await player.pause();
     return isPlaying();
-  }
-
-  @override
-  Future<bool> stop() async {
-    await player.stop();
-    return isPlaying();
-  }
-
-  @override
-  Future<void> seek(Duration position) async {
-    await player.seek(position);
   }
 
   @override
@@ -38,7 +30,9 @@ final class PlayerRepositoryImpl implements PlayerRepository {
   }
 
   @override
-  bool isPlaying() => player.state == PlayerState.playing;
+  Future<void> seek(Duration position) async {
+    await player.seek(position);
+  }
 
   @override
   Future<Duration?> getCurrentPosition() async {
