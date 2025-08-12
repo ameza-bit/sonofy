@@ -50,17 +50,24 @@ class BottomPlayer extends StatelessWidget {
                           Stack(
                             alignment: Alignment.center,
                             children: [
-                              SizedBox(
-                                width: 56,
-                                height: 56,
-                                child: CircularProgressIndicator(
-                                  value: 0.3,
-                                  strokeWidth: 3,
-                                  backgroundColor: primaryColor.withValues(
-                                    alpha: 0.2,
-                                  ),
-                                  valueColor: AlwaysStoppedAnimation(
-                                    primaryColor,
+                              StreamBuilder<int>(
+                                stream: context
+                                    .watch<PlayerCubit>()
+                                    .getCurrentSongPosition(),
+                                builder: (context, snapshot) => SizedBox(
+                                  width: 56,
+                                  height: 56,
+                                  child: CircularProgressIndicator(
+                                    value:
+                                        (snapshot.data ?? 0) /
+                                        (currentSong?.duration ?? 1),
+                                    strokeWidth: 3,
+                                    backgroundColor: primaryColor.withValues(
+                                      alpha: 0.2,
+                                    ),
+                                    valueColor: AlwaysStoppedAnimation(
+                                      primaryColor,
+                                    ),
                                   ),
                                 ),
                               ),

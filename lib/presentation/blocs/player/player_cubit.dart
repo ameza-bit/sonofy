@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:on_audio_query_pluse/on_audio_query.dart';
 import 'package:sonofy/domain/repositories/player_repository.dart';
@@ -5,8 +6,11 @@ import 'package:sonofy/presentation/blocs/player/player_state.dart';
 
 class PlayerCubit extends Cubit<PlayerState> {
   final PlayerRepository _playerRepository;
+  StreamController<int>? _positionController;
 
-  PlayerCubit(this._playerRepository) : super(PlayerState.initial());
+  PlayerCubit(this._playerRepository) : super(PlayerState.initial()) {
+    _initializePositionStream();
+  }
 
   Future<void> setPlayingSong(List<SongModel> playlist, SongModel song) async {
     final index = playlist.indexWhere((s) => s.id == song.id);
@@ -49,5 +53,43 @@ class PlayerCubit extends Cubit<PlayerState> {
   Future<void> togglePlayPause() async {
     final bool isPlaying = await _playerRepository.togglePlayPause();
     emit(state.copyWith(isPlaying: isPlaying));
+  }
+
+  void _initializePositionStream() {
+    _positionController = StreamController<int>.broadcast();
+    _startPositionUpdates();
+  }
+
+  Future<void> _startPositionUpdates() async {
+    while (!isClosed) {
+      if (state.isPlaying) {
+        final position = await _playerRepository.getCurrentPosition();
+        if (!_positionController!.isClosed) {
+          _positionController!.add(position?.inMilliseconds ?? 0);
+        }
+        await Future.delayed(const Duration(milliseconds: 500));
+      } else {
+        final position = await _playerRepository.getCurrentPosition();
+        if (!_positionController!.isClosed) {
+          _positionController!.add(position?.inMilliseconds ?? 0);
+        }
+        await Future.delayed(const Duration(seconds: 1));
+      }
+    }
+  }
+
+  Stream<int> getCurrentSongPosition() {
+    return _positionController?.stream ?? const Stream.empty();
+  }
+
+  Future<void> seekTo(Duration position) async {
+    final bool isPlaying = await _playerRepository.seek(position);
+    emit(state.copyWith(isPlaying: isPlaying));
+  }
+
+  @override
+  Future<void> close() {
+    _positionController?.close();
+    return super.close();
   }
 }

@@ -101,7 +101,7 @@ class PlayerScreen extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.center,
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
-                            const PlayerSlider(),
+                            PlayerSlider(durationMiliseconds: currentSong?.duration ?? 0),
                             const SizedBox(height: 16),
                             Text(
                               songName,
