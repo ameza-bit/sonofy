@@ -2,11 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sonofy/core/extensions/color_extensions.dart';
 import 'package:sonofy/core/extensions/theme_extensions.dart';
+import 'package:sonofy/core/utils/duration_minutes.dart';
+import 'package:sonofy/presentation/blocs/player/player_cubit.dart';
 import 'package:sonofy/presentation/blocs/settings/settings_cubit.dart';
 import 'package:sonofy/presentation/blocs/settings/settings_state.dart';
 
 class PlayerSlider extends StatelessWidget {
-  const PlayerSlider({super.key});
+  const PlayerSlider({required this.durationMiliseconds, super.key});
+  final int durationMiliseconds;
 
   @override
   Widget build(BuildContext context) {
@@ -22,15 +25,18 @@ class PlayerSlider extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  '1:24',
-                  style: TextStyle(
-                    color: context.musicMediumGrey,
-                    fontSize: context.scaleText(12),
+                StreamBuilder(
+                  stream: context.watch<PlayerCubit>().getCurrentSongPosition(),
+                  builder: (context, asyncSnapshot) => Text(
+                    DurationMinutes.format(asyncSnapshot.data ?? 0),
+                    style: TextStyle(
+                      color: context.musicMediumGrey,
+                      fontSize: context.scaleText(12),
+                    ),
                   ),
                 ),
                 Text(
-                  '3:45',
+                  DurationMinutes.format(durationMiliseconds),
                   style: TextStyle(
                     color: context.musicMediumGrey,
                     fontSize: context.scaleText(12),
@@ -49,7 +55,19 @@ class PlayerSlider extends StatelessWidget {
                   enabledThumbRadius: 8.0,
                 ),
               ),
-              child: Slider(value: 0.3, onChanged: (double value) {}),
+              child: StreamBuilder(
+                stream: context.watch<PlayerCubit>().getCurrentSongPosition(),
+                builder: (context, asyncSnapshot) {
+                  return Slider(
+                    value: asyncSnapshot.data?.toDouble() ?? 0,
+                    max: durationMiliseconds.toDouble(),
+                    onChanged: (double value) {},
+                    onChangeEnd: (value) => context.read<PlayerCubit>().seekTo(
+                      Duration(milliseconds: value.toInt()),
+                    ),
+                  );
+                },
+              ),
             ),
           ],
         );
