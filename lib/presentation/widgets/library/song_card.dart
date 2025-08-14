@@ -27,7 +27,7 @@ class SongCard extends StatelessWidget {
         return InkWell(
           onTap: () {
             context.read<PlayerCubit>().setPlayingSong(playlist, song);
-            context.pushNamed(PlayerScreen.routeName);
+            context.goNamed(PlayerScreen.routeName);
           },
           child: Card(
             margin: const EdgeInsets.symmetric(vertical: 4.0),

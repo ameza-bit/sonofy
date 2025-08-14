@@ -5,10 +5,13 @@ import 'package:go_router/go_router.dart';
 import 'package:sonofy/core/constants/app_constants.dart';
 import 'package:sonofy/core/extensions/color_extensions.dart';
 import 'package:sonofy/core/extensions/theme_extensions.dart';
+import 'package:sonofy/presentation/blocs/player/player_cubit.dart';
+import 'package:sonofy/presentation/blocs/player/player_state.dart';
 import 'package:sonofy/presentation/blocs/settings/settings_cubit.dart';
 import 'package:sonofy/presentation/blocs/settings/settings_state.dart';
 import 'package:sonofy/presentation/widgets/common/font_awesome/font_awesome_flutter.dart';
 import 'package:sonofy/presentation/widgets/library/bottom_player.dart';
+import 'package:sonofy/presentation/widgets/library/song_card.dart';
 
 class PlaylistModal extends StatelessWidget {
   const PlaylistModal({super.key});
@@ -68,26 +71,24 @@ class PlaylistModal extends StatelessWidget {
                         ),
                       ),
                       Expanded(
-                        child: ListView(
-                          children: [
-                            for (int i = 0; i < 10; i++) ...[
-                              ListTile(
-                                title: Text(
-                                  'Lyric $i',
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    fontSize: context.scaleText(16),
-                                  ),
-                                ),
-                                onTap: () {
-                                  // Handle lyric tap
-                                },
-                              ),
-                            ],
-                          ],
+                        child: BlocBuilder<PlayerCubit, PlayerState>(
+                          builder: (context, state) => ListView.builder(
+                            itemCount: state.playlist.length + 1,
+                            itemBuilder: (context, index) {
+                              if (index == state.playlist.length) {
+                                return const SizedBox(
+                                  height: AppSpacing.bottomSheetHeight,
+                                );
+                              }
+
+                              return SongCard(
+                                playlist: state.playlist,
+                                song: state.playlist[index],
+                              );
+                            },
+                          ),
                         ),
                       ),
-                      const SizedBox(height: AppSpacing.bottomSheetHeight),
                     ],
                   ),
                 ),

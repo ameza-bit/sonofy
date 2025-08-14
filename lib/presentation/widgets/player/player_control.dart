@@ -30,13 +30,15 @@ class PlayerControl extends StatelessWidget {
             Expanded(
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
-                spacing: 20,
                 children: [
-                  IconButton(
-                    onPressed: () => context.read<PlayerCubit>().previousSong(),
-                    icon: const Icon(
-                      FontAwesomeIcons.solidBackward,
-                      size: 30.0,
+                  Expanded(
+                    child: IconButton(
+                      onPressed: () =>
+                          context.read<PlayerCubit>().previousSong(),
+                      icon: const Icon(
+                        FontAwesomeIcons.solidBackward,
+                        size: 30.0,
+                      ),
                     ),
                   ),
                   BlocBuilder<PlayerCubit, PlayerState>(
@@ -57,9 +59,14 @@ class PlayerControl extends StatelessWidget {
                       );
                     },
                   ),
-                  IconButton(
-                    onPressed: () => context.read<PlayerCubit>().nextSong(),
-                    icon: const Icon(FontAwesomeIcons.solidForward, size: 30.0),
+                  Expanded(
+                    child: IconButton(
+                      onPressed: () => context.read<PlayerCubit>().nextSong(),
+                      icon: const Icon(
+                        FontAwesomeIcons.solidForward,
+                        size: 30.0,
+                      ),
+                    ),
                   ),
                 ],
               ),
