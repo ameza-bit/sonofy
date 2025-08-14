@@ -23,13 +23,27 @@ class PlayerControl extends StatelessWidget {
           children: [
             BlocBuilder<PlayerCubit, PlayerState>(
               builder: (context, state) {
+                IconData repeatIcon;
+                Color? iconColor;
+
+                switch (state.repeatMode) {
+                  case RepeatMode.none:
+                    repeatIcon = FontAwesomeIcons.lightRepeat;
+                    iconColor = null;
+                    break;
+                  case RepeatMode.one:
+                    repeatIcon = FontAwesomeIcons.lightRepeat1;
+                    iconColor = primaryColor;
+                    break;
+                  case RepeatMode.all:
+                    repeatIcon = FontAwesomeIcons.lightRepeat;
+                    iconColor = primaryColor;
+                    break;
+                }
+
                 return IconButton(
-                  onPressed: () => context.read<PlayerCubit>().toggleShuffle(),
-                  icon: Icon(
-                    FontAwesomeIcons.lightShuffle,
-                    size: 20.0,
-                    color: state.isShuffleEnabled ? primaryColor : null,
-                  ),
+                  onPressed: () => context.read<PlayerCubit>().toggleRepeat(),
+                  icon: Icon(repeatIcon, size: 20.0, color: iconColor),
                 );
               },
             ),
@@ -77,31 +91,15 @@ class PlayerControl extends StatelessWidget {
                 ],
               ),
             ),
-            BlocBuilder<PlayerCubit, PlayerState>(
-              builder: (context, state) {
-                IconData repeatIcon;
-                Color? iconColor;
-
-                switch (state.repeatMode) {
-                  case RepeatMode.none:
-                    repeatIcon = FontAwesomeIcons.lightRepeat;
-                    iconColor = null;
-                    break;
-                  case RepeatMode.one:
-                    repeatIcon = FontAwesomeIcons.lightRepeat1;
-                    iconColor = primaryColor;
-                    break;
-                  case RepeatMode.all:
-                    repeatIcon = FontAwesomeIcons.lightRepeat;
-                    iconColor = primaryColor;
-                    break;
-                }
-
-                return IconButton(
-                  onPressed: () => context.read<PlayerCubit>().toggleRepeat(),
-                  icon: Icon(repeatIcon, size: 20.0, color: iconColor),
-                );
+            IconButton(
+              onPressed: () {
+                // TODO(Armando): Implement sleep timer functionality
               },
+              icon: Icon(
+                FontAwesomeIcons.lightTimer,
+                size: 20.0,
+                color: primaryColor,
+              ),
             ),
           ],
         );
