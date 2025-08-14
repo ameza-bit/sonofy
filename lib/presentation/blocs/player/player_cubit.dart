@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:math';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:on_audio_query_pluse/on_audio_query.dart';
+import 'package:sonofy/core/services/preferences.dart';
+import 'package:sonofy/data/models/player_preferences.dart';
 import 'package:sonofy/domain/repositories/player_repository.dart';
 import 'package:sonofy/presentation/blocs/player/player_state.dart';
 
@@ -126,7 +128,9 @@ class PlayerCubit extends Cubit<PlayerState> {
   }
 
   void toggleShuffle() {
-    emit(state.copyWith(isShuffleEnabled: !state.isShuffleEnabled));
+    final newShuffleState = !state.isShuffleEnabled;
+    emit(state.copyWith(isShuffleEnabled: newShuffleState));
+    _savePlayerPreferences();
   }
 
   void toggleRepeat() {
@@ -143,6 +147,7 @@ class PlayerCubit extends Cubit<PlayerState> {
         break;
     }
     emit(state.copyWith(repeatMode: newMode));
+    _savePlayerPreferences();
   }
 
   int _getNextIndex() {
@@ -245,6 +250,14 @@ class PlayerCubit extends Cubit<PlayerState> {
     await _playerRepository.pause();
     emit(state.copyWith(isPlaying: false));
     stopSleepTimer();
+  }
+
+  void _savePlayerPreferences() {
+    final preferences = PlayerPreferences(
+      isShuffleEnabled: state.isShuffleEnabled,
+      repeatMode: state.repeatMode,
+    );
+    Preferences.playerPreferences = preferences;
   }
 
   @override

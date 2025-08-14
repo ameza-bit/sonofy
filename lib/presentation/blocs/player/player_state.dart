@@ -1,4 +1,5 @@
 import 'package:on_audio_query_pluse/on_audio_query.dart';
+import 'package:sonofy/core/services/preferences.dart';
 
 enum RepeatMode { none, one, all }
 
@@ -29,8 +30,8 @@ class PlayerState {
     : playlist = [],
       currentIndex = -1,
       isPlaying = false,
-      isShuffleEnabled = false,
-      repeatMode = RepeatMode.none,
+      isShuffleEnabled = Preferences.playerPreferences.isShuffleEnabled,
+      repeatMode = Preferences.playerPreferences.repeatMode,
       sleepTimerDuration = null,
       sleepTimerRemaining = null,
       isSleepTimerActive = false,
