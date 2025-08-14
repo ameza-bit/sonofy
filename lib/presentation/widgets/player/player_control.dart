@@ -33,11 +33,11 @@ class PlayerControl extends StatelessWidget {
                     iconColor = null;
                     break;
                   case RepeatMode.one:
-                    repeatIcon = FontAwesomeIcons.lightRepeat1;
+                    repeatIcon = FontAwesomeIcons.solidRepeat1;
                     iconColor = primaryColor;
                     break;
                   case RepeatMode.all:
-                    repeatIcon = FontAwesomeIcons.lightRepeat;
+                    repeatIcon = FontAwesomeIcons.solidRepeat;
                     iconColor = primaryColor;
                     break;
                 }
@@ -97,7 +97,9 @@ class PlayerControl extends StatelessWidget {
                 return IconButton(
                   onPressed: () => SleepModal.show(context),
                   icon: Icon(
-                    FontAwesomeIcons.lightTimer,
+                    state.isSleepTimerActive 
+                        ? FontAwesomeIcons.solidTimer
+                        : FontAwesomeIcons.lightTimer,
                     size: 20.0,
                     color: state.isSleepTimerActive ? primaryColor : null,
                   ),

@@ -90,7 +90,9 @@ class PlaylistModal extends StatelessWidget {
                                 onPressed: () =>
                                     context.read<PlayerCubit>().toggleShuffle(),
                                 icon: Icon(
-                                  FontAwesomeIcons.lightShuffle,
+                                  state.isShuffleEnabled
+                                      ? FontAwesomeIcons.solidShuffle
+                                      : FontAwesomeIcons.lightShuffle,
                                   size: 20.0,
                                   color: state.isShuffleEnabled
                                       ? primaryColor
