@@ -81,29 +81,30 @@ class SleepModal extends StatelessWidget {
                             ),
                           ),
                           const Divider(),
-                          Row(
-                            spacing: 16,
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  context.tr('player.sleep.wait_description'),
-                                  style: TextStyle(
-                                    fontSize: context.scaleText(16),
-                                    height: 1.0,
+                          InkWell(
+                            onTap: () => context
+                                .read<PlayerCubit>()
+                                .toggleWaitForSongToFinish(),
+                            child: Row(
+                              spacing: 16,
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    context.tr('player.sleep.wait_description'),
+                                    style: TextStyle(
+                                      fontSize: context.scaleText(16),
+                                      height: 1.0,
+                                    ),
                                   ),
                                 ),
-                              ),
-                              Checkbox(
-                                value: playerState.waitForSongToFinish,
-                                onChanged: playerState.isSleepTimerActive 
-                                    ? (value) => context
-                                        .read<PlayerCubit>()
-                                        .toggleWaitForSongToFinish()
-                                    : (value) => context
-                                        .read<PlayerCubit>()
-                                        .toggleWaitForSongToFinish(),
-                              ),
-                            ],
+                                Checkbox(
+                                  value: playerState.waitForSongToFinish,
+                                  onChanged: (_) => context
+                                      .read<PlayerCubit>()
+                                      .toggleWaitForSongToFinish(),
+                                ),
+                              ],
+                            ),
                           ),
                           const SizedBox(height: AppSpacing.bottomSheetHeight),
                         ],
@@ -153,6 +154,46 @@ class SleepModal extends StatelessWidget {
   ) {
     final remaining = playerState.sleepTimerRemaining;
     if (remaining == null) return const SizedBox();
+
+    final isWaitingForSongEnd =
+        remaining == Duration.zero && playerState.waitForSongToFinish;
+
+    if (isWaitingForSongEnd) {
+      return Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(FontAwesomeIcons.lightHourglass, size: 64, color: primaryColor),
+          const SizedBox(height: 24),
+          Text(
+            context.tr('player.sleep.waiting_for_song_end'),
+            style: TextStyle(
+              fontSize: context.scaleText(18),
+              fontWeight: FontWeight.w600,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 16),
+          Text(
+            context.tr('player.sleep.will_pause_after_song'),
+            style: TextStyle(
+              fontSize: context.scaleText(14),
+              color: Colors.grey[600],
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 32),
+          ElevatedButton(
+            onPressed: () => context.read<PlayerCubit>().stopSleepTimer(),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: primaryColor,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+            ),
+            child: Text(context.tr('player.sleep.cancel_timer')),
+          ),
+        ],
+      );
+    }
 
     final minutes = remaining.inMinutes;
     final seconds = remaining.inSeconds % 60;
@@ -281,7 +322,10 @@ class SleepModal extends StatelessWidget {
                 Text(context.tr('player.sleep.select_minutes')),
                 const SizedBox(height: 24),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 12,
+                  ),
                   decoration: BoxDecoration(
                     border: Border.all(color: primaryColor),
                     borderRadius: BorderRadius.circular(12),
@@ -303,8 +347,12 @@ class SleepModal extends StatelessWidget {
                     inactiveTrackColor: primaryColor.withValues(alpha: 0.3),
                     thumbColor: primaryColor,
                     overlayColor: primaryColor.withValues(alpha: 0.1),
-                    thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 12),
-                    overlayShape: const RoundSliderOverlayShape(overlayRadius: 20),
+                    thumbShape: const RoundSliderThumbShape(
+                      enabledThumbRadius: 12,
+                    ),
+                    overlayShape: const RoundSliderOverlayShape(
+                      overlayRadius: 20,
+                    ),
                     trackHeight: 4,
                     valueIndicatorColor: primaryColor,
                     valueIndicatorTextStyle: const TextStyle(
@@ -327,18 +375,52 @@ class SleepModal extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('1 min', style: TextStyle(color: Colors.grey[600], fontSize: 12)),
-                    Text('180 min', style: TextStyle(color: Colors.grey[600], fontSize: 12)),
+                    Text(
+                      '1 min',
+                      style: TextStyle(color: Colors.grey[600], fontSize: 12),
+                    ),
+                    Text(
+                      '180 min',
+                      style: TextStyle(color: Colors.grey[600], fontSize: 12),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 12),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    _buildQuickButton(context, setState, 15, selectedMinutes, primaryColor, (value) => selectedMinutes = value),
-                    _buildQuickButton(context, setState, 30, selectedMinutes, primaryColor, (value) => selectedMinutes = value),
-                    _buildQuickButton(context, setState, 60, selectedMinutes, primaryColor, (value) => selectedMinutes = value),
-                    _buildQuickButton(context, setState, 90, selectedMinutes, primaryColor, (value) => selectedMinutes = value),
+                    _buildQuickButton(
+                      context,
+                      setState,
+                      15,
+                      selectedMinutes,
+                      primaryColor,
+                      (value) => selectedMinutes = value,
+                    ),
+                    _buildQuickButton(
+                      context,
+                      setState,
+                      30,
+                      selectedMinutes,
+                      primaryColor,
+                      (value) => selectedMinutes = value,
+                    ),
+                    _buildQuickButton(
+                      context,
+                      setState,
+                      60,
+                      selectedMinutes,
+                      primaryColor,
+                      (value) => selectedMinutes = value,
+                    ),
+                    _buildQuickButton(
+                      context,
+                      setState,
+                      90,
+                      selectedMinutes,
+                      primaryColor,
+                      (value) => selectedMinutes = value,
+                    ),
                   ],
                 ),
               ],
@@ -385,12 +467,11 @@ class SleepModal extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
-          color: isSelected ? primaryColor : primaryColor.withValues(alpha: 0.1),
+          color: isSelected
+              ? primaryColor
+              : primaryColor.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: primaryColor,
-            width: isSelected ? 2 : 1,
-          ),
+          border: Border.all(color: primaryColor, width: isSelected ? 2 : 1),
         ),
         child: Text(
           '${minutes}m',

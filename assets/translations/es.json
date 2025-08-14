@@ -91,7 +91,9 @@
       "start_timer": "Iniciar Temporizador",
       "duration_minutes": "{} minutos",
       "duration_hours": "{} hora",
-      "range_description": "Ingresa un valor entre 1 y 180 minutos"
+      "range_description": "Ingresa un valor entre 1 y 180 minutos",
+      "waiting_for_song_end": "Esperando que Termine la Canción",
+      "will_pause_after_song": "La música se pausará cuando termine la canción actual"
     }
   }
 }

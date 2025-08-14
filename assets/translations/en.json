@@ -91,7 +91,9 @@
       "start_timer": "Start Timer",
       "duration_minutes": "{} minutes",
       "duration_hours": "{} hour",
-      "range_description": "Enter a value between 1 and 180 minutes"
+      "range_description": "Enter a value between 1 and 180 minutes",
+      "waiting_for_song_end": "Waiting for Song to End",
+      "will_pause_after_song": "Music will pause when the current song finishes"
     }
   }
 }
