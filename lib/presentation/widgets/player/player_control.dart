@@ -92,13 +92,17 @@ class PlayerControl extends StatelessWidget {
                 ],
               ),
             ),
-            IconButton(
-              onPressed: () => SleepModal.show(context),
-              icon: Icon(
-                FontAwesomeIcons.lightTimer,
-                size: 20.0,
-                color: primaryColor,
-              ),
+            BlocBuilder<PlayerCubit, PlayerState>(
+              builder: (context, state) {
+                return IconButton(
+                  onPressed: () => SleepModal.show(context),
+                  icon: Icon(
+                    FontAwesomeIcons.lightTimer,
+                    size: 20.0,
+                    color: state.isSleepTimerActive ? primaryColor : null,
+                  ),
+                );
+              },
             ),
           ],
         );

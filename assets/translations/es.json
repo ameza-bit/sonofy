@@ -81,7 +81,16 @@
     "playlist": "Lista de Reproducción",
     "sleep": {
       "title": "Apagado automático",
-      "wait_description": "Esperar a terminar la ultima canción"
+      "wait_description": "Esperar a terminar la ultima canción",
+      "timer_active": "Temporizador Activo",
+      "select_duration": "Seleccionar Duración",
+      "cancel_timer": "Cancelar Temporizador",
+      "custom_duration": "Duración Personalizada",
+      "select_minutes": "Seleccionar minutos:",
+      "minutes": "min",
+      "start_timer": "Iniciar Temporizador",
+      "duration_minutes": "{} minutos",
+      "duration_hours": "{} hora"
     }
   }
 }

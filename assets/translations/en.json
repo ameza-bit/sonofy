@@ -81,7 +81,16 @@
     "playlist": "Playlist",
     "sleep": {
       "title": "Sleep Timer",
-      "wait_description": "Wait for the last song to finish"
+      "wait_description": "Wait for the last song to finish",
+      "timer_active": "Timer Active",
+      "select_duration": "Select Duration",
+      "cancel_timer": "Cancel Timer",
+      "custom_duration": "Custom Duration",
+      "select_minutes": "Select minutes:",
+      "minutes": "min",
+      "start_timer": "Start Timer",
+      "duration_minutes": "{} minutes",
+      "duration_hours": "{} hour"
     }
   }
 }

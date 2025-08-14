@@ -8,6 +8,10 @@ class PlayerState {
   final bool isPlaying;
   final bool isShuffleEnabled;
   final RepeatMode repeatMode;
+  final bool isSleepTimerActive;
+  final bool waitForSongToFinish;
+  final Duration? sleepTimerDuration;
+  final Duration? sleepTimerRemaining;
 
   PlayerState({
     required this.playlist,
@@ -15,14 +19,22 @@ class PlayerState {
     required this.isPlaying,
     required this.isShuffleEnabled,
     required this.repeatMode,
+    required this.isSleepTimerActive,
+    required this.waitForSongToFinish,
+    this.sleepTimerDuration,
+    this.sleepTimerRemaining,
   });
 
-  PlayerState.initial() 
-      : playlist = [], 
-        currentIndex = -1, 
-        isPlaying = false,
-        isShuffleEnabled = false,
-        repeatMode = RepeatMode.none;
+  PlayerState.initial()
+    : playlist = [],
+      currentIndex = -1,
+      isPlaying = false,
+      isShuffleEnabled = false,
+      repeatMode = RepeatMode.none,
+      sleepTimerDuration = null,
+      sleepTimerRemaining = null,
+      isSleepTimerActive = false,
+      waitForSongToFinish = false;
 
   PlayerState copyWith({
     List<SongModel>? playlist,
@@ -30,6 +42,10 @@ class PlayerState {
     bool? isPlaying,
     bool? isShuffleEnabled,
     RepeatMode? repeatMode,
+    bool? isSleepTimerActive,
+    bool? waitForSongToFinish,
+    Duration? sleepTimerDuration,
+    Duration? sleepTimerRemaining,
   }) {
     return PlayerState(
       playlist: playlist ?? this.playlist,
@@ -37,6 +53,10 @@ class PlayerState {
       isPlaying: isPlaying ?? this.isPlaying,
       isShuffleEnabled: isShuffleEnabled ?? this.isShuffleEnabled,
       repeatMode: repeatMode ?? this.repeatMode,
+      isSleepTimerActive: isSleepTimerActive ?? this.isSleepTimerActive,
+      waitForSongToFinish: waitForSongToFinish ?? this.waitForSongToFinish,
+      sleepTimerDuration: sleepTimerDuration ?? this.sleepTimerDuration,
+      sleepTimerRemaining: sleepTimerRemaining ?? this.sleepTimerRemaining,
     );
   }
 

@@ -8,6 +8,7 @@ import 'package:sonofy/presentation/blocs/player/player_state.dart';
 class PlayerCubit extends Cubit<PlayerState> {
   final PlayerRepository _playerRepository;
   StreamController<int>? _positionController;
+  Timer? _sleepTimer;
 
   PlayerCubit(this._playerRepository) : super(PlayerState.initial()) {
     _initializePositionStream();
@@ -168,9 +169,65 @@ class PlayerCubit extends Cubit<PlayerState> {
     }
   }
 
+  void startSleepTimer(Duration duration, bool waitForSong) {
+    stopSleepTimer();
+
+    emit(
+      state.copyWith(
+        sleepTimerDuration: duration,
+        sleepTimerRemaining: duration,
+        isSleepTimerActive: true,
+        waitForSongToFinish: waitForSong,
+      ),
+    );
+
+    _sleepTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      final remaining = state.sleepTimerRemaining;
+      if (remaining == null || remaining.inSeconds <= 0) {
+        _handleSleepTimerExpired();
+        return;
+      }
+
+      final newRemaining = Duration(seconds: remaining.inSeconds - 1);
+      emit(state.copyWith(sleepTimerRemaining: newRemaining));
+    });
+  }
+
+  void stopSleepTimer() {
+    _sleepTimer?.cancel();
+    _sleepTimer = null;
+
+    emit(state.copyWith(isSleepTimerActive: false, waitForSongToFinish: false));
+  }
+
+  void toggleWaitForSongToFinish() {
+    emit(state.copyWith(waitForSongToFinish: !state.waitForSongToFinish));
+  }
+
+  Future<void> _handleSleepTimerExpired() async {
+    if (state.waitForSongToFinish && state.isPlaying && state.hasSelectedSong) {
+      final currentSong = state.currentSong;
+      if (currentSong != null) {
+        final position = await _playerRepository.getCurrentPosition();
+        final currentPositionMs = position?.inMilliseconds ?? 0;
+        final songDurationMs = currentSong.duration ?? 0;
+        final isNearEnd = currentPositionMs >= (songDurationMs - 5000);
+
+        if (!isNearEnd) {
+          return;
+        }
+      }
+    }
+
+    await _playerRepository.pause();
+    emit(state.copyWith(isPlaying: false));
+    stopSleepTimer();
+  }
+
   @override
   Future<void> close() {
     _positionController?.close();
+    _sleepTimer?.cancel();
     return super.close();
   }
 }
