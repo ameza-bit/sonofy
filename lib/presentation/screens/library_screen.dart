@@ -46,6 +46,32 @@ class LibraryScreen extends StatelessWidget {
                     SizedBox(height: AppSpacing.bottomSheetHeight),
                   ],
                 );
+              } else if (state.songs.isEmpty) {
+                return Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Expanded(
+                      child: Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          spacing: 16.0,
+                          children: [
+                            Icon(
+                              FontAwesomeIcons.lightMusic,
+                              size: 64,
+                              color: Theme.of(context).iconTheme.color,
+                            ),
+                            Text(
+                              context.tr('library.empty'),
+                              style: TextStyle(fontSize: context.scaleText(18)),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: AppSpacing.bottomSheetHeight),
+                  ],
+                );
               }
 
               return ListView.builder(

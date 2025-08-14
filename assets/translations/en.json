@@ -72,10 +72,12 @@
     "undo_confirmation_desc": "Show confirmation dialog when undoing swaps"
   },
   "library": {
-    "title": "Library"
+    "title": "Library",
+    "empty": "No songs in your library"
   },
   "player": {
     "now_playing": "Now Playing",
-    "lyrics": "Lyrics"
+    "lyrics": "Lyrics",
+    "playlist": "Playlist"
   }
 }

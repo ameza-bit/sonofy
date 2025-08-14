@@ -57,7 +57,11 @@ class _SplashScreenState extends State<SplashScreen>
           opacity: _fadeAnimation,
           child: ScaleTransition(
             scale: _scaleAnimation,
-            child: const FlutterLogo(size: 200),
+            child: Image.asset(
+              'assets/images/sonofy-icon.png',
+              width: 200,
+              height: 200,
+            ),
           ),
         ),
       ),

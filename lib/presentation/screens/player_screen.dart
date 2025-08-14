@@ -10,7 +10,7 @@ import 'package:sonofy/presentation/blocs/player/player_state.dart';
 import 'package:sonofy/presentation/widgets/common/font_awesome/font_awesome_flutter.dart';
 import 'package:sonofy/presentation/widgets/library/bottom_clipper_container.dart';
 import 'package:sonofy/presentation/widgets/player/player_control.dart';
-import 'package:sonofy/presentation/widgets/player/player_lyrics.dart';
+import 'package:sonofy/presentation/widgets/player/player_bottom_modals.dart';
 import 'package:sonofy/presentation/widgets/player/player_slider.dart';
 
 class PlayerScreen extends StatelessWidget {
@@ -101,7 +101,9 @@ class PlayerScreen extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.center,
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
-                            PlayerSlider(durationMiliseconds: currentSong?.duration ?? 0),
+                            PlayerSlider(
+                              durationMiliseconds: currentSong?.duration ?? 0,
+                            ),
                             const SizedBox(height: 16),
                             Text(
                               songName,
@@ -135,7 +137,7 @@ class PlayerScreen extends StatelessWidget {
               ),
             ],
           ),
-          bottomNavigationBar: const PlayerLyrics(),
+          bottomNavigationBar: const PlayerBottomModals(),
         );
       },
     );
