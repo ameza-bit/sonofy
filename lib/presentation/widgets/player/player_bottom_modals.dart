@@ -21,9 +21,9 @@ class PlayerBottomModals extends StatelessWidget {
           required String label,
           required VoidCallback onTap,
         }) {
-          return GestureDetector(
-            onTap: onTap,
-            child: Expanded(
+          return Expanded(
+            child: GestureDetector(
+              onTap: onTap,
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
