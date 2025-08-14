@@ -72,7 +72,8 @@
     "undo_confirmation_desc": "Mostrar diálogo de confirmación al deshacer intercambios"
   },
   "library": {
-    "title": "Biblioteca"
+    "title": "Biblioteca",
+    "empty": "No hay canciones en tu biblioteca"
   },
   "player": {
     "now_playing": "Sonando",
