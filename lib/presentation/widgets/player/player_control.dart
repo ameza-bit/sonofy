@@ -18,34 +18,57 @@ class PlayerControl extends StatelessWidget {
         final primaryColor = state.settings.primaryColor;
 
         return Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          spacing: 30,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             IconButton(
-              onPressed: () => context.read<PlayerCubit>().previousSong(),
-              icon: const Icon(FontAwesomeIcons.solidBackward, size: 30.0),
-            ),
-            BlocBuilder<PlayerCubit, PlayerState>(
-              builder: (context, state) {
-                return CircularGradientButton(
-                  size: 80,
-                  elevation: 1,
-                  primaryColor: primaryColor,
-                  onPressed: () =>
-                      context.read<PlayerCubit>().togglePlayPause(),
-                  child: Icon(
-                    state.isPlaying
-                        ? FontAwesomeIcons.solidPause
-                        : FontAwesomeIcons.solidPlay,
-                    color: context.musicWhite,
-                    size: 30,
-                  ),
-                );
+              onPressed: () {
+                // TODO(Armando): Implement shuffle functionality
               },
+              icon: const Icon(FontAwesomeIcons.lightShuffle, size: 20.0),
+            ),
+            Expanded(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                spacing: 20,
+                children: [
+                  IconButton(
+                    onPressed: () => context.read<PlayerCubit>().previousSong(),
+                    icon: const Icon(
+                      FontAwesomeIcons.solidBackward,
+                      size: 30.0,
+                    ),
+                  ),
+                  BlocBuilder<PlayerCubit, PlayerState>(
+                    builder: (context, state) {
+                      return CircularGradientButton(
+                        size: 80,
+                        elevation: 1,
+                        primaryColor: primaryColor,
+                        onPressed: () =>
+                            context.read<PlayerCubit>().togglePlayPause(),
+                        child: Icon(
+                          state.isPlaying
+                              ? FontAwesomeIcons.solidPause
+                              : FontAwesomeIcons.solidPlay,
+                          color: context.musicWhite,
+                          size: 30,
+                        ),
+                      );
+                    },
+                  ),
+                  IconButton(
+                    onPressed: () => context.read<PlayerCubit>().nextSong(),
+                    icon: const Icon(FontAwesomeIcons.solidForward, size: 30.0),
+                  ),
+                ],
+              ),
             ),
             IconButton(
-              onPressed: () => context.read<PlayerCubit>().nextSong(),
-              icon: const Icon(FontAwesomeIcons.solidForward, size: 30.0),
+              onPressed: () {
+                // TODO(Armando): Implement repeat functionality
+              },
+              icon: const Icon(FontAwesomeIcons.lightRepeat, size: 20.0),
             ),
           ],
         );
