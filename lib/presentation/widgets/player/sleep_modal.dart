@@ -80,33 +80,6 @@ class SleepModal extends StatelessWidget {
                               primaryColor,
                             ),
                           ),
-                          const Divider(),
-                          InkWell(
-                            onTap: () => context
-                                .read<PlayerCubit>()
-                                .toggleWaitForSongToFinish(),
-                            child: Row(
-                              spacing: 16,
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    context.tr('player.sleep.wait_description'),
-                                    style: TextStyle(
-                                      fontSize: context.scaleText(16),
-                                      height: 1.0,
-                                    ),
-                                  ),
-                                ),
-                                Checkbox(
-                                  value: playerState.waitForSongToFinish,
-                                  onChanged: (_) => context
-                                      .read<PlayerCubit>()
-                                      .toggleWaitForSongToFinish(),
-                                ),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(height: AppSpacing.bottomSheetHeight),
                         ],
                       ),
                     ),
@@ -143,7 +116,7 @@ class SleepModal extends StatelessWidget {
     if (playerState.isSleepTimerActive) {
       return _buildActiveTimer(context, playerState, primaryColor);
     } else {
-      return _buildTimerOptions(context, primaryColor);
+      return _buildTimerOptions(context, playerState, primaryColor);
     }
   }
 
@@ -191,6 +164,7 @@ class SleepModal extends StatelessWidget {
             ),
             child: Text(context.tr('player.sleep.cancel_timer')),
           ),
+          const SizedBox(height: 32),
         ],
       );
     }
@@ -229,11 +203,41 @@ class SleepModal extends StatelessWidget {
           ),
           child: Text(context.tr('player.sleep.cancel_timer')),
         ),
+        const SizedBox(height: 32),
       ],
     );
   }
 
-  Widget _buildTimerOptions(BuildContext context, Color primaryColor) {
+  Widget _buildWaitForSongTile(
+    BuildContext context,
+    PlayerState playerState,
+    Color primaryColor,
+  ) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: ListTile(
+        leading: Icon(FontAwesomeIcons.lightMusic, color: primaryColor),
+        title: Text(
+          context.tr('player.sleep.wait_description'),
+          style: TextStyle(fontSize: context.scaleText(16)),
+        ),
+        trailing: Checkbox(
+          value: playerState.waitForSongToFinish,
+          onChanged: (_) =>
+              context.read<PlayerCubit>().toggleWaitForSongToFinish(),
+        ),
+        onTap: () => context.read<PlayerCubit>().toggleWaitForSongToFinish(),
+        tileColor: Theme.of(context).cardColor.withValues(alpha: 0.5),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+    );
+  }
+
+  Widget _buildTimerOptions(
+    BuildContext context,
+    PlayerState playerState,
+    Color primaryColor,
+  ) {
     final durations = [
       const Duration(minutes: 15),
       const Duration(minutes: 30),
@@ -263,6 +267,10 @@ class SleepModal extends StatelessWidget {
         ),
         const SizedBox(height: 16),
         _buildCustomDurationTile(context, primaryColor),
+        const SizedBox(height: 16),
+        const Divider(),
+        _buildWaitForSongTile(context, playerState, primaryColor),
+        const SizedBox(height: AppSpacing.bottomSheetHeight),
       ],
     );
   }
