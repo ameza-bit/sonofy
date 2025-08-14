@@ -90,7 +90,8 @@
       "minutes": "min",
       "start_timer": "Start Timer",
       "duration_minutes": "{} minutes",
-      "duration_hours": "{} hour"
+      "duration_hours": "{} hour",
+      "range_description": "Enter a value between 1 and 180 minutes"
     }
   }
 }

@@ -95,9 +95,13 @@ class SleepModal extends StatelessWidget {
                               ),
                               Checkbox(
                                 value: playerState.waitForSongToFinish,
-                                onChanged: (value) => context
-                                    .read<PlayerCubit>()
-                                    .toggleWaitForSongToFinish(),
+                                onChanged: playerState.isSleepTimerActive 
+                                    ? (value) => context
+                                        .read<PlayerCubit>()
+                                        .toggleWaitForSongToFinish()
+                                    : (value) => context
+                                        .read<PlayerCubit>()
+                                        .toggleWaitForSongToFinish(),
                               ),
                             ],
                           ),
@@ -262,54 +266,83 @@ class SleepModal extends StatelessWidget {
   }
 
   void _showCustomDurationDialog(BuildContext context, Color primaryColor) {
-    int selectedMinutes = 60;
+    double selectedMinutes = 60.0;
 
     showDialog(
       context: context,
       builder: (dialogContext) => StatefulBuilder(
         builder: (context, setState) => AlertDialog(
           title: Text(context.tr('player.sleep.custom_duration')),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(context.tr('player.sleep.select_minutes')),
-              const SizedBox(height: 16),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  IconButton(
-                    onPressed: selectedMinutes > 1
-                        ? () => setState(() => selectedMinutes--)
-                        : null,
-                    icon: const Icon(Icons.remove),
+          content: SizedBox(
+            width: double.maxFinite,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(context.tr('player.sleep.select_minutes')),
+                const SizedBox(height: 24),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: primaryColor),
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 8,
+                  child: Text(
+                    '${selectedMinutes.round()} ${context.tr('player.sleep.minutes')}',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: primaryColor,
                     ),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: primaryColor),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Text(
-                      '$selectedMinutes ${context.tr('player.sleep.minutes')}',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: primaryColor,
-                      ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                SliderTheme(
+                  data: SliderTheme.of(context).copyWith(
+                    activeTrackColor: primaryColor,
+                    inactiveTrackColor: primaryColor.withValues(alpha: 0.3),
+                    thumbColor: primaryColor,
+                    overlayColor: primaryColor.withValues(alpha: 0.1),
+                    thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 12),
+                    overlayShape: const RoundSliderOverlayShape(overlayRadius: 20),
+                    trackHeight: 4,
+                    valueIndicatorColor: primaryColor,
+                    valueIndicatorTextStyle: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
-                  IconButton(
-                    onPressed: selectedMinutes < 180
-                        ? () => setState(() => selectedMinutes++)
-                        : null,
-                    icon: const Icon(Icons.add),
+                  child: Slider(
+                    value: selectedMinutes,
+                    min: 1.0,
+                    max: 180.0,
+                    divisions: 179,
+                    label: '${selectedMinutes.round()} min',
+                    onChanged: (value) {
+                      setState(() => selectedMinutes = value);
+                    },
                   ),
-                ],
-              ),
-            ],
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text('1 min', style: TextStyle(color: Colors.grey[600], fontSize: 12)),
+                    Text('180 min', style: TextStyle(color: Colors.grey[600], fontSize: 12)),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    _buildQuickButton(context, setState, 15, selectedMinutes, primaryColor, (value) => selectedMinutes = value),
+                    _buildQuickButton(context, setState, 30, selectedMinutes, primaryColor, (value) => selectedMinutes = value),
+                    _buildQuickButton(context, setState, 60, selectedMinutes, primaryColor, (value) => selectedMinutes = value),
+                    _buildQuickButton(context, setState, 90, selectedMinutes, primaryColor, (value) => selectedMinutes = value),
+                  ],
+                ),
+              ],
+            ),
           ),
           actions: [
             TextButton(
@@ -320,7 +353,7 @@ class SleepModal extends StatelessWidget {
               onPressed: () {
                 Navigator.of(dialogContext).pop();
                 context.read<PlayerCubit>().startSleepTimer(
-                  Duration(minutes: selectedMinutes),
+                  Duration(minutes: selectedMinutes.round()),
                   context.read<PlayerCubit>().state.waitForSongToFinish,
                 );
               },
@@ -331,6 +364,41 @@ class SleepModal extends StatelessWidget {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildQuickButton(
+    BuildContext context,
+    StateSetter setState,
+    int minutes,
+    double currentValue,
+    Color primaryColor,
+    Function(double) onChanged,
+  ) {
+    final isSelected = currentValue.round() == minutes;
+    return GestureDetector(
+      onTap: () {
+        setState(() => onChanged(minutes.toDouble()));
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        decoration: BoxDecoration(
+          color: isSelected ? primaryColor : primaryColor.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: primaryColor,
+            width: isSelected ? 2 : 1,
+          ),
+        ),
+        child: Text(
+          '${minutes}m',
+          style: TextStyle(
+            color: isSelected ? Colors.white : primaryColor,
+            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+            fontSize: 12,
+          ),
         ),
       ),
     );
