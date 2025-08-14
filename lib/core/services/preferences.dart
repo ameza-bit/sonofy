@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:sonofy/data/models/setting.dart';
+import 'package:sonofy/data/models/player_preferences.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Preferences {
@@ -46,5 +47,18 @@ class Preferences {
 
   static set settings(Settings settings) {
     pref.setString('ND_SETTINGS', settingsToJson(settings));
+  }
+
+  static PlayerPreferences get playerPreferences {
+    final String? prefsString = pref.getString('ND_PLAYER_PREFERENCES');
+    if (prefsString != null) {
+      return playerPreferencesFromJson(prefsString);
+    } else {
+      return const PlayerPreferences();
+    }
+  }
+
+  static set playerPreferences(PlayerPreferences preferences) {
+    pref.setString('ND_PLAYER_PREFERENCES', playerPreferencesToJson(preferences));
   }
 }

@@ -20,7 +20,7 @@ class LyricsModal extends StatelessWidget {
       isScrollControlled: true,
       backgroundColor: context.musicBackground,
       constraints: BoxConstraints(
-        maxHeight: MediaQuery.of(context).size.height * 0.75,
+        maxHeight: MediaQuery.of(context).size.height * 0.85,
         maxWidth: MediaQuery.of(context).size.width,
         minHeight: MediaQuery.of(context).size.height * 0.25,
         minWidth: MediaQuery.of(context).size.width,
@@ -67,24 +67,25 @@ class LyricsModal extends StatelessWidget {
                           ],
                         ),
                       ),
-                      ListView(
-                        shrinkWrap: true,
-                        children: [
-                          for (int i = 0; i < 10; i++) ...[
-                            ListTile(
-                              title: Text(
-                                'Lyric $i',
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  fontSize: context.scaleText(16),
+                      Expanded(
+                        child: ListView(
+                          children: [
+                            for (int i = 0; i < 10; i++) ...[
+                              ListTile(
+                                title: Text(
+                                  'Lyric $i',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontSize: context.scaleText(16),
+                                  ),
                                 ),
+                                onTap: () {
+                                  // Handle lyric tap
+                                },
                               ),
-                              onTap: () {
-                                // Handle lyric tap
-                              },
-                            ),
+                            ],
                           ],
-                        ],
+                        ),
                       ),
                       const SizedBox(height: AppSpacing.bottomSheetHeight),
                     ],

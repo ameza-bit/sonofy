@@ -3,19 +3,14 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sonofy/core/extensions/color_extensions.dart';
 import 'package:sonofy/core/themes/gradient_helpers.dart';
 import 'package:sonofy/presentation/blocs/player/player_cubit.dart';
+import 'package:sonofy/presentation/blocs/player/player_state.dart';
 import 'package:sonofy/presentation/blocs/settings/settings_cubit.dart';
 import 'package:sonofy/presentation/blocs/settings/settings_state.dart';
 import 'package:sonofy/presentation/widgets/common/font_awesome/font_awesome_flutter.dart';
+import 'package:sonofy/presentation/widgets/player/sleep_modal.dart';
 
-class PlayerControl extends StatefulWidget {
+class PlayerControl extends StatelessWidget {
   const PlayerControl({super.key});
-
-  @override
-  State<PlayerControl> createState() => _PlayerControlState();
-}
-
-class _PlayerControlState extends State<PlayerControl> {
-  bool _isPlaying = false;
 
   @override
   Widget build(BuildContext context) {
@@ -24,29 +19,92 @@ class _PlayerControlState extends State<PlayerControl> {
         final primaryColor = state.settings.primaryColor;
 
         return Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          spacing: 30,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            IconButton(
-              onPressed: () => context.read<PlayerCubit>().previousSong(),
-              icon: const Icon(FontAwesomeIcons.solidBackward, size: 30.0),
+            BlocBuilder<PlayerCubit, PlayerState>(
+              builder: (context, state) {
+                IconData repeatIcon;
+                Color? iconColor;
+
+                switch (state.repeatMode) {
+                  case RepeatMode.none:
+                    repeatIcon = FontAwesomeIcons.lightRepeat;
+                    iconColor = null;
+                    break;
+                  case RepeatMode.one:
+                    repeatIcon = FontAwesomeIcons.solidRepeat1;
+                    iconColor = primaryColor;
+                    break;
+                  case RepeatMode.all:
+                    repeatIcon = FontAwesomeIcons.solidRepeat;
+                    iconColor = primaryColor;
+                    break;
+                }
+
+                return IconButton(
+                  onPressed: () => context.read<PlayerCubit>().toggleRepeat(),
+                  icon: Icon(repeatIcon, size: 20.0, color: iconColor),
+                );
+              },
             ),
-            CircularGradientButton(
-              size: 80,
-              elevation: 1,
-              primaryColor: primaryColor,
-              onPressed: () => setState(() => _isPlaying = !_isPlaying),
-              child: Icon(
-                _isPlaying
-                    ? FontAwesomeIcons.solidPause
-                    : FontAwesomeIcons.solidPlay,
-                color: context.musicWhite,
-                size: 30,
+            Expanded(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Expanded(
+                    child: IconButton(
+                      onPressed: () =>
+                          context.read<PlayerCubit>().previousSong(),
+                      icon: const Icon(
+                        FontAwesomeIcons.solidBackward,
+                        size: 30.0,
+                      ),
+                    ),
+                  ),
+                  BlocBuilder<PlayerCubit, PlayerState>(
+                    builder: (context, state) {
+                      return CircularGradientButton(
+                        size: 80,
+                        elevation: 1,
+                        primaryColor: primaryColor,
+                        onPressed: () =>
+                            context.read<PlayerCubit>().togglePlayPause(),
+                        child: Icon(
+                          state.isPlaying
+                              ? FontAwesomeIcons.solidPause
+                              : FontAwesomeIcons.solidPlay,
+                          color: context.musicWhite,
+                          size: 30,
+                        ),
+                      );
+                    },
+                  ),
+                  Expanded(
+                    child: IconButton(
+                      onPressed: () => context.read<PlayerCubit>().nextSong(),
+                      icon: const Icon(
+                        FontAwesomeIcons.solidForward,
+                        size: 30.0,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
-            IconButton(
-              onPressed: () => context.read<PlayerCubit>().nextSong(),
-              icon: const Icon(FontAwesomeIcons.solidForward, size: 30.0),
+            BlocBuilder<PlayerCubit, PlayerState>(
+              builder: (context, state) {
+                return IconButton(
+                  onPressed: () => SleepModal.show(context),
+                  icon: Icon(
+                    state.isSleepTimerActive 
+                        ? FontAwesomeIcons.solidTimer
+                        : FontAwesomeIcons.lightTimer,
+                    size: 20.0,
+                    color: state.isSleepTimerActive ? primaryColor : null,
+                  ),
+                );
+              },
             ),
           ],
         );
