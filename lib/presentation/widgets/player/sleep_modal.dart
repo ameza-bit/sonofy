@@ -248,15 +248,6 @@ class SleepModal extends StatelessWidget {
     return ListView(
       children: [
         const SizedBox(height: 24),
-        Text(
-          context.tr('player.sleep.select_duration'),
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            fontSize: context.scaleText(18),
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        const SizedBox(height: 24),
         ...durations.map(
           (duration) => _buildDurationTile(
             context,
@@ -265,9 +256,7 @@ class SleepModal extends StatelessWidget {
             primaryColor,
           ),
         ),
-        const SizedBox(height: 16),
         _buildCustomDurationTile(context, primaryColor),
-        const SizedBox(height: 16),
         const Divider(),
         _buildWaitForSongTile(context, playerState, primaryColor),
         const SizedBox(height: AppSpacing.bottomSheetHeight),
