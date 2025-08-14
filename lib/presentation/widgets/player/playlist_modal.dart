@@ -70,6 +70,7 @@ class PlaylistModal extends StatelessWidget {
                           ],
                         ),
                       ),
+                      const SizedBox(height: 16),
                       Expanded(
                         child: BlocBuilder<PlayerCubit, PlayerState>(
                           builder: (context, state) => ListView.builder(
@@ -83,7 +84,10 @@ class PlaylistModal extends StatelessWidget {
 
                               return SongCard(
                                 playlist: state.playlist,
-                                song: state.playlist[index],
+                                song:
+                                    state.playlist[(index +
+                                            state.currentIndex) %
+                                        state.playlist.length],
                               );
                             },
                           ),
