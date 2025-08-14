@@ -78,6 +78,10 @@
   "player": {
     "now_playing": "Sonando",
     "lyrics": "Letras",
-    "playlist": "Lista de Reproducción"
+    "playlist": "Lista de Reproducción",
+    "sleep": {
+      "title": "Apagado automático",
+      "wait_description": "Esperar a terminar la ultima canción"
+    }
   }
 }

@@ -78,6 +78,10 @@
   "player": {
     "now_playing": "Now Playing",
     "lyrics": "Lyrics",
-    "playlist": "Playlist"
+    "playlist": "Playlist",
+    "sleep": {
+      "title": "Sleep Timer",
+      "wait_description": "Wait for the last song to finish"
+    }
   }
 }

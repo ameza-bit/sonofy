@@ -7,6 +7,7 @@ import 'package:sonofy/presentation/blocs/player/player_state.dart';
 import 'package:sonofy/presentation/blocs/settings/settings_cubit.dart';
 import 'package:sonofy/presentation/blocs/settings/settings_state.dart';
 import 'package:sonofy/presentation/widgets/common/font_awesome/font_awesome_flutter.dart';
+import 'package:sonofy/presentation/widgets/player/sleep_modal.dart';
 
 class PlayerControl extends StatelessWidget {
   const PlayerControl({super.key});
@@ -92,9 +93,7 @@ class PlayerControl extends StatelessWidget {
               ),
             ),
             IconButton(
-              onPressed: () {
-                // TODO(Armando): Implement sleep timer functionality
-              },
+              onPressed: () => SleepModal.show(context),
               icon: Icon(
                 FontAwesomeIcons.lightTimer,
                 size: 20.0,
