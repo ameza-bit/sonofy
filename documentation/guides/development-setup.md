@@ -9,6 +9,15 @@
 - **Canal**: Stable recomendado
 - **Instalación**: [Guía oficial de Flutter](https://docs.flutter.dev/get-started/install)
 
+#### Dependencias Específicas de Sonofy
+El proyecto utiliza las siguientes dependencias principales:
+- **flutter_bloc ^9.1.1**: Gestión de estado
+- **go_router ^16.1.0**: Navegación declarativa
+- **audioplayers ^6.5.0**: Reproducción de audio
+- **on_audio_query_pluse ^2.9.4**: Consulta de metadata musical
+- **easy_localization ^3.0.8**: Internacionalización
+- **shared_preferences ^2.5.3**: Persistencia local
+
 #### Dart SDK
 - **Versión**: Incluido con Flutter SDK
 - **Verificación**: `dart --version`
@@ -150,6 +159,31 @@ flutter pub get
 
 # Para iOS (solo macOS)
 cd ios && pod install && cd ..
+```
+
+### 4. Generar Iconos de la Aplicación
+```bash
+# Generar iconos para todas las plataformas usando flutter_launcher_icons
+flutter pub run flutter_launcher_icons:main
+
+# Los iconos se generan automáticamente desde assets/images/icon-white.png
+```
+
+### 5. Configurar Permisos de Audio
+
+#### Android
+Verificar que `android/app/src/main/AndroidManifest.xml` incluye:
+```xml
+<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+<uses-permission android:name="android.permission.WAKE_LOCK" />
+<uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+```
+
+#### iOS
+Verificar que `ios/Runner/Info.plist` incluye:
+```xml
+<key>NSAppleMusicUsageDescription</key>
+<string>Sonofy necesita acceso a tu biblioteca musical para reproducir canciones.</string>
 ```
 
 ### 4. Configurar Archivos de Entorno

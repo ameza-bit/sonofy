@@ -9,56 +9,76 @@ Sonofy utiliza el patrón BLoC (Business Logic Component) implementado a través
 ### Estado (`presentation/blocs/player/player_state.dart`)
 
 ```dart
+enum RepeatMode { none, one, all }
+
 class PlayerState {
   final List<SongModel> playlist;
   final int currentIndex;
   final bool isPlaying;
+  final bool isShuffleEnabled;
+  final RepeatMode repeatMode;
+  final bool isSleepTimerActive;
+  final bool waitForSongToFinish;
+  final Duration? sleepTimerDuration;
+  final Duration? sleepTimerRemaining;
 
-  const PlayerState({
+  PlayerState({
     required this.playlist,
     required this.currentIndex,
     required this.isPlaying,
+    required this.isShuffleEnabled,
+    required this.repeatMode,
+    required this.isSleepTimerActive,
+    required this.waitForSongToFinish,
+    this.sleepTimerDuration,
+    this.sleepTimerRemaining,
   });
 
   /// Constructor para estado inicial
-  factory PlayerState.initial() => const PlayerState(
-    playlist: [],
-    currentIndex: 0,
-    isPlaying: false,
-  );
+  PlayerState.initial()
+    : playlist = [],
+      currentIndex = -1,
+      isPlaying = false,
+      isShuffleEnabled = false,
+      repeatMode = RepeatMode.none,
+      sleepTimerDuration = null,
+      sleepTimerRemaining = null,
+      isSleepTimerActive = false,
+      waitForSongToFinish = false;
+
+  /// Verifica si hay una canción seleccionada válida
+  bool get hasSelectedSong =>
+      playlist.isNotEmpty &&
+      currentIndex < playlist.length &&
+      currentIndex >= 0;
 
   /// Getter para canción actual
-  SongModel? get currentSong {
-    if (playlist.isEmpty || currentIndex < 0 || currentIndex >= playlist.length) {
-      return null;
-    }
-    return playlist[currentIndex];
-  }
+  SongModel? get currentSong => hasSelectedSong ? playlist[currentIndex] : null;
 
   /// Método para crear copias inmutables
   PlayerState copyWith({
     List<SongModel>? playlist,
     int? currentIndex,
     bool? isPlaying,
+    bool? isShuffleEnabled,
+    RepeatMode? repeatMode,
+    bool? isSleepTimerActive,
+    bool? waitForSongToFinish,
+    Duration? sleepTimerDuration,
+    Duration? sleepTimerRemaining,
   }) {
     return PlayerState(
       playlist: playlist ?? this.playlist,
       currentIndex: currentIndex ?? this.currentIndex,
       isPlaying: isPlaying ?? this.isPlaying,
+      isShuffleEnabled: isShuffleEnabled ?? this.isShuffleEnabled,
+      repeatMode: repeatMode ?? this.repeatMode,
+      isSleepTimerActive: isSleepTimerActive ?? this.isSleepTimerActive,
+      waitForSongToFinish: waitForSongToFinish ?? this.waitForSongToFinish,
+      sleepTimerDuration: sleepTimerDuration ?? this.sleepTimerDuration,
+      sleepTimerRemaining: sleepTimerRemaining ?? this.sleepTimerRemaining,
     );
   }
-
-  @override
-  bool operator ==(Object other) {
-    if (identical(this, other)) return true;
-    return other is PlayerState &&
-        listEquals(other.playlist, playlist) &&
-        other.currentIndex == currentIndex &&
-        other.isPlaying == isPlaying;
-  }
-
-  @override
-  int get hashCode => Object.hash(playlist, currentIndex, isPlaying);
 }
 ```
 
@@ -67,8 +87,12 @@ class PlayerState {
 ```dart
 class PlayerCubit extends Cubit<PlayerState> {
   final PlayerRepository _playerRepository;
+  StreamController<int>? _positionController;
+  Timer? _sleepTimer;
 
-  PlayerCubit(this._playerRepository) : super(PlayerState.initial());
+  PlayerCubit(this._playerRepository) : super(PlayerState.initial()) {
+    _initializePositionStream();
+  }
 
   /// Establece una nueva canción para reproducir
   Future<void> setPlayingSong(List<SongModel> playlist, SongModel song) async {
@@ -85,36 +109,157 @@ class PlayerCubit extends Cubit<PlayerState> {
 
   /// Reproduce la siguiente canción en la playlist
   Future<void> nextSong() async {
-    var currentIndex = state.currentIndex;
-    if (currentIndex < state.playlist.length - 1) {
-      currentIndex = currentIndex + 1;
+    if (state.playlist.isEmpty) return;
+
+    int nextIndex;
+    if (state.repeatMode == RepeatMode.one) {
+      nextIndex = state.currentIndex;
     } else {
-      currentIndex = 0; // Volver al principio
+      nextIndex = _getNextIndex();
     }
+
     final bool isPlaying = await _playerRepository.play(
-      state.playlist[currentIndex].data,
+      state.playlist[nextIndex].data,
     );
-    emit(state.copyWith(currentIndex: currentIndex, isPlaying: isPlaying));
+    emit(state.copyWith(currentIndex: nextIndex, isPlaying: isPlaying));
   }
 
   /// Reproduce la canción anterior en la playlist
   Future<void> previousSong() async {
-    var currentIndex = state.currentIndex;
-    if (currentIndex > 0) {
-      currentIndex = currentIndex - 1;
+    if (state.playlist.isEmpty) return;
+
+    int previousIndex;
+    if (state.repeatMode == RepeatMode.one) {
+      previousIndex = state.currentIndex;
     } else {
-      currentIndex = state.playlist.length - 1; // Ir al final
+      previousIndex = _getPreviousIndex();
     }
+
     final bool isPlaying = await _playerRepository.play(
-      state.playlist[currentIndex].data,
+      state.playlist[previousIndex].data,
     );
-    emit(state.copyWith(currentIndex: currentIndex, isPlaying: isPlaying));
+    emit(state.copyWith(currentIndex: previousIndex, isPlaying: isPlaying));
   }
 
   /// Alterna entre reproducir y pausar
   Future<void> togglePlayPause() async {
     final bool isPlaying = await _playerRepository.togglePlayPause();
     emit(state.copyWith(isPlaying: isPlaying));
+  }
+
+  /// Alterna el modo shuffle
+  void toggleShuffle() {
+    emit(state.copyWith(isShuffleEnabled: !state.isShuffleEnabled));
+  }
+
+  /// Alterna entre los modos de repetición
+  void toggleRepeat() {
+    RepeatMode newMode;
+    switch (state.repeatMode) {
+      case RepeatMode.none:
+        newMode = RepeatMode.one;
+        break;
+      case RepeatMode.one:
+        newMode = RepeatMode.all;
+        break;
+      case RepeatMode.all:
+        newMode = RepeatMode.none;
+        break;
+    }
+    emit(state.copyWith(repeatMode: newMode));
+  }
+
+  /// Inicia el temporizador de sueño
+  void startSleepTimer(Duration duration, bool waitForSong) {
+    stopSleepTimer();
+
+    emit(
+      state.copyWith(
+        sleepTimerDuration: duration,
+        sleepTimerRemaining: duration,
+        isSleepTimerActive: true,
+        waitForSongToFinish: waitForSong,
+      ),
+    );
+
+    _sleepTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      final remaining = state.sleepTimerRemaining;
+      if (remaining == null || remaining.inSeconds <= 0) {
+        _handleSleepTimerExpired();
+        return;
+      }
+
+      final newRemaining = Duration(seconds: remaining.inSeconds - 1);
+      emit(state.copyWith(sleepTimerRemaining: newRemaining));
+    });
+  }
+
+  /// Detiene el temporizador de sueño
+  void stopSleepTimer() {
+    _sleepTimer?.cancel();
+    _sleepTimer = null;
+
+    emit(state.copyWith(isSleepTimerActive: false, waitForSongToFinish: false));
+  }
+
+  /// Alterna la opción de esperar al final de la canción
+  void toggleWaitForSongToFinish() {
+    emit(state.copyWith(waitForSongToFinish: !state.waitForSongToFinish));
+  }
+
+  /// Obtiene stream de posición actual de la canción
+  Stream<int> getCurrentSongPosition() {
+    return _positionController?.stream ?? const Stream.empty();
+  }
+
+  /// Busca una posición específica en la canción
+  Future<void> seekTo(Duration position) async {
+    final bool isPlaying = await _playerRepository.seek(position);
+    emit(state.copyWith(isPlaying: isPlaying));
+  }
+
+  // Métodos privados para lógica de shuffle y repeat
+  int _getNextIndex() {
+    if (state.isShuffleEnabled) {
+      if (state.playlist.length <= 1) return state.currentIndex;
+      final random = Random();
+      int nextIndex;
+      do {
+        nextIndex = random.nextInt(state.playlist.length);
+      } while (nextIndex == state.currentIndex);
+      return nextIndex;
+    } else {
+      if (state.currentIndex < state.playlist.length - 1) {
+        return state.currentIndex + 1;
+      } else {
+        return 0; // Volver al principio
+      }
+    }
+  }
+
+  int _getPreviousIndex() {
+    if (state.isShuffleEnabled) {
+      if (state.playlist.length <= 1) return state.currentIndex;
+      final random = Random();
+      int previousIndex;
+      do {
+        previousIndex = random.nextInt(state.playlist.length);
+      } while (previousIndex == state.currentIndex);
+      return previousIndex;
+    } else {
+      if (state.currentIndex > 0) {
+        return state.currentIndex - 1;
+      } else {
+        return state.playlist.length - 1; // Ir al final
+      }
+    }
+  }
+
+  @override
+  Future<void> close() {
+    _positionController?.close();
+    _sleepTimer?.cancel();
+    return super.close();
   }
 }
 ```

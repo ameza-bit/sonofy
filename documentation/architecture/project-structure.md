@@ -122,6 +122,11 @@ presentation/
     ├── common/              # Widgets comunes
     │   ├── custom_text_field.dart     # Campo de texto personalizado
     │   ├── font_awesome/              # Sistema de iconos Font Awesome
+    │   │   ├── font_awesome_flutter.dart    # Implementación principal
+    │   │   ├── name_icon_mapping.dart       # Mapeo de nombres a iconos
+    │   │   └── src/                         # Fuentes del sistema
+    │   │       ├── fa_icon.dart            # Widget de icono
+    │   │       └── icon_data.dart          # Datos de iconos
     │   ├── primary_button.dart        # Botón primario
     │   ├── section_card.dart          # Tarjeta de sección
     │   ├── section_item.dart          # Elemento de sección
@@ -132,9 +137,11 @@ presentation/
     │   └── song_card.dart                 # Tarjeta de canción
     └── player/              # Widgets del reproductor
         ├── lirycs_modal.dart          # Modal de letras
+        ├── player_bottom_modals.dart  # Modales inferiores (letras, playlist, sleep)
         ├── player_control.dart        # Controles del reproductor
-        ├── player_lyrics.dart         # Visor de letras
-        └── player_slider.dart         # Slider de progreso
+        ├── player_slider.dart         # Slider de progreso
+        ├── playlist_modal.dart        # Modal de playlist
+        └── sleep_modal.dart           # Modal de temporizador de sueño
 ```
 
 ## 📦 Recursos (`assets/`)
@@ -152,8 +159,10 @@ assets/
 │       ├── sf-ui-display-bold-*.otf
 │       └── ...
 ├── images/
+│   ├── icon-white.png      # Icono principal de la app (blanco)
 │   ├── piano.png           # Imagen de piano
-│   └── placeholder.png     # Imagen placeholder
+│   ├── placeholder.png     # Imagen placeholder para carátulas
+│   └── sonofy-icon.png    # Icono de la aplicación
 ├── screenshots/
 │   ├── colors.png          # Captura del sistema de colores
 │   ├── core.png           # Captura de funciones core

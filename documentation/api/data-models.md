@@ -300,29 +300,52 @@ class PlayerState {
   final List<SongModel> playlist;
   final int currentIndex;
   final bool isPlaying;
+  final bool isShuffleEnabled;
+  final RepeatMode repeatMode;
+  final bool isSleepTimerActive;
+  final bool waitForSongToFinish;
+  final Duration? sleepTimerDuration;
+  final Duration? sleepTimerRemaining;
 
   const PlayerState({
     required this.playlist,
     required this.currentIndex,
     required this.isPlaying,
+    required this.isShuffleEnabled,
+    required this.repeatMode,
+    required this.isSleepTimerActive,
+    required this.waitForSongToFinish,
+    this.sleepTimerDuration,
+    this.sleepTimerRemaining,
   });
 
-  /// Canción actualmente seleccionada
-  SongModel? get currentSong {
-    if (playlist.isEmpty || currentIndex < 0 || currentIndex >= playlist.length) {
-      return null;
-    }
-    return playlist[currentIndex];
-  }
+  /// Constructor inicial con valores por defecto
+  PlayerState.initial()
+    : playlist = [],
+      currentIndex = -1,
+      isPlaying = false,
+      isShuffleEnabled = false,
+      repeatMode = RepeatMode.none,
+      sleepTimerDuration = null,
+      sleepTimerRemaining = null,
+      isSleepTimerActive = false,
+      waitForSongToFinish = false;
 
-  /// Verifica si hay una siguiente canción
-  bool get hasNext => currentIndex < playlist.length - 1;
-  
-  /// Verifica si hay una canción anterior
-  bool get hasPrevious => currentIndex > 0;
-  
-  /// Verifica si la playlist está vacía
-  bool get isEmpty => playlist.isEmpty;
+  /// Verifica si hay una canción seleccionada válida
+  bool get hasSelectedSong =>
+      playlist.isNotEmpty &&
+      currentIndex < playlist.length &&
+      currentIndex >= 0;
+
+  /// Canción actualmente seleccionada
+  SongModel? get currentSong => hasSelectedSong ? playlist[currentIndex] : null;
+}
+
+/// Modos de repetición del reproductor
+enum RepeatMode { 
+  none,  // Sin repetición
+  one,   // Repetir una canción
+  all    // Repetir toda la playlist
 }
 ```
 
@@ -482,4 +505,96 @@ class PlaybackState {
 }
 ```
 
-Los modelos de datos proporcionan una base sólida y type-safe para toda la información que maneja Sonofy, con patrones consistentes de inmutabilidad, serialización y validación que facilitan el desarrollo y mantenimiento de la aplicación.
+## ⏰ Funcionalidades del Temporizador de Sueño
+
+### Estados del Temporizador
+El `PlayerState` incluye propiedades específicas para manejar el temporizador de sueño:
+
+#### `isSleepTimerActive` - bool
+**Descripción**: Indica si el temporizador de sueño está activo.
+
+#### `sleepTimerDuration` - Duration?
+**Descripción**: Duración total configurada para el temporizador.
+
+#### `sleepTimerRemaining` - Duration?
+**Descripción**: Tiempo restante del temporizador. Cuando llega a `Duration.zero` y `waitForSongToFinish` es `true`, el temporizador espera que termine la canción actual.
+
+#### `waitForSongToFinish` - bool
+**Descripción**: Si es `true`, el temporizador esperará a que termine la canción actual antes de pausar la reproducción.
+
+### Lógica del Temporizador
+```dart
+// En PlayerCubit
+void startSleepTimer(Duration duration, bool waitForSong) {
+  stopSleepTimer(); // Cancela timer anterior si existe
+  
+  emit(state.copyWith(
+    sleepTimerDuration: duration,
+    sleepTimerRemaining: duration,
+    isSleepTimerActive: true,
+    waitForSongToFinish: waitForSong,
+  ));
+
+  _sleepTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+    final remaining = state.sleepTimerRemaining;
+    if (remaining == null || remaining.inSeconds <= 0) {
+      _handleSleepTimerExpired();
+      return;
+    }
+
+    final newRemaining = Duration(seconds: remaining.inSeconds - 1);
+    emit(state.copyWith(sleepTimerRemaining: newRemaining));
+  });
+}
+
+Future<void> _handleSleepTimerExpired() async {
+  if (state.waitForSongToFinish && state.isPlaying && state.hasSelectedSong) {
+    // Verificar si estamos cerca del final de la canción
+    final currentSong = state.currentSong;
+    if (currentSong != null) {
+      final position = await _playerRepository.getCurrentPosition();
+      final currentPositionMs = position?.inMilliseconds ?? 0;
+      final songDurationMs = currentSong.duration ?? 0;
+      final isNearEnd = currentPositionMs >= (songDurationMs - 5000); // 5 segundos antes
+
+      if (!isNearEnd) {
+        // Timer expiró pero esperamos el final de la canción
+        _sleepTimer?.cancel();
+        _sleepTimer = null;
+        
+        // Actualizar estado para mostrar que está esperando el final
+        emit(state.copyWith(sleepTimerRemaining: Duration.zero));
+        return;
+      }
+    }
+  }
+
+  // Pausar la música y limpiar el timer
+  await _playerRepository.pause();
+  emit(state.copyWith(isPlaying: false));
+  stopSleepTimer();
+}
+```
+
+### UI del Temporizador
+La interfaz del temporizador se encuentra en `lib/presentation/widgets/player/sleep_modal.dart` e incluye:
+
+#### Opciones Predeterminadas
+- 15 minutos
+- 30 minutos  
+- 45 minutos
+- 1 hora
+
+#### Duración Personalizada
+- Slider de 1-180 minutos
+- Botones rápidos (15m, 30m, 60m, 90m)
+- Vista previa en tiempo real
+
+#### Estados Visuales
+- **Timer activo**: Muestra countdown en formato MM:SS
+- **Esperando final de canción**: Ícono de reloj de arena con mensaje explicativo
+- **Configuración**: Lista de opciones con checkbox para "esperar final de canción"
+
+## 🎯 Resumen
+
+Los modelos de datos proporcionan una base sólida y type-safe para toda la información que maneja Sonofy, con patrones consistentes de inmutabilidad, serialización y validación que facilitan el desarrollo y mantenimiento de la aplicación. Las nuevas funcionalidades del temporizador de sueño demuestran cómo la arquitectura permite agregar características complejas manteniendo la consistencia del código.
