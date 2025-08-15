@@ -68,7 +68,7 @@ class MainApp extends StatelessWidget {
       builder: (context, state) {
         return MaterialApp.router(
           debugShowCheckedModeBanner: false,
-          title: 'app.title'.tr(),
+          title: 'Sonofy',
           routerConfig: routerConfig,
           theme: MainTheme.createLightTheme(state.settings.primaryColor)
               .copyWith(

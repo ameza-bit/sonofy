@@ -10,7 +10,9 @@ import 'package:sonofy/presentation/screens/player_screen.dart';
 import 'package:sonofy/presentation/screens/settings_screen.dart';
 import 'package:sonofy/presentation/widgets/common/font_awesome/font_awesome_flutter.dart';
 import 'package:sonofy/presentation/widgets/library/bottom_player.dart';
+import 'package:sonofy/presentation/widgets/library/playlist_card.dart';
 import 'package:sonofy/presentation/widgets/library/song_card.dart';
+// import 'package:sonofy/presentation/widgets/library/song_card.dart';
 
 class LibraryScreen extends StatelessWidget {
   static const String routeName = 'library';
@@ -74,36 +76,66 @@ class LibraryScreen extends StatelessWidget {
                 );
               }
 
-              return ListView.builder(
-                padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                itemCount: state.songs.length + 2,
-                itemBuilder: (context, index) {
-                  if (index == 0) {
-                    // Título
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    context.tr('library.playlists'),
+                    style: TextStyle(
+                      fontSize: context.scaleText(24),
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 16.0),
+                  const SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
                       children: [
-                        Text(
-                          context.tr('library.title'),
-                          style: TextStyle(
-                            fontSize: context.scaleText(24),
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(height: 16.0),
+                        PlaylistCard(),
+                        PlaylistCard(),
+                        PlaylistCard(),
+                        PlaylistCard(),
+                        PlaylistCard(),
                       ],
-                    );
-                  } else if (index == state.songs.length + 1) {
-                    // Espacio final
-                    return const SizedBox(height: AppSpacing.bottomSheetHeight);
-                  } else {
-                    // Canción
-                    return SongCard(
-                      playlist: state.songs,
-                      song: state.songs[index - 1],
-                    );
-                  }
-                },
+                    ),
+                  ),
+                  const SizedBox(height: 16.0),
+                  ListView.builder(
+                    shrinkWrap: true,
+                    padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                    itemCount: state.songs.length + 2,
+                    itemBuilder: (context, index) {
+                      if (index == 0) {
+                        // Título
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              context.tr('library.title'),
+                              style: TextStyle(
+                                fontSize: context.scaleText(24),
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(height: 16.0),
+                          ],
+                        );
+                      } else if (index == state.songs.length + 1) {
+                        // Espacio final
+                        return const SizedBox(
+                          height: AppSpacing.bottomSheetHeight,
+                        );
+                      } else {
+                        // Canción
+                        return SongCard(
+                          playlist: state.songs,
+                          song: state.songs[index - 1],
+                        );
+                      }
+                    },
+                  ),
+                ],
               );
             },
           ),

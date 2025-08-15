@@ -73,6 +73,7 @@
   },
   "library": {
     "title": "Library",
+    "playlists": "Playlists",
     "empty": "No songs in your library"
   },
   "player": {

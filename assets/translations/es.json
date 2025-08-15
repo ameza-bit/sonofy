@@ -73,6 +73,7 @@
   },
   "library": {
     "title": "Biblioteca",
+    "playlists": "Listas de Reproducción",
     "empty": "No hay canciones en tu biblioteca"
   },
   "player": {
