@@ -76,6 +76,11 @@
     "playlists": "Listas de Reproducción",
     "empty": "No hay canciones en tu biblioteca"
   },
+  "playlist": {
+    "title": "Lista de Reproducción",
+    "empty": "No hay canciones en esta lista de reproducción",
+    "songs_count": "{count} canciones"
+  },
   "player": {
     "now_playing": "Sonando",
     "lyrics": "Letras",

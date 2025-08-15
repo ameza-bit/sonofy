@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sonofy/core/constants/app_constants.dart';
+import 'package:sonofy/core/extensions/color_extensions.dart';
 import 'package:sonofy/core/extensions/theme_extensions.dart';
 import 'package:sonofy/presentation/blocs/songs/songs_cubit.dart';
 import 'package:sonofy/presentation/blocs/songs/songs_state.dart';
@@ -76,66 +77,74 @@ class LibraryScreen extends StatelessWidget {
                 );
               }
 
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    context.tr('library.playlists'),
-                    style: TextStyle(
-                      fontSize: context.scaleText(24),
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 16.0),
-                  const SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
+              return ListView.builder(
+                itemCount: state.songs.length + 2,
+                itemBuilder: (context, index) {
+                  if (index == 0) {
+                    // Título
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        PlaylistCard(),
-                        PlaylistCard(),
-                        PlaylistCard(),
-                        PlaylistCard(),
-                        PlaylistCard(),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 16.0),
-                  ListView.builder(
-                    shrinkWrap: true,
-                    padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                    itemCount: state.songs.length + 2,
-                    itemBuilder: (context, index) {
-                      if (index == 0) {
-                        // Título
-                        return Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              context.tr('library.title'),
-                              style: TextStyle(
-                                fontSize: context.scaleText(24),
-                                fontWeight: FontWeight.bold,
-                              ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                          child: Text(
+                            context.tr('library.playlists'),
+                            style: TextStyle(
+                              fontSize: context.scaleText(24),
+                              fontWeight: FontWeight.bold,
                             ),
-                            const SizedBox(height: 16.0),
-                          ],
-                        );
-                      } else if (index == state.songs.length + 1) {
-                        // Espacio final
-                        return const SizedBox(
-                          height: AppSpacing.bottomSheetHeight,
-                        );
-                      } else {
-                        // Canción
-                        return SongCard(
-                          playlist: state.songs,
-                          song: state.songs[index - 1],
-                        );
-                      }
-                    },
-                  ),
-                ],
+                          ),
+                        ),
+                        const SizedBox(height: 8.0),
+                        const SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 24.0),
+                            child: Row(
+                              children: [
+                                PlaylistCard(),
+                                PlaylistCard(),
+                                PlaylistCard(),
+                                PlaylistCard(),
+                                PlaylistCard(),
+                              ],
+                            ),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(24.0),
+                          child: Divider(
+                            thickness: 1.0,
+                            color: context.musicLightGrey,
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                          child: Text(
+                            context.tr('library.title'),
+                            style: TextStyle(
+                              fontSize: context.scaleText(24),
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 8.0),
+                      ],
+                    );
+                  } else if (index == state.songs.length + 1) {
+                    // Espacio final
+                    return const SizedBox(height: AppSpacing.bottomSheetHeight);
+                  } else {
+                    // Canción
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                      child: SongCard(
+                        playlist: state.songs,
+                        song: state.songs[index - 1],
+                      ),
+                    );
+                  }
+                },
               );
             },
           ),

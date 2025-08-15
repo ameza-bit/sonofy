@@ -76,6 +76,11 @@
     "playlists": "Playlists",
     "empty": "No songs in your library"
   },
+  "playlist": {
+    "title": "Playlist",
+    "empty": "No songs in this playlist",
+    "songs_count": "{count} songs"
+  },
   "player": {
     "now_playing": "Now Playing",
     "lyrics": "Lyrics",
