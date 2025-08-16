@@ -23,36 +23,7 @@ class _LocalMusicSectionState extends State<LocalMusicSection> {
 
     setState(() => _isSelecting = true);
 
-    // final navigator = ScaffoldMessenger.of(context);
-    // final localization = context;
-
     try {
-      await Future.delayed(const Duration(seconds: 2));
-      // final importedCount = await context
-      //     .read<SettingsCubit>()
-      //     .importMusicFiles();
-      // if (mounted) {
-      //   if (importedCount > 0) {
-      //     navigator.showSnackBar(
-      //       SnackBar(
-      //         content: Text(
-      //           localization.tr(
-      //             'settings.music_sync_success',
-      //             namedArgs: {'count': importedCount.toString()},
-      //           ),
-      //         ),
-      //         backgroundColor: Colors.green,
-      //       ),
-      //     );
-      //   } else {
-      //     navigator.showSnackBar(
-      //       SnackBar(
-      //         content: Text('No se seleccionaron archivos'),
-      //         backgroundColor: Colors.orange,
-      //       ),
-      //     );
-      //   }
-      // }
     } catch (e) {
       Toast.show('Error importing music: $e');
     } finally {
