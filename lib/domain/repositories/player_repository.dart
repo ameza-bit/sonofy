@@ -5,4 +5,5 @@ abstract class PlayerRepository {
   Future<bool> togglePlayPause();
   Future<bool> seek(Duration position);
   Future<Duration?> getCurrentPosition();
+  Future<Duration?> getDuration();
 }

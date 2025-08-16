@@ -86,9 +86,9 @@ class PlayerCubit extends Cubit<PlayerState> {
           final isNearEnd = currentPositionMs >= (songDurationMs - 1000);
 
           // Verificar si el sleep timer está esperando que termine la canción
-          if (state.isSleepTimerActive && 
-              state.sleepTimerRemaining == Duration.zero && 
-              state.waitForSongToFinish && 
+          if (state.isSleepTimerActive &&
+              state.sleepTimerRemaining == Duration.zero &&
+              state.waitForSongToFinish &&
               isNearEnd) {
             // La canción terminó y estábamos esperando - pausar ahora
             await _playerRepository.pause();
@@ -235,12 +235,14 @@ class PlayerCubit extends Cubit<PlayerState> {
           // Cambiar el timer para que se active cuando termine la canción
           _sleepTimer?.cancel();
           _sleepTimer = null;
-          
+
           // Actualizar estado para mostrar que está esperando el final
-          emit(state.copyWith(
-            sleepTimerRemaining: Duration.zero,
-            // Mantener isSleepTimerActive true para indicar que sigue esperando
-          ));
+          emit(
+            state.copyWith(
+              sleepTimerRemaining: Duration.zero,
+              // Mantener isSleepTimerActive true para indicar que sigue esperando
+            ),
+          );
           return;
         }
       }

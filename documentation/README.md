@@ -20,6 +20,7 @@
   - [Guía de Contribución](./guides/contributing.md)
   - [Resumen de Funcionalidades](./guides/features-overview.md)
   - [Funcionalidades por Plataforma](./guides/platform-specific-features.md)
+  - [Integración iPod Library](./guides/ipod-library-integration.md)
 - [Componentes](./components/)
   - [Widgets Comunes](./components/common-widgets.md)
   - [Pantallas](./components/screens.md)
@@ -34,6 +35,9 @@
 - 🖼️ Visualización de carátulas de álbum
 - 🔀 Modo aleatorio (shuffle) inteligente
 - 🔁 Modos de repetición (uno, todos, ninguno)
+- 🍎 **NUEVO**: Soporte nativo para URLs iPod Library (iOS)
+- 🎵 **NUEVO**: Reproductor dual (AudioPlayers + MPMusicPlayerController)
+- 🔒 **NUEVO**: Verificación automática de protección DRM
 
 ### Gestión de Biblioteca Híbrida
 - 📁 **iOS**: Escaneo automático + selección manual de carpetas (FilePicker)
@@ -42,6 +46,8 @@
 - 🔍 Búsqueda de canciones (próximamente)
 - 📱 Reproductor mini en la interfaz principal
 - 🎯 Experiencia optimizada por plataforma
+- 🍎 **NUEVO**: Integración completa con biblioteca nativa de iOS
+- 🔄 **NUEVO**: Sistema dual de reproducción inteligente
 
 ### Temporizador de Sueño
 - ⏰ Configuración de duración (1-180 minutos)
@@ -115,11 +121,30 @@ Para consultas técnicas o reportar problemas, por favor revisa la documentació
 
 ---
 
-**Versión de Documentación**: 2.0.0  
-**Última Actualización**: Agosto 2024 - Funcionalidad Híbrida iOS/Android  
+**Versión de Documentación**: 3.0.0  
+**Última Actualización**: Agosto 2024 - Integración iPod Library Nativa  
 **Mantenedor**: Equipo de Desarrollo Sonofy
 
-## 🆕 Novedades v2.0.0
+## 🆕 Novedades v3.0.0 - iPod Library Integration
+
+### Reproductor Dual Nativo iOS
+- **🎵 MPMusicPlayerController**: Reproductor nativo para URLs `ipod-library://`
+- **📱 AudioPlayers**: Reproductor Flutter para archivos regulares (.mp3, etc.)
+- **🔄 Switching Inteligente**: Detección automática del tipo de fuente
+- **🔒 Verificación DRM**: Protección automática contra archivos protegidos
+
+### Method Channels Completos
+- **✅ 9 métodos nativos** implementados en Swift
+- **⏯️ Control total**: play, pause, resume, stop, seek
+- **📊 Monitoreo**: posición actual, duración, estado
+- **🔍 Verificación**: DRM protection check
+
+### Compatibilidad Multiplataforma
+- **🍎 iOS**: Soporte completo para iPod Library + archivos locales
+- **🤖 Android**: Fallback graceful, toda funcionalidad mantenida
+- **🛡️ Robustez**: Sin errores en ninguna plataforma
+
+## 🔄 Novedades v2.0.0
 
 ### Arquitectura Híbrida por Plataforma
 - **🍎 iOS**: FilePicker + on_audio_query_pluse para máxima flexibilidad
