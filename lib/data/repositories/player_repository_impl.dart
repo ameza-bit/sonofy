@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:sonofy/domain/repositories/player_repository.dart';
 import 'package:sonofy/core/utils/ipod_library_converter.dart';
@@ -20,7 +21,7 @@ final class PlayerRepositoryImpl implements PlayerRepository {
     await IpodLibraryConverter.stopNativeMusicPlayer();
     _usingNativePlayer = false;
 
-    if (IpodLibraryConverter.isIpodLibraryUrl(url)) {
+    if (IpodLibraryConverter.isIpodLibraryUrl(url) && Platform.isIOS) {
       // Check if DRM protected
       final isDrmProtected = await IpodLibraryConverter.isDrmProtected(url);
       if (isDrmProtected) {
@@ -34,7 +35,7 @@ final class PlayerRepositoryImpl implements PlayerRepository {
       }
       return success;
     } else {
-      // Use audioplayers for regular files
+      // Use audioplayers for regular files (and iPod URLs on Android)
       await player.play(DeviceFileSource(url));
       return isPlaying();
     }
@@ -42,7 +43,7 @@ final class PlayerRepositoryImpl implements PlayerRepository {
 
   @override
   Future<bool> pause() async {
-    if (_usingNativePlayer) {
+    if (_usingNativePlayer && Platform.isIOS) {
       await IpodLibraryConverter.pauseNativeMusicPlayer();
       return false;
     } else {
@@ -53,7 +54,7 @@ final class PlayerRepositoryImpl implements PlayerRepository {
 
   @override
   Future<bool> togglePlayPause() async {
-    if (_usingNativePlayer) {
+    if (_usingNativePlayer && Platform.isIOS) {
       final status = await IpodLibraryConverter.getNativeMusicPlayerStatus();
       if (status == 'playing') {
         await IpodLibraryConverter.pauseNativeMusicPlayer();
@@ -71,7 +72,7 @@ final class PlayerRepositoryImpl implements PlayerRepository {
 
   @override
   Future<bool> seek(Duration position) async {
-    if (_usingNativePlayer) {
+    if (_usingNativePlayer && Platform.isIOS) {
       // Native player doesn't support seek for now
       return isPlaying();
     } else {
@@ -83,7 +84,7 @@ final class PlayerRepositoryImpl implements PlayerRepository {
 
   @override
   Future<Duration?> getCurrentPosition() async {
-    if (_usingNativePlayer) {
+    if (_usingNativePlayer && Platform.isIOS) {
       // Native player doesn't support position for now
       return Duration.zero;
     } else {

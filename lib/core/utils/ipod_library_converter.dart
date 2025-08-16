@@ -1,7 +1,10 @@
+import 'dart:io';
 import 'package:flutter/services.dart';
 
 class IpodLibraryConverter {
   static const MethodChannel _channel = MethodChannel('ipod_library_converter');
+  
+  static bool get _isIOS => Platform.isIOS;
   
   static void _setupLogReceiver() {
     _channel.setMethodCallHandler((call) async {
@@ -13,6 +16,11 @@ class IpodLibraryConverter {
   }
   
   static Future<bool> isDrmProtected(String ipodUrl) async {
+    if (!_isIOS) {
+      // Android doesn't have iPod Library, so no DRM concerns
+      return false;
+    }
+    
     _setupLogReceiver();
     
     try {
@@ -39,6 +47,11 @@ class IpodLibraryConverter {
   }
   
   static Future<bool> playWithNativeMusicPlayer(String ipodUrl) async {
+    if (!_isIOS) {
+      // Android doesn't support MPMusicPlayerController
+      return false;
+    }
+    
     _setupLogReceiver();
     
     try {
@@ -56,6 +69,8 @@ class IpodLibraryConverter {
   }
   
   static Future<bool> pauseNativeMusicPlayer() async {
+    if (!_isIOS) return false;
+    
     try {
       final result = await _channel.invokeMethod('pauseMusicPlayer');
       return result as bool? ?? false;
@@ -65,6 +80,8 @@ class IpodLibraryConverter {
   }
   
   static Future<bool> stopNativeMusicPlayer() async {
+    if (!_isIOS) return false;
+    
     try {
       final result = await _channel.invokeMethod('stopMusicPlayer');
       return result as bool? ?? false;
@@ -74,6 +91,8 @@ class IpodLibraryConverter {
   }
   
   static Future<String> getNativeMusicPlayerStatus() async {
+    if (!_isIOS) return 'stopped';
+    
     try {
       final result = await _channel.invokeMethod('getMusicPlayerStatus');
       return result as String? ?? 'stopped';
