@@ -1,70 +1,40 @@
 import 'package:audioplayers/audioplayers.dart';
-import 'package:just_audio/just_audio.dart' as ja;
 import 'package:sonofy/domain/repositories/player_repository.dart';
 import 'package:sonofy/core/utils/ipod_library_converter.dart';
 
 final class PlayerRepositoryImpl implements PlayerRepository {
   final player = AudioPlayer();
-  final ja.AudioPlayer justAudioPlayer = ja.AudioPlayer();
   bool _usingNativePlayer = false;
 
   @override
   bool isPlaying() {
     if (_usingNativePlayer) {
-      // For native player, we'll check status asynchronously
-      return true; // Assume playing if using native player
+      return true; // Native player is async, assume playing when active
     }
-    return player.state == PlayerState.playing || justAudioPlayer.playing;
+    return player.state == PlayerState.playing;
   }
 
   @override
   Future<bool> play(String url) async {
     await player.stop();
-    await justAudioPlayer.stop();
     await IpodLibraryConverter.stopNativeMusicPlayer();
     _usingNativePlayer = false;
 
     if (IpodLibraryConverter.isIpodLibraryUrl(url)) {
-      print('🎵 Checking iPod Library URL: $url');
-      
-      // First check if the song is DRM protected
-      bool isDrmProtected = await IpodLibraryConverter.isDrmProtected(url);
-      print('🔒 DRM Status: ${isDrmProtected ? "Protected" : "Not Protected"}');
-      
+      // Check if DRM protected
+      final isDrmProtected = await IpodLibraryConverter.isDrmProtected(url);
       if (isDrmProtected) {
-        print('❌ Cannot play DRM protected content');
         return false;
       }
       
-      // Try native iOS music player first (best for iPod library)
-      print('🎵 Trying native iOS music player...');
-      bool nativeSuccess = await IpodLibraryConverter.playWithNativeMusicPlayer(url);
-      
-      if (nativeSuccess) {
+      // Use native iOS music player for iPod library URLs
+      final success = await IpodLibraryConverter.playWithNativeMusicPlayer(url);
+      if (success) {
         _usingNativePlayer = true;
-        print('✅ Playing with native iOS music player');
-        return true;
       }
-      
-      print('⚠️ Native player failed, trying just_audio...');
-      try {
-        await justAudioPlayer.setUrl(url);
-        await justAudioPlayer.play();
-        return justAudioPlayer.playing;
-      } catch (e) {
-        print('❌ just_audio failed, trying conversion: $e');
-        
-        String? playableUrl = await IpodLibraryConverter.convertIpodUrlToFile(url);
-        print('Converted URL: $playableUrl');
-        
-        if (playableUrl != null) {
-          await player.play(DeviceFileSource(playableUrl));
-          return isPlaying();
-        }
-        
-        return false;
-      }
+      return success;
     } else {
+      // Use audioplayers for regular files
       await player.play(DeviceFileSource(url));
       return isPlaying();
     }
@@ -74,9 +44,7 @@ final class PlayerRepositoryImpl implements PlayerRepository {
   Future<bool> pause() async {
     if (_usingNativePlayer) {
       await IpodLibraryConverter.pauseNativeMusicPlayer();
-      return false; // Paused
-    } else if (justAudioPlayer.playing) {
-      await justAudioPlayer.pause();
+      return false;
     } else {
       await player.pause();
     }
@@ -91,29 +59,21 @@ final class PlayerRepositoryImpl implements PlayerRepository {
         await IpodLibraryConverter.pauseNativeMusicPlayer();
         return false;
       } else {
-        // For native player, we can't easily resume, so we return current state
         return status == 'playing';
       }
     } else if (isPlaying()) {
-      if (justAudioPlayer.playing) {
-        await justAudioPlayer.pause();
-      } else {
-        await player.pause();
-      }
+      await player.pause();
     } else {
-      if (justAudioPlayer.processingState != ja.ProcessingState.idle) {
-        await justAudioPlayer.play();
-      } else {
-        await player.resume();
-      }
+      await player.resume();
     }
     return isPlaying();
   }
 
   @override
   Future<bool> seek(Duration position) async {
-    if (justAudioPlayer.processingState != ja.ProcessingState.idle) {
-      await justAudioPlayer.seek(position);
+    if (_usingNativePlayer) {
+      // Native player doesn't support seek for now
+      return isPlaying();
     } else {
       await player.seek(position);
       await player.resume();
@@ -123,8 +83,9 @@ final class PlayerRepositoryImpl implements PlayerRepository {
 
   @override
   Future<Duration?> getCurrentPosition() async {
-    if (justAudioPlayer.processingState != ja.ProcessingState.idle) {
-      return justAudioPlayer.position;
+    if (_usingNativePlayer) {
+      // Native player doesn't support position for now
+      return Duration.zero;
     } else {
       return player.getCurrentPosition();
     }
