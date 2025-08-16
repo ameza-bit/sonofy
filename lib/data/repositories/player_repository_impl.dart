@@ -1,5 +1,6 @@
 import 'package:audioplayers/audioplayers.dart';
 import 'package:sonofy/domain/repositories/player_repository.dart';
+import 'package:sonofy/core/utils/ipod_library_converter.dart';
 
 final class PlayerRepositoryImpl implements PlayerRepository {
   final player = AudioPlayer();
@@ -10,11 +11,17 @@ final class PlayerRepositoryImpl implements PlayerRepository {
   @override
   Future<bool> play(String url) async {
     await player.stop();
-    if (url.contains('ipod-library')) {
-      await player.play(UrlSource(url));
-    } else {
-      await player.play(DeviceFileSource(url));
+
+    String? playableUrl = url;
+
+    if (IpodLibraryConverter.isIpodLibraryUrl(url)) {
+      playableUrl = await IpodLibraryConverter.convertIpodUrlToFile(url);
+      if (playableUrl == null) {
+        return false;
+      }
     }
+
+    await player.play(DeviceFileSource(playableUrl));
     return isPlaying();
   }
 
