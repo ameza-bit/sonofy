@@ -53,6 +53,52 @@ final class PlayerRepositoryImpl implements PlayerRepository {
 - Fácil intercambio de implementaciones
 - Testing simplificado con mocks
 
+### 3. Use Case Pattern
+**Propósito**: Encapsular lógica de negocio específica en operaciones reutilizables.
+
+**Implementación**:
+```dart
+// Use Case para obtener canciones locales (Domain Layer)
+class GetLocalSongsUseCase {
+  final SongsRepository _songsRepository;
+  final SettingsRepository _settingsRepository;
+
+  GetLocalSongsUseCase(this._songsRepository, this._settingsRepository);
+
+  Future<List<SongModel>> call() async {
+    try {
+      final settings = _settingsRepository.getSettings();
+      final localPath = settings.localMusicPath;
+      
+      if (localPath == null || localPath.isEmpty) {
+        return [];
+      }
+      
+      final files = await _songsRepository.getSongsFromFolder(localPath);
+      return Mp3FileConverter.convertFilesToSongModels(files);
+    } catch (e) {
+      return [];
+    }
+  }
+}
+
+// Uso en Cubit (Presentation Layer)
+class SongsCubit extends Cubit<SongsState> {
+  final GetLocalSongsUseCase _getLocalSongsUseCase;
+
+  Future<void> loadAllSongs() async {
+    final localSongs = await _getLocalSongsUseCase();
+    // Combinar con canciones del dispositivo
+  }
+}
+```
+
+**Beneficios**:
+- Lógica de negocio reutilizable
+- Testeo independiente de componentes
+- Separación de responsabilidades
+- Coordinación de múltiples repositorios
+
 ## 🔄 Patrones de Gestión de Estado
 
 ### 1. BLoC (Business Logic Component) Pattern
@@ -279,6 +325,51 @@ class Preferences {
   }
 }
 ```
+
+### 4. Utility Pattern (Static Class)
+**Propósito**: Agrupar funcionalidades relacionadas sin necesidad de instanciación.
+
+**Implementación**:
+```dart
+// Utilidad para conversión de archivos MP3
+class Mp3FileConverter {
+  Mp3FileConverter._(); // Constructor privado previene instanciación
+
+  /// Convierte lista de archivos MP3 a objetos SongModel
+  static List<SongModel> convertFilesToSongModels(List<File> files) {
+    return files.map(_convertFileToSongModel).toList();
+  }
+
+  /// Estima duración basada en tamaño de archivo
+  static int _estimateDurationFromFileSize(int fileSizeBytes) {
+    const int averageBytesPerSecond = 16000; // 128kbps / 8 = 16KB/s
+    final int estimatedSeconds = fileSizeBytes ~/ averageBytesPerSecond;
+    return estimatedSeconds * 1000; // Convertir a millisegundos
+  }
+
+  /// Extrae artista del nombre de archivo usando patrones comunes
+  static String _extractArtistFromFileName(String fileName) {
+    final nameWithoutExt = fileName.split('.').first;
+    
+    if (nameWithoutExt.contains(' - ')) {
+      return nameWithoutExt.split(' - ').first.trim();
+    } else if (nameWithoutExt.contains('_')) {
+      final parts = nameWithoutExt.split('_');
+      if (parts.length >= 2) {
+        return parts.first.trim();
+      }
+    }
+    
+    return 'Unknown Artist';
+  }
+}
+```
+
+**Beneficios**:
+- Funcionalidades puras sin estado
+- Fácil testing y reutilización
+- Organización lógica de utilidades
+- Performance optimizada (sin instanciación)
 
 ## 🎭 Patrones de Composición
 

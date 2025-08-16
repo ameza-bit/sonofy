@@ -69,7 +69,21 @@
     "biometric_auth_desc": "Utiliza huella digital o reconocimiento facial para acceder a la app",
     "preferences": "Preferencias",
     "undo_confirmation": "Confirmar Deshacer",
-    "undo_confirmation_desc": "Mostrar diálogo de confirmación al deshacer intercambios"
+    "undo_confirmation_desc": "Mostrar diálogo de confirmación al deshacer intercambios",
+    "music_library": "Biblioteca de Música",
+    "import_music_files": "Importar Archivos",
+    "import_music_description": "Selecciona archivos desde Files app",
+    "import_status": "Estado de Importación",
+    "auto_sync": "Sincronización Automática",
+    "auto_sync_description": "Sincronizar automáticamente al abrir la app",
+    "music_sync_empty": "No hay música importada aún",
+    "music_sync_in_progress": "Importando música...",
+    "music_sync_success": "{count} canciones importadas exitosamente",
+    "music_sync_error": "Error al importar música",
+    "music_import_success": "{count} archivos MP3 encontrados e importados exitosamente",
+    "music_import_no_files": "No se encontraron archivos MP3 en la carpeta seleccionada",
+    "music_import_error": "Error al seleccionar carpeta o importar música",
+    "music_folder_selected": "Carpeta: {folder}"
   },
   "library": {
     "title": "Biblioteca",

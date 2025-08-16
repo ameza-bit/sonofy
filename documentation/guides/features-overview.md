@@ -96,6 +96,64 @@ Future<List<SongModel>> getSongsFromDevice() async {
 }
 ```
 
+### Funcionalidad Híbrida por Plataforma
+**Estado**: ✅ Implementado
+
+#### Estrategia Diferenciada
+Sonofy implementa un enfoque híbrido que optimiza la experiencia para cada plataforma:
+
+- **🍎 iOS**: FilePicker + on_audio_query_pluse (selección manual + automática)
+- **🤖 Android**: Solo on_audio_query_pluse (acceso automático completo)
+
+#### Características iOS
+- **Selección manual de carpetas**: FilePicker nativo del sistema
+- **Biblioteca del dispositivo**: on_audio_query_pluse para música nativa
+- **Fuentes combinadas**: Integración de múltiples orígenes
+- **Control granular**: Usuario decide qué carpetas incluir
+- **Metadatos estimados**: Mp3FileConverter para archivos locales
+
+#### Características Android
+- **Acceso automático completo**: Solo on_audio_query_pluse
+- **Sin configuración manual**: Experiencia simplificada
+- **Biblioteca unificada**: Toda la música del dispositivo automáticamente
+- **Menor complejidad**: Sin gestión manual de archivos
+
+#### Implementación Técnica
+
+```dart
+// Lógica condicional en SongsRepository
+Future<String?> selectMusicFolder() async {
+  if (Platform.isIOS) {
+    return await FilePicker.platform.getDirectoryPath();
+  }
+  return null; // Android no soporta selección manual
+}
+
+// Use Cases con comportamiento específico
+Future<List<SongModel>> call() async {
+  if (Platform.isAndroid) {
+    return []; // Android no tiene canciones "locales" separadas
+  }
+  // Lógica específica de iOS...
+}
+```
+
+#### Ubicación en el Código
+- **Repository híbrido**: `lib/data/repositories/songs_repository_impl.dart`
+- **Use Cases condicionales**: `lib/domain/usecases/get_local_songs_usecase.dart`
+- **BLoC con null safety**: `lib/presentation/blocs/songs/songs_cubit.dart`
+- **UI solo iOS**: `lib/presentation/views/settings/local_music_section.dart`
+- **Dependency Injection**: `lib/main.dart` (condicional por plataforma)
+
+#### Experiencia de Usuario
+
+| Aspecto | iOS | Android |
+|---------|-----|---------|
+| **Configuraciones** | Sección "Música Local" visible | Sin configuraciones adicionales |
+| **Fuentes de música** | Dispositivo + carpetas seleccionadas | Solo dispositivo (completo) |
+| **Interacción** | Selección manual opcional | Completamente automático |
+| **Complejidad** | Media (más control) | Baja (simplicidad) |
+
 ### Lista de Canciones
 **Estado**: ✅ Implementado
 

@@ -65,6 +65,7 @@ core/
     ├── card_width.dart          # Utilidades para ancho de tarjetas
     ├── device_platform.dart     # Detección de plataforma
     ├── duration_minutes.dart    # Formateo de duración
+    ├── mp3_file_converter.dart  # Conversor de archivos MP3 a SongModel
     ├── page_transition.dart     # Transiciones entre páginas
     ├── responsive_layout.dart   # Utilidades de diseño responsivo
     ├── toast.dart              # Utilidades para notificaciones
@@ -87,10 +88,14 @@ data/
 
 ```
 domain/
-└── repositories/
-    ├── player_repository.dart    # Interfaz del repositorio de reproductor
-    ├── settings_repository.dart  # Interfaz del repositorio de configuraciones
-    └── songs_repository.dart     # Interfaz del repositorio de canciones
+├── repositories/
+│   ├── player_repository.dart      # Interfaz del repositorio de reproductor
+│   ├── settings_repository.dart    # Interfaz del repositorio de configuraciones
+│   └── songs_repository.dart       # Interfaz del repositorio de canciones
+└── usecases/
+    ├── get_local_songs_usecase.dart      # Caso de uso para obtener canciones locales
+    ├── get_songs_from_folder_usecase.dart # Caso de uso para escanear carpetas MP3
+    └── select_music_folder_usecase.dart   # Caso de uso para selección de carpetas
 ```
 
 ## 🖼️ Detalle de la Carpeta `presentation/`
@@ -117,6 +122,7 @@ presentation/
 │       ├── appearance_section.dart    # Sección de apariencia
 │       ├── color_picker_dialog.dart   # Diálogo selector de color
 │       ├── language_section.dart      # Sección de idiomas
+│       ├── local_music_section.dart   # Sección de música local
 │       └── security_section.dart      # Sección de seguridad
 └── widgets/                  # Widgets reutilizables
     ├── common/              # Widgets comunes

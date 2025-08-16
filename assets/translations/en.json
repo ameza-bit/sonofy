@@ -69,7 +69,21 @@
     "biometric_auth_desc": "Use fingerprint or facial recognition to access the app",
     "preferences": "Preferences",
     "undo_confirmation": "Confirm Undo",
-    "undo_confirmation_desc": "Show confirmation dialog when undoing swaps"
+    "undo_confirmation_desc": "Show confirmation dialog when undoing swaps",
+    "music_library": "Music Library",
+    "import_music_files": "Import Files",
+    "import_music_description": "Select files from Files app",
+    "import_status": "Import Status",
+    "auto_sync": "Auto Sync",
+    "auto_sync_description": "Automatically sync when opening the app",
+    "music_sync_empty": "No music imported yet",
+    "music_sync_in_progress": "Importing music...",
+    "music_sync_success": "{count} songs imported successfully",
+    "music_sync_error": "Error importing music",
+    "music_import_success": "{count} MP3 files found and imported successfully",
+    "music_import_no_files": "No MP3 files found in the selected folder",
+    "music_import_error": "Error selecting folder or importing music",
+    "music_folder_selected": "Folder: {folder}"
   },
   "library": {
     "title": "Library",

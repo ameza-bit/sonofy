@@ -103,6 +103,12 @@ final class PlayerRepositoryImpl implements PlayerRepository {
 abstract class SongsRepository {
   /// Obtiene todas las canciones disponibles en el dispositivo
   Future<List<SongModel>> getSongsFromDevice();
+  
+  /// Permite al usuario seleccionar una carpeta de música
+  Future<String?> selectMusicFolder();
+  
+  /// Obtiene archivos MP3 de una carpeta específica
+  Future<List<File>> getSongsFromFolder(String folderPath);
 }
 ```
 
@@ -134,11 +140,72 @@ final class SongsRepositoryImpl implements SongsRepository {
 
     return _audioQuery.querySongs();
   }
+
+  @override
+  Future<String?> selectMusicFolder() async {
+    // Solo iOS soporta selección manual de carpetas
+    if (Platform.isIOS) {
+      try {
+        final String? selectedDirectory = await FilePicker.platform.getDirectoryPath();
+        return selectedDirectory;
+      } catch (e) {
+        return null;
+      }
+    }
+    // Android no soporta selección manual, retorna null
+    return null;
+  }
+
+  @override
+  Future<List<File>> getSongsFromFolder(String folderPath) async {
+    // Solo iOS soporta escaneo de carpetas específicas
+    if (Platform.isIOS) {
+      try {
+        final directory = Directory(folderPath);
+        if (!directory.existsSync()) {
+          return [];
+        }
+
+        final List<File> mp3Files = [];
+        await for (final entity in directory.list(recursive: true)) {
+          if (entity is File && _isMp3File(entity.path)) {
+            mp3Files.add(entity);
+          }
+        }
+
+        return mp3Files;
+      } catch (e) {
+        return [];
+      }
+    }
+    // Android no soporta escaneo de carpetas específicas, retorna lista vacía
+    return [];
+  }
+
+  bool _isMp3File(String filePath) {
+    final extension = filePath.toLowerCase().split('.').last;
+    return extension == 'mp3';
+  }
 }
 ```
 
 #### Dependencias Externas
-- **on_audio_query_pluse**: `^2.9.4` - Consulta de metadata musical
+- **on_audio_query_pluse**: `^2.9.4` - Consulta de metadata musical (Ambas plataformas)
+- **file_picker**: `^10.3.1` - Selección de archivos y carpetas (Solo iOS)
+
+#### Comportamiento Específico por Plataforma
+
+##### 🍎 iOS
+- **getSongsFromDevice()**: Accede a música usando on_audio_query_pluse
+- **selectMusicFolder()**: Usa FilePicker.platform.getDirectoryPath()
+- **getSongsFromFolder()**: Escanea carpetas seleccionadas recursivamente
+- **Experiencia**: Combina música del dispositivo + carpetas seleccionadas manualmente
+
+##### 🤖 Android
+- **getSongsFromDevice()**: Accede a toda la música usando on_audio_query_pluse
+- **selectMusicFolder()**: Siempre retorna null (no soportado)
+- **getSongsFromFolder()**: Siempre retorna lista vacía (no soportado)
+- **Experiencia**: Solo música del dispositivo, acceso automático y completo
 
 #### Modelo de Datos
 ```dart
@@ -162,8 +229,10 @@ class SongModel {
 
 #### Casos de Uso
 1. **Carga inicial**: Obtener biblioteca al iniciar la app
-2. **Actualización**: Refrescar biblioteca tras cambios
+2. **Actualización**: Refrescar biblioteca tras cambios  
 3. **Búsqueda**: Base para funciones de búsqueda futuras
+4. **Importación local (iOS)**: Seleccionar y escanear carpetas de música
+5. **Acceso automático (Android)**: Toda la música via on_audio_query_pluse
 
 ## ⚙️ SettingsRepository
 
@@ -226,6 +295,7 @@ class Settings {
   final double fontSize;
   final Language language;
   final bool biometricEnabled;
+  final String? localMusicPath;
 
   Settings({
     this.themeMode = ThemeMode.system,
@@ -233,6 +303,7 @@ class Settings {
     this.fontSize = 1.0,
     this.language = Language.spanish,
     this.biometricEnabled = false,
+    this.localMusicPath,
   });
 
   // Serialización JSON
@@ -253,6 +324,7 @@ class Settings {
 | `fontSize` | `double` | `1.0` | Factor de escalado de fuente |
 | `language` | `Language` | `spanish` | Idioma de la aplicación |
 | `biometricEnabled` | `bool` | `false` | Autenticación biométrica |
+| `localMusicPath` | `String?` | `null` | Ruta de carpeta de música local |
 
 #### Casos de Uso
 1. **Carga inicial**: Aplicar configuraciones al iniciar
@@ -261,6 +333,7 @@ class Settings {
 4. **Accesibilidad**: Ajustar tamaño de fuente
 5. **Localización**: Cambiar idioma
 6. **Seguridad**: Configurar autenticación
+7. **Música local**: Gestionar ruta de carpeta de música importada
 
 ## 🔧 Patrones de Implementación
 
