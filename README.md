@@ -12,6 +12,9 @@
 - 📚 **Biblioteca Musical**: Escaneo automático y gestión inteligente de canciones
 - 🔒 **Seguridad**: Preparado para autenticación biométrica
 - ⏰ **Temporizador de Sueño**: Control automático de apagado con opciones avanzadas
+- 🍎 **🆕 iPod Library Nativa**: Soporte completo para URLs iPod library en iOS
+- 🔄 **🆕 Reproductor Dual**: Sistema inteligente AudioPlayers + MPMusicPlayerController
+- 🔒 **🆕 Protección DRM**: Verificación automática de archivos protegidos
 
 ## 🛠️ Tecnologías Utilizadas
 
@@ -124,6 +127,9 @@ Sonofy incluye un sistema de temas dinámico y personalizable:
 - Modos de repetición (uno, todos, ninguno)
 - Modo aleatorio inteligente
 - Visualización de progreso con control manual
+- **🆕 Soporte iPod Library**: Reproducción nativa de biblioteca iOS
+- **🆕 Verificación DRM**: Protección automática contra archivos protegidos
+- **🆕 Method Channels**: 9 métodos nativos iOS implementados
 
 ### Temporizador de Sueño
 - Configuración de duración (1-180 minutos)
@@ -168,7 +174,14 @@ Este proyecto es privado y está destinado únicamente para fines educativos y d
 
 ---
 
-**Versión**: 0.1.0  
-**Plataforma**: Flutter (multiplataforma)  
+**Versión**: 3.0.0  
+**Plataforma**: Flutter (multiplataforma) con integración nativa iOS  
 **Estado**: En desarrollo activo  
-**Última actualización**: Agosto 2024
+**Última actualización**: Agosto 2024 - iPod Library Integration
+
+### 🆕 Novedades v3.0.0
+- ✅ Integración completa iPod Library (iOS)
+- ✅ Sistema dual de reproducción
+- ✅ 9 Method Channels implementados
+- ✅ Verificación DRM automática
+- ✅ Compatibilidad total Android/iOS

@@ -10,7 +10,7 @@ Los repositorios en Sonofy implementan el patrón Repository para abstraer el ac
 
 ```dart
 abstract class PlayerRepository {
-  /// Reproduce una canción desde una URL local
+  /// Reproduce una canción desde una URL local o iPod library
   Future<bool> play(String url);
   
   /// Pausa la reproducción actual
@@ -20,7 +20,7 @@ abstract class PlayerRepository {
   Future<bool> togglePlayPause();
   
   /// Busca a una posición específica en la canción
-  Future<void> seek(Duration position);
+  Future<bool> seek(Duration position);
   
   /// Obtiene la posición actual de reproducción
   Future<Duration?> getCurrentPosition();
@@ -38,25 +38,65 @@ abstract class PlayerRepository {
 ```dart
 final class PlayerRepositoryImpl implements PlayerRepository {
   final player = AudioPlayer();
+  bool _usingNativePlayer = false;
 
   @override
-  bool isPlaying() => player.state == PlayerState.playing;
+  bool isPlaying() {
+    if (_usingNativePlayer && Platform.isIOS) {
+      // Para reproductor nativo, asumir playing cuando activo
+      // UI debe verificar estado con getNativeMusicPlayerStatus()
+      return true;
+    }
+    return player.state == PlayerState.playing;
+  }
 
   @override
   Future<bool> play(String url) async {
-    await player.play(DeviceFileSource(url));
-    return isPlaying();
+    await player.stop();
+    await IpodLibraryConverter.stopNativeMusicPlayer();
+    _usingNativePlayer = false;
+
+    if (IpodLibraryConverter.isIpodLibraryUrl(url) && Platform.isIOS) {
+      // Verificar protección DRM
+      final isDrmProtected = await IpodLibraryConverter.isDrmProtected(url);
+      if (isDrmProtected) return false;
+
+      // Usar reproductor nativo iOS para URLs iPod library
+      final success = await IpodLibraryConverter.playWithNativeMusicPlayer(url);
+      if (success) _usingNativePlayer = true;
+      return success;
+    } else {
+      // Usar AudioPlayers para archivos regulares (y iPod URLs en Android)
+      await player.play(DeviceFileSource(url));
+      return isPlaying();
+    }
   }
 
   @override
   Future<bool> pause() async {
-    await player.pause();
+    if (_usingNativePlayer && Platform.isIOS) {
+      await IpodLibraryConverter.pauseNativeMusicPlayer();
+      return false;
+    } else {
+      await player.pause();
+    }
     return isPlaying();
   }
 
   @override
   Future<bool> togglePlayPause() async {
-    if (isPlaying()) {
+    if (_usingNativePlayer && Platform.isIOS) {
+      final status = await IpodLibraryConverter.getNativeMusicPlayerStatus();
+      if (status == 'playing') {
+        await IpodLibraryConverter.pauseNativeMusicPlayer();
+        return false;
+      } else if (status == 'paused') {
+        await IpodLibraryConverter.resumeNativeMusicPlayer();
+        return true;
+      } else {
+        return status == 'playing';
+      }
+    } else if (isPlaying()) {
       await player.pause();
     } else {
       await player.resume();
@@ -65,35 +105,71 @@ final class PlayerRepositoryImpl implements PlayerRepository {
   }
 
   @override
-  Future<void> seek(Duration position) async {
-    await player.seek(position);
+  Future<bool> seek(Duration position) async {
+    if (_usingNativePlayer && Platform.isIOS) {
+      await IpodLibraryConverter.seekToPosition(position);
+      await IpodLibraryConverter.resumeNativeMusicPlayer();
+      return isPlaying();
+    } else {
+      await player.seek(position);
+      await player.resume();
+    }
+    return isPlaying();
   }
 
   @override
   Future<Duration?> getCurrentPosition() async {
-    return player.getCurrentPosition();
+    if (_usingNativePlayer && Platform.isIOS) {
+      return IpodLibraryConverter.getCurrentPosition();
+    } else {
+      return player.getCurrentPosition();
+    }
   }
 
   @override
   Future<Duration?> getDuration() async {
-    return player.getDuration();
+    if (_usingNativePlayer && Platform.isIOS) {
+      return IpodLibraryConverter.getDuration();
+    } else {
+      return player.getDuration();
+    }
   }
 }
 ```
 
 #### Dependencias Externas
 - **audioplayers**: `^6.5.0` - Reproducción de audio multiplataforma
+- **IpodLibraryConverter**: Interfaz Flutter-iOS para Method Channels
+- **MPMusicPlayerController**: Reproductor nativo iOS (iOS framework nativo)
+
+#### Arquitectura Dual de Reproducción
+
+##### 🍎 iOS - Sistema Dual
+- **URLs `ipod-library://`**: Usa MPMusicPlayerController nativo
+- **Archivos locales (.mp3)**: Usa AudioPlayers
+- **Switching automático**: Basado en detección de URL
+- **Verificación DRM**: Automática para archivos protegidos
+
+##### 🤖 Android - Sistema Único
+- **Todos los archivos**: Usa AudioPlayers únicamente
+- **URLs `ipod-library://`**: Tratadas como archivos regulares (fallback graceful)
+- **Sin Method Channels**: IpodLibraryConverter retorna false para todo
 
 #### Casos de Uso
 1. **Reproducir canción**: `setPlayingSong()` en PlayerCubit
 2. **Control de reproducción**: Botones play/pause en UI
 3. **Navegación**: Siguiente/anterior en playlist
 4. **Seek**: Control manual de posición
+5. **🆕 iPod Library**: Reproducción nativa de biblioteca iOS
+6. **🆕 Verificación DRM**: Protección automática contra archivos protegidos
 
 #### Manejo de Errores
 - **Archivos inexistentes**: Retorna false en operaciones
-- **Formatos no soportados**: audioplayers maneja automáticamente
+- **Formatos no soportados**: AudioPlayers maneja automáticamente
 - **Permisos**: Gestionado por la implementación del plugin
+- **🆕 URLs iPod library en Android**: Fallback graceful a AudioPlayers
+- **🆕 Archivos DRM protegidos**: Detección y rechazo automático
+- **🆕 Method Channel failures**: Retorno seguro false sin crashes
 
 ## 📚 SongsRepository
 

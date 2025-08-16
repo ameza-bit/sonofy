@@ -93,10 +93,68 @@ Future<List<File>> getSongsFromFolder(String folderPath) async {
 <string>Esta aplicación necesita acceso para importar música local</string>
 ```
 
+#### Integración Nativa de iPod Library
+
+**Nueva funcionalidad**: Soporte completo para URLs `ipod-library://` usando MPMusicPlayerController nativo de iOS.
+
+##### Arquitectura Dual de Reproducción
+```dart
+// PlayerRepositoryImpl - Sistema dual iOS
+@override
+Future<bool> play(String url) async {
+  if (IpodLibraryConverter.isIpodLibraryUrl(url) && Platform.isIOS) {
+    // Verificar protección DRM
+    final isDrmProtected = await IpodLibraryConverter.isDrmProtected(url);
+    if (isDrmProtected) return false;
+    
+    // Usar reproductor nativo iOS para URLs iPod library
+    final success = await IpodLibraryConverter.playWithNativeMusicPlayer(url);
+    if (success) _usingNativePlayer = true;
+    return success;
+  } else {
+    // Usar AudioPlayers para archivos regulares
+    await player.play(DeviceFileSource(url));
+    return isPlaying();
+  }
+}
+```
+
+##### Funcionalidades del Reproductor Nativo
+- **✅ Reproducir/pausar/parar** URLs iPod library
+- **✅ Control de posición** (seek) con `MPMusicPlayerController.currentPlaybackTime`
+- **✅ Posición actual** en tiempo real
+- **✅ Duración total** de la canción
+- **✅ Estados de reproducción** (playing/paused/stopped/interrupted/seeking)
+- **✅ Verificación DRM** automática
+- **✅ Reanudar después de pausa**
+
+##### Method Channels Implementados
+```swift
+// AppDelegate.swift - Métodos nativos iOS
+case "playWithMusicPlayer":     // Iniciar reproducción
+case "pauseMusicPlayer":        // Pausar
+case "resumeMusicPlayer":       // Reanudar
+case "stopMusicPlayer":         // Detener
+case "getMusicPlayerStatus":    // Estado actual
+case "getCurrentPosition":      // Posición en segundos
+case "getDuration":            // Duración total
+case "seekToPosition":         // Cambiar posición
+case "checkDrmProtection":     // Verificar DRM
+```
+
+##### Permisos Adicionales iOS
+```xml
+<!-- ios/Runner/Info.plist -->
+<key>NSAppleMusicUsageDescription</key>
+<string>Esta aplicación necesita acceso a tu biblioteca de música para reproducir canciones</string>
+```
+
 #### Dependencias iOS
 - **on_audio_query_pluse**: Acceso a biblioteca nativa
 - **file_picker**: Selección de carpetas
 - **Mp3FileConverter**: Conversión y estimación de metadatos
+- **MPMusicPlayerController**: Reproductor nativo para iPod library (iOS nativo)
+- **IpodLibraryConverter**: Interfaz Flutter-iOS para Method Channels
 
 ## 🤖 Funcionalidades Android
 
@@ -167,10 +225,33 @@ Future<List<SongModel>> getSongsFromDevice() async {
 <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
 ```
 
+#### Manejo de URLs iPod Library en Android
+
+**Comportamiento**: Android no soporta URLs `ipod-library://` ya que son exclusivas del ecosistema Apple.
+
+```dart
+// PlayerRepositoryImpl - Comportamiento en Android
+@override
+Future<bool> play(String url) async {
+  if (IpodLibraryConverter.isIpodLibraryUrl(url) && Platform.isIOS) {
+    // Lógica iOS para iPod library
+  } else {
+    // Android siempre usa AudioPlayers, incluso para URLs iPod library
+    // En Android, las URLs iPod library se tratarán como archivos regulares
+    await player.play(DeviceFileSource(url));
+    return isPlaying();
+  }
+}
+```
+
+**Resultado**: Las URLs `ipod-library://` en Android se pasan directamente a AudioPlayers, que las rechazará gracefully sin causar errores en la aplicación.
+
 #### Dependencias Android
 - **on_audio_query_pluse**: Único método de acceso a música
 - ~~file_picker~~: No utilizado
 - ~~Mp3FileConverter~~: No necesario (metadatos vienen de on_audio_query)
+- ~~MPMusicPlayerController~~: No disponible en Android
+- **IpodLibraryConverter**: Retorna `false` para todos los métodos (verificación de plataforma)
 
 ## 🔧 Implementación de la Lógica Condicional
 
@@ -354,9 +435,25 @@ group('Android Music Tests', () {
 | **Carpetas específicas** | ✅ Usuario selecciona | ❌ No necesario |
 | **LocalMusicSection** | ✅ Visible en settings | ❌ Oculta |
 | **Use Cases locales** | ✅ Funcionales | ❌ Retornan vacío |
+| **URLs iPod Library** | ✅ Soporte nativo completo | ❌ Tratadas como archivos regulares |
+| **MPMusicPlayerController** | ✅ Reproductor nativo | ❌ No disponible |
+| **Method Channels** | ✅ 9 métodos implementados | ❌ Todos retornan false |
+| **Verificación DRM** | ✅ Automática | ❌ No aplicable |
+| **Control de posición** | ✅ Dual (AudioPlayers + nativo) | ✅ Solo AudioPlayers |
+| **Arquitectura de reproducción** | 🔄 Dual (nativo + AudioPlayers) | 📱 Única (AudioPlayers) |
 | **Complejidad UX** | Media (más opciones) | Baja (automático) |
 | **Flexibilidad** | Alta | Baja |
 | **Simplicidad** | Media | Alta |
 | **Dependencias** | Múltiples | Mínimas |
 
-Esta implementación híbrida aprovecha las fortalezas de cada plataforma mientras mantiene la arquitectura limpia y el código mantenible.
+### 🆕 Nuevas Capacidades v3.0.0 - iPod Library Integration
+
+| Característica | iOS | Android | Notas |
+|----------------|-----|---------|-------|
+| **URLs `ipod-library://`** | ✅ Nativo | ⚠️ Fallback | iOS usa MPMusicPlayerController, Android usa AudioPlayers |
+| **Control de slider** | ✅ Tiempo real | ✅ AudioPlayers | Posición actualizada correctamente |
+| **Pausa/reanudar** | ✅ Nativo | ✅ AudioPlayers | Funcionalidad completa en ambas plataformas |
+| **Seek/posición** | ✅ Nativo | ✅ AudioPlayers | Control preciso de posición |
+| **DRM protection** | ✅ Verificación | ❌ N/A | Solo relevante para biblioteca iOS |
+
+Esta implementación híbrida aprovecha las fortalezas de cada plataforma mientras mantiene la arquitectura limpia y el código mantenible. La nueva integración de iPod Library en iOS proporciona soporte nativo completo para la biblioteca de música del dispositivo, manteniendo la simplicidad en Android.
