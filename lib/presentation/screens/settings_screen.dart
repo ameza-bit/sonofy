@@ -1,8 +1,11 @@
+import 'dart:io' show Platform;
+
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:sonofy/core/extensions/responsive_extensions.dart';
 import 'package:sonofy/presentation/views/settings/appearance_section.dart';
 import 'package:sonofy/presentation/views/settings/language_section.dart';
+import 'package:sonofy/presentation/views/settings/local_music_section.dart';
 import 'package:sonofy/presentation/views/settings/security_section.dart';
 
 class SettingsScreen extends StatelessWidget {
@@ -17,13 +20,14 @@ class SettingsScreen extends StatelessWidget {
         child: SingleChildScrollView(
           child: Padding(
             padding: EdgeInsets.all(context.contentPadding),
-            child: const Column(
+            child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               spacing: 20,
               children: [
-                AppearanceSection(),
-                LanguageSection(),
-                SecuritySection(),
+                const AppearanceSection(),
+                const LanguageSection(),
+                if (Platform.isIOS) const LocalMusicSection(),
+                const SecuritySection(),
               ],
             ),
           ),

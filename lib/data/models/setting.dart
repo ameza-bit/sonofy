@@ -12,6 +12,7 @@ class Settings {
   final double fontSize;
   final Language language;
   final bool biometricEnabled;
+  final String? localMusicPath;
 
   Settings({
     this.themeMode = ThemeMode.system,
@@ -19,6 +20,7 @@ class Settings {
     this.fontSize = 1.0,
     this.language = Language.spanish,
     this.biometricEnabled = false,
+    this.localMusicPath,
   });
 
   factory Settings.fromJson(Map<String, dynamic> json) => Settings(
@@ -27,6 +29,7 @@ class Settings {
     fontSize: (json['fontSize'] ?? 1.0).toDouble(),
     language: Language.values[json['language'] ?? 0],
     biometricEnabled: json['biometricEnabled'] ?? false,
+    localMusicPath: json['localMusicPath'],
   );
 
   Map<String, dynamic> toJson() => {
@@ -35,6 +38,7 @@ class Settings {
     'fontSize': fontSize,
     'language': language.index,
     'biometricEnabled': biometricEnabled,
+    'localMusicPath': localMusicPath,
   };
 
   Settings copyWith({
@@ -43,6 +47,7 @@ class Settings {
     double? fontSize,
     Language? language,
     bool? biometricEnabled,
+    String? localMusicPath,
   }) {
     return Settings(
       themeMode: themeMode ?? this.themeMode,
@@ -50,6 +55,7 @@ class Settings {
       fontSize: fontSize ?? this.fontSize,
       language: language ?? this.language,
       biometricEnabled: biometricEnabled ?? this.biometricEnabled,
+      localMusicPath: localMusicPath ?? this.localMusicPath,
     );
   }
 }
