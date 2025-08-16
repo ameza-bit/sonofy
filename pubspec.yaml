@@ -15,6 +15,7 @@ dependencies:
   shared_preferences: ^2.5.3
   on_audio_query_pluse: ^2.9.4
   audioplayers: ^6.5.0
+  just_audio: ^0.9.42
   file_picker: ^10.3.1
   path_provider: ^2.1.5
 
