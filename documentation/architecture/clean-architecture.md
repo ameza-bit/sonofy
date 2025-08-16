@@ -34,15 +34,20 @@ Contiene la lógica de negocio pura y las abstracciones:
 
 ```dart
 domain/
-└── repositories/    # Interfaces de repositorios
-    ├── player_repository.dart
-    ├── settings_repository.dart
-    └── songs_repository.dart
+├── repositories/    # Interfaces de repositorios
+│   ├── player_repository.dart
+│   ├── settings_repository.dart
+│   └── songs_repository.dart
+└── usecases/       # Casos de uso de negocio
+    ├── get_local_songs_usecase.dart
+    ├── get_songs_from_folder_usecase.dart
+    └── select_music_folder_usecase.dart
 ```
 
 **Responsabilidades**:
 - Definir contratos de repositorios
-- Contener lógica de negocio
+- Implementar casos de uso específicos
+- Encapsular lógica de negocio compleja
 - Mantener independencia de frameworks
 
 **Dependencias**: No depende de ninguna otra capa (núcleo de la arquitectura).
@@ -84,6 +89,14 @@ core/
 ├── themes/         # Sistema de temas
 ├── transitions/    # Transiciones personalizadas
 └── utils/          # Utilidades generales
+    ├── card_width.dart
+    ├── device_platform.dart
+    ├── duration_minutes.dart
+    ├── mp3_file_converter.dart  # Conversor de archivos MP3
+    ├── page_transition.dart
+    ├── responsive_layout.dart
+    ├── toast.dart
+    └── validators.dart
 ```
 
 ## 🔄 Flujo de Dependencias
@@ -98,6 +111,56 @@ graph TD
     A --> |BLoC/Cubit| E[UI State Management]
     B --> |Abstractions| F[Business Logic]
     C --> |Implementations| G[Data Sources]
+```
+
+## 📁 Ejemplo Práctico: Importación de Música Local
+
+### 1. Flujo de Importación de Carpeta
+
+```dart
+// 1. Usuario selecciona carpeta en configuraciones (Presentation)
+onPressed: () => context.read<SettingsCubit>().selectAndSetMusicFolder()
+
+// 2. Cubit coordina use cases (Domain)
+Future<bool> selectAndSetMusicFolder() async {
+  final String? selectedPath = await _selectMusicFolderUseCase();
+  if (selectedPath != null) {
+    final List<File> mp3Files = await _getSongsFromFolderUseCase(selectedPath);
+    // Actualizar configuraciones y refrescar biblioteca
+  }
+}
+
+// 3. Use Case ejecuta lógica de negocio (Domain)
+class GetLocalSongsUseCase {
+  Future<List<SongModel>> call() async {
+    final localPath = _settingsRepository.getSettings().localMusicPath;
+    final files = await _songsRepository.getSongsFromFolder(localPath);
+    return Mp3FileConverter.convertFilesToSongModels(files);
+  }
+}
+
+// 4. Implementación del repositorio (Data)
+Future<List<File>> getSongsFromFolder(String folderPath) async {
+  final directory = Directory(folderPath);
+  // Escaneo recursivo de archivos MP3
+}
+```
+
+### 2. Conversión de Archivos MP3
+
+```dart
+// Utility en Core Layer
+class Mp3FileConverter {
+  static List<SongModel> convertFilesToSongModels(List<File> files) {
+    return files.map(_convertFileToSongModel).toList();
+  }
+  
+  static SongModel _convertFileToSongModel(File file) {
+    final durationMs = _estimateDurationFromFileSize(file.lengthSync());
+    final artistName = _extractArtistFromFileName(file.path);
+    // Crear SongModel con metadatos estimados
+  }
+}
 ```
 
 ## 📱 Ejemplo Práctico: Reproducción de Audio
@@ -180,15 +243,27 @@ Future<void> main() async {
   final SongsRepository songsRepository = SongsRepositoryImpl();
   final PlayerRepository playerRepository = PlayerRepositoryImpl();
 
+  // Use Cases (Domain Layer)
+  final GetLocalSongsUseCase getLocalSongsUseCase = 
+      GetLocalSongsUseCase(songsRepository, settingsRepository);
+  final SelectMusicFolderUseCase selectMusicFolderUseCase = 
+      SelectMusicFolderUseCase(songsRepository);
+  final GetSongsFromFolderUseCase getSongsFromFolderUseCase = 
+      GetSongsFromFolderUseCase(songsRepository);
+
   runApp(
     MultiBlocProvider(
       providers: [
         // Inyección en Cubits (Presentation Layer)
         BlocProvider<SettingsCubit>(
-          create: (context) => SettingsCubit(settingsRepository),
+          create: (context) => SettingsCubit(
+            settingsRepository,
+            selectMusicFolderUseCase,
+            getSongsFromFolderUseCase,
+          ),
         ),
         BlocProvider<SongsCubit>(
-          create: (context) => SongsCubit(songsRepository),
+          create: (context) => SongsCubit(songsRepository, getLocalSongsUseCase),
         ),
         BlocProvider<PlayerCubit>(
           create: (context) => PlayerCubit(playerRepository),

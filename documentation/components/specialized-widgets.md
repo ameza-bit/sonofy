@@ -748,6 +748,163 @@ class BottomClipper extends CustomClipper<Path> {
 
 ## 🎨 Widgets de Configuración
 
+### LocalMusicSection
+
+#### Propósito
+Sección especializada en configuraciones para gestionar la importación de música local desde carpetas del dispositivo.
+
+#### Ubicación
+`lib/presentation/views/settings/local_music_section.dart`
+
+#### Características
+- **Selección de carpeta**: Integra selector nativo del sistema
+- **Estados visuales**: Muestra información de la carpeta actual y cantidad de archivos
+- **Gestión de errores**: Manejo de permisos y carpetas inaccesibles
+- **Integración BLoC**: Conectado con SettingsCubit y SongsCubit para actualización automática
+- **Feedback al usuario**: Indicadores de carga y notificaciones toast
+
+#### Implementación
+```dart
+class LocalMusicSection extends StatelessWidget {
+  const LocalMusicSection({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<SettingsCubit, SettingsState>(
+      builder: (context, state) {
+        return SectionCard(
+          title: context.tr('settings.local_music.title'),
+          icon: FontAwesome.lightFolderMusic,
+          children: [
+            _buildCurrentFolderInfo(context, state),
+            const SizedBox(height: 12),
+            _buildSelectFolderButton(context, state),
+            if (state.settings.localMusicPath != null) ...[
+              const SizedBox(height: 12),
+              _buildMp3FilesInfo(context, state),
+            ],
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildCurrentFolderInfo(BuildContext context, SettingsState state) {
+    final localPath = state.settings.localMusicPath;
+    
+    return SectionItem(
+      title: context.tr('settings.local_music.current_folder'),
+      subtitle: localPath?.isNotEmpty == true 
+          ? _formatPath(localPath!)
+          : context.tr('settings.local_music.no_folder_selected'),
+      leadingIcon: FontAwesome.lightFolder,
+    );
+  }
+
+  Widget _buildSelectFolderButton(BuildContext context, SettingsState state) {
+    return PrimaryButton(
+      text: state.settings.localMusicPath?.isNotEmpty == true
+          ? context.tr('settings.local_music.change_folder')
+          : context.tr('settings.local_music.select_folder'),
+      icon: FontAwesome.lightFolderOpen,
+      isLoading: state.isLoading,
+      onPressed: state.isLoading ? null : () => _selectFolder(context),
+    );
+  }
+
+  Widget _buildMp3FilesInfo(BuildContext context, SettingsState state) {
+    return BlocBuilder<SongsCubit, SongsState>(
+      buildWhen: (previous, current) => 
+          previous.localSongs.length != current.localSongs.length,
+      builder: (context, songsState) {
+        final localSongsCount = songsState.localSongs.length;
+        
+        return SectionItem(
+          title: context.tr('settings.local_music.mp3_files_found'),
+          subtitle: context.tr('settings.local_music.files_count', 
+              namedArgs: {'count': localSongsCount.toString()}),
+          leadingIcon: FontAwesome.lightMusic,
+          trailing: localSongsCount > 0 
+              ? IconButton(
+                  icon: Icon(FontAwesome.lightArrowRotateRight),
+                  onPressed: () => _refreshLocalSongs(context),
+                  tooltip: context.tr('settings.local_music.refresh_files'),
+                )
+              : null,
+        );
+      },
+    );
+  }
+
+  Future<void> _selectFolder(BuildContext context) async {
+    try {
+      final settingsCubit = context.read<SettingsCubit>();
+      final songsCubit = context.read<SongsCubit>();
+      
+      final hasFiles = await settingsCubit.selectAndSetMusicFolder();
+      
+      if (hasFiles) {
+        // Actualizar biblioteca automáticamente
+        await songsCubit.refreshLocalSongs();
+        
+        if (context.mounted) {
+          Toast.show(
+            context,
+            context.tr('settings.local_music.folder_selected_success'),
+            type: ToastType.success,
+          );
+        }
+      } else {
+        if (context.mounted) {
+          Toast.show(
+            context,
+            context.tr('settings.local_music.no_mp3_files_found'),
+            type: ToastType.warning,
+          );
+        }
+      }
+    } catch (e) {
+      if (context.mounted) {
+        Toast.show(
+          context,
+          context.tr('settings.local_music.selection_error'),
+          type: ToastType.error,
+        );
+      }
+    }
+  }
+
+  void _refreshLocalSongs(BuildContext context) {
+    context.read<SongsCubit>().refreshLocalSongs();
+    Toast.show(
+      context,
+      context.tr('settings.local_music.refreshing_files'),
+      type: ToastType.info,
+    );
+  }
+
+  String _formatPath(String path) {
+    final parts = path.split('/');
+    if (parts.length > 3) {
+      return '.../${parts.sublist(parts.length - 2).join('/')}';
+    }
+    return path;
+  }
+}
+```
+
+#### Estados Manejados
+- **Sin carpeta**: Muestra botón para seleccionar
+- **Carpeta seleccionada**: Muestra información de la carpeta y botón para cambiar
+- **Cargando**: Botón en estado de loading durante selección
+- **Con archivos**: Muestra contador de MP3 encontrados y botón de refresco
+- **Errores**: Manejo de excepciones con notificaciones toast
+
+#### Integración con Use Cases
+- **SelectMusicFolderUseCase**: Para selección de carpeta
+- **GetSongsFromFolderUseCase**: Para escaneo de archivos MP3
+- **GetLocalSongsUseCase**: Para cargar canciones en la biblioteca
+
 ### ColorPickerDialog
 
 #### Propósito

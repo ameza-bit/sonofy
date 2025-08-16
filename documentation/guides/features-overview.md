@@ -96,6 +96,38 @@ Future<List<SongModel>> getSongsFromDevice() async {
 }
 ```
 
+### Importación de Música Local
+**Estado**: ✅ Implementado
+
+#### Características
+- **Selección de carpeta**: Permite al usuario seleccionar carpetas con MP3
+- **Escaneo recursivo**: Busca archivos MP3 en subcarpetas automáticamente
+- **Integración automática**: Combina música local con biblioteca del dispositivo
+- **Metadatos estimados**: Calcula duración y extrae información del nombre de archivo
+- **Persistencia**: Recuerda la carpeta seleccionada entre sesiones
+
+#### Funcionalidades Implementadas
+1. **Selector de carpeta nativo**: Utiliza el picker del sistema operativo
+2. **Procesamiento en segundo plano**: No bloquea la UI durante el escaneo
+3. **Estimación de duración**: Calcula duración aproximada basada en tamaño de archivo
+4. **Extracción de artista**: Soporta formatos comunes de nomenclatura
+5. **Manejo de errores**: Gestión robusta de carpetas inaccesibles o sin permisos
+
+#### Ubicación en el Código
+- **UI**: `lib/presentation/views/settings/local_music_section.dart`
+- **Use Cases**: `lib/domain/usecases/get_local_songs_usecase.dart`
+- **Utility**: `lib/core/utils/mp3_file_converter.dart`
+- **Repository**: `lib/data/repositories/songs_repository_impl.dart:145-178`
+
+#### Configuraciones iOS
+Requiere permisos específicos en `ios/Runner/Info.plist`:
+```xml
+<key>NSDocumentsFolderUsageDescription</key>
+<string>Esta aplicación necesita acceso para importar música local</string>
+<key>NSDownloadsFolderUsageDescription</key>
+<string>Esta aplicación necesita acceso para importar música local</string>
+```
+
 ### Lista de Canciones
 **Estado**: ✅ Implementado
 
