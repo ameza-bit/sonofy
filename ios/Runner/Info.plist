@@ -32,6 +32,10 @@
 	<true/>
 	<key>NSAppleMusicUsageDescription</key>
 	<string>$(EXECUTABLE_NAME) requires access to media library</string>
+	<key>NSDocumentsFolderUsageDescription</key>
+	<string>$(EXECUTABLE_NAME) needs access to your documents to import music files</string>
+	<key>NSDownloadsFolderUsageDescription</key>
+	<string>$(EXECUTABLE_NAME) needs access to your downloads to import music files</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>UILaunchStoryboardName</key>

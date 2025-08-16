@@ -29,7 +29,7 @@ class AppRoutes {
             pageBuilder: (context, state) => PageTransition(
               context: context,
               state: state,
-              page: const SettingsScreen(),
+              page: const LibraryScreen(),
             ).fadeTransition(),
             routes: [
               GoRoute(

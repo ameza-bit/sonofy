@@ -24,8 +24,24 @@ class _LocalMusicSectionState extends State<LocalMusicSection> {
     setState(() => _isSelecting = true);
 
     try {
+      final settingsCubit = context.read<SettingsCubit>();
+      final bool success = await settingsCubit.selectAndSetMusicFolder();
+      
+      if (!mounted) return;
+      
+      if (success) {
+        final mp3Files = await settingsCubit.getMp3FilesFromCurrentFolder();
+        if (!mounted) return;
+        Toast.show(context.tr('settings.music_import_success', namedArgs: {
+          'count': mp3Files.length.toString()
+        }));
+      } else {
+        if (!mounted) return;
+        Toast.show(context.tr('settings.music_import_no_files'));
+      }
     } catch (e) {
-      Toast.show('Error importing music: $e');
+      if (!mounted) return;
+      Toast.show(context.tr('settings.music_import_error'));
     } finally {
       if (mounted) {
         setState(() => _isSelecting = false);
@@ -38,7 +54,10 @@ class _LocalMusicSectionState extends State<LocalMusicSection> {
       return context.tr('settings.music_sync_empty');
     }
 
-    return status;
+    final folderName = status.split('/').last;
+    return context.tr('settings.music_folder_selected', namedArgs: {
+      'folder': folderName
+    });
   }
 
   @override
@@ -47,7 +66,6 @@ class _LocalMusicSectionState extends State<LocalMusicSection> {
       builder: (context, state) {
         final primaryColor = state.settings.primaryColor;
         final localMusicPath = state.settings.localMusicPath;
-        // final autoSyncEnabled = false; // state.settings.autoSyncEnabled;
 
         return SectionCard(
           title: context.tr('settings.music_library'),
@@ -75,19 +93,6 @@ class _LocalMusicSectionState extends State<LocalMusicSection> {
               subtitle: _getImportStatus(localMusicPath),
               iconColor: primaryColor,
             ),
-            // SectionItem(
-            //   icon: FontAwesomeIcons.lightRotate,
-            //   title: context.tr('settings.auto_sync'),
-            //   subtitle: context.tr('settings.auto_sync_description'),
-            //   iconColor: primaryColor,
-            //   trailing: Switch(
-            //     value: autoSyncEnabled,
-            //     activeColor: primaryColor,
-            //     onChanged: (value) {
-            //       // context.read<SettingsCubit>().toggleAutoSync(value);
-            //     },
-            //   ),
-            // ),
           ],
         );
       },

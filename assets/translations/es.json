@@ -79,7 +79,11 @@
     "music_sync_empty": "No hay música importada aún",
     "music_sync_in_progress": "Importando música...",
     "music_sync_success": "{count} canciones importadas exitosamente",
-    "music_sync_error": "Error al importar música"
+    "music_sync_error": "Error al importar música",
+    "music_import_success": "{count} archivos MP3 encontrados e importados exitosamente",
+    "music_import_no_files": "No se encontraron archivos MP3 en la carpeta seleccionada",
+    "music_import_error": "Error al seleccionar carpeta o importar música",
+    "music_folder_selected": "Carpeta: {folder}"
   },
   "library": {
     "title": "Biblioteca",

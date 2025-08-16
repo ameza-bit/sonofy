@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:ui';
 
 import 'package:flutter/material.dart' show ThemeMode;
@@ -5,12 +6,20 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sonofy/core/enums/language.dart';
 import 'package:sonofy/data/models/setting.dart';
 import 'package:sonofy/domain/repositories/settings_repository.dart';
+import 'package:sonofy/domain/usecases/select_music_folder_usecase.dart';
+import 'package:sonofy/domain/usecases/get_songs_from_folder_usecase.dart';
 import 'package:sonofy/presentation/blocs/settings/settings_state.dart';
 
 class SettingsCubit extends Cubit<SettingsState> {
   final SettingsRepository _settingsRepository;
+  final SelectMusicFolderUseCase _selectMusicFolderUseCase;
+  final GetSongsFromFolderUseCase _getSongsFromFolderUseCase;
 
-  SettingsCubit(this._settingsRepository) : super(SettingsState.initial()) {
+  SettingsCubit(
+    this._settingsRepository,
+    this._selectMusicFolderUseCase,
+    this._getSongsFromFolderUseCase,
+  ) : super(SettingsState.initial()) {
     _loadSettings();
   }
 
@@ -46,6 +55,39 @@ class SettingsCubit extends Cubit<SettingsState> {
 
   void updateSettings(Settings settings) {
     _updateSetting(settings);
+  }
+
+  Future<bool> selectAndSetMusicFolder() async {
+    emit(state.copyWith(isLoading: true));
+    try {
+      final String? selectedPath = await _selectMusicFolderUseCase();
+      if (selectedPath != null) {
+        final List<File> mp3Files = await _getSongsFromFolderUseCase(selectedPath);
+        final newSettings = state.settings.copyWith(localMusicPath: selectedPath);
+        _updateSetting(newSettings);
+        emit(state.copyWith(isLoading: false));
+        return mp3Files.isNotEmpty;
+      } else {
+        emit(state.copyWith(isLoading: false));
+        return false;
+      }
+    } catch (e) {
+      emit(state.copyWith(error: e.toString(), isLoading: false));
+      return false;
+    }
+  }
+
+  Future<List<File>> getMp3FilesFromCurrentFolder() async {
+    final currentPath = state.settings.localMusicPath;
+    if (currentPath == null || currentPath.isEmpty) {
+      return [];
+    }
+    
+    try {
+      return await _getSongsFromFolderUseCase(currentPath);
+    } catch (e) {
+      return [];
+    }
   }
 
   void _updateSetting(Settings newSetting) {
