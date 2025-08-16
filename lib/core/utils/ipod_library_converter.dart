@@ -100,4 +100,39 @@ class IpodLibraryConverter {
       return 'error';
     }
   }
+  
+  static Future<bool> resumeNativeMusicPlayer() async {
+    if (!_isIOS) return false;
+    
+    try {
+      final result = await _channel.invokeMethod('resumeMusicPlayer');
+      return result as bool? ?? false;
+    } catch (e) {
+      return false;
+    }
+  }
+  
+  static Future<Duration> getCurrentPosition() async {
+    if (!_isIOS) return Duration.zero;
+    
+    try {
+      final result = await _channel.invokeMethod('getCurrentPosition');
+      final seconds = result as double? ?? 0.0;
+      return Duration(milliseconds: (seconds * 1000).round());
+    } catch (e) {
+      return Duration.zero;
+    }
+  }
+  
+  static Future<Duration> getDuration() async {
+    if (!_isIOS) return Duration.zero;
+    
+    try {
+      final result = await _channel.invokeMethod('getDuration');
+      final seconds = result as double? ?? 0.0;
+      return Duration(milliseconds: (seconds * 1000).round());
+    } catch (e) {
+      return Duration.zero;
+    }
+  }
 }

@@ -9,8 +9,10 @@ final class PlayerRepositoryImpl implements PlayerRepository {
 
   @override
   bool isPlaying() {
-    if (_usingNativePlayer) {
-      return true; // Native player is async, assume playing when active
+    if (_usingNativePlayer && Platform.isIOS) {
+      // For native player, we need to check async, but this is sync
+      // Return true when using native player - UI should call status check
+      return true;
     }
     return player.state == PlayerState.playing;
   }
@@ -59,6 +61,9 @@ final class PlayerRepositoryImpl implements PlayerRepository {
       if (status == 'playing') {
         await IpodLibraryConverter.pauseNativeMusicPlayer();
         return false;
+      } else if (status == 'paused') {
+        await IpodLibraryConverter.resumeNativeMusicPlayer();
+        return true;
       } else {
         return status == 'playing';
       }
@@ -85,10 +90,18 @@ final class PlayerRepositoryImpl implements PlayerRepository {
   @override
   Future<Duration?> getCurrentPosition() async {
     if (_usingNativePlayer && Platform.isIOS) {
-      // Native player doesn't support position for now
-      return Duration.zero;
+      return IpodLibraryConverter.getCurrentPosition();
     } else {
       return player.getCurrentPosition();
+    }
+  }
+
+  @override
+  Future<Duration?> getDuration() async {
+    if (_usingNativePlayer && Platform.isIOS) {
+      return IpodLibraryConverter.getDuration();
+    } else {
+      return player.getDuration();
     }
   }
 }

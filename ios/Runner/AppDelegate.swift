@@ -41,6 +41,12 @@ import MediaPlayer
         self?.stopMusicPlayer(result: result)
       case "getMusicPlayerStatus":
         self?.getMusicPlayerStatus(result: result)
+      case "resumeMusicPlayer":
+        self?.resumeMusicPlayer(result: result)
+      case "getCurrentPosition":
+        self?.getCurrentPosition(result: result)
+      case "getDuration":
+        self?.getDuration(result: result)
       default:
         result(FlutterMethodNotImplemented)
       }
@@ -179,5 +185,41 @@ import MediaPlayer
     
     logToFlutter("📊 Music player status: \(status)")
     result(status)
+  }
+  
+  private func resumeMusicPlayer(result: @escaping FlutterResult) {
+    logToFlutter("▶️ Resuming music player")
+    guard let player = musicPlayer else {
+      logToFlutter("❌ No music player available")
+      result(false)
+      return
+    }
+    
+    player.play()
+    logToFlutter("✅ Music player resumed")
+    result(true)
+  }
+  
+  private func getCurrentPosition(result: @escaping FlutterResult) {
+    guard let player = musicPlayer else {
+      result(0.0)
+      return
+    }
+    
+    let currentTime = player.currentPlaybackTime
+    logToFlutter("⏱️ Current position: \(currentTime) seconds")
+    result(currentTime)
+  }
+  
+  private func getDuration(result: @escaping FlutterResult) {
+    guard let player = musicPlayer,
+          let nowPlayingItem = player.nowPlayingItem else {
+      result(0.0)
+      return
+    }
+    
+    let duration = nowPlayingItem.playbackDuration
+    logToFlutter("⏱️ Duration: \(duration) seconds")
+    result(duration)
   }
 }
