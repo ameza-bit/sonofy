@@ -47,6 +47,8 @@ import MediaPlayer
         self?.getCurrentPosition(result: result)
       case "getDuration":
         self?.getDuration(result: result)
+      case "seekToPosition":
+        self?.seekToPosition(call: call, result: result)
       default:
         result(FlutterMethodNotImplemented)
       }
@@ -221,5 +223,26 @@ import MediaPlayer
     let duration = nowPlayingItem.playbackDuration
     logToFlutter("⏱️ Duration: \(duration) seconds")
     result(duration)
+  }
+  
+  private func seekToPosition(call: FlutterMethodCall, result: @escaping FlutterResult) {
+    logToFlutter("⏩ Seeking to position")
+    guard let player = musicPlayer else {
+      logToFlutter("❌ No music player available for seek")
+      result(false)
+      return
+    }
+    
+    guard let args = call.arguments as? [String: Any],
+          let positionSeconds = args["position"] as? Double else {
+      logToFlutter("❌ Invalid seek position arguments")
+      result(false)
+      return
+    }
+    
+    logToFlutter("⏩ Seeking to: \(positionSeconds) seconds")
+    player.currentPlaybackTime = positionSeconds
+    logToFlutter("✅ Seek completed")
+    result(true)
   }
 }

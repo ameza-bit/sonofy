@@ -29,7 +29,7 @@ final class PlayerRepositoryImpl implements PlayerRepository {
       if (isDrmProtected) {
         return false;
       }
-      
+
       // Use native iOS music player for iPod library URLs
       final success = await IpodLibraryConverter.playWithNativeMusicPlayer(url);
       if (success) {
@@ -78,7 +78,8 @@ final class PlayerRepositoryImpl implements PlayerRepository {
   @override
   Future<bool> seek(Duration position) async {
     if (_usingNativePlayer && Platform.isIOS) {
-      // Native player doesn't support seek for now
+      await IpodLibraryConverter.seekToPosition(position);
+      await IpodLibraryConverter.resumeNativeMusicPlayer();
       return isPlaying();
     } else {
       await player.seek(position);
