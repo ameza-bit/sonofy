@@ -19,11 +19,6 @@ final class SongsRepositoryImpl implements SongsRepository {
   @override
   Future<List<SongModel>> getSongsFromDevice() async {
     final bool canContinue = await _configureAudioQuery();
-
-    if (!canContinue) {
-      return [];
-    }
-
-    return _audioQuery.querySongs();
+    return !canContinue ? [] : _audioQuery.querySongs();
   }
 }

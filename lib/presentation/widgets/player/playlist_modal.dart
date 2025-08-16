@@ -52,23 +52,56 @@ class PlaylistModal extends StatelessWidget {
                   ),
                   child: Column(
                     children: [
-                      GestureDetector(
-                        onTap: () => context.pop(),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              context.tr('player.playlist'),
-                              textAlign: TextAlign.center,
-                              style: TextStyle(fontSize: context.scaleText(12)),
+                      Row(
+                        children: [
+                          const IconButton(
+                            onPressed: null,
+                            icon: Icon(
+                              FontAwesomeIcons.lightSpaceStationMoon,
+                              size: 20.0,
+                              color: Colors.transparent,
                             ),
-                            Icon(
-                              FontAwesomeIcons.lightChevronDown,
-                              color: primaryColor,
-                              size: 12,
+                          ),
+                          Expanded(
+                            child: GestureDetector(
+                              onTap: () => context.pop(),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    context.tr('player.playlist'),
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      fontSize: context.scaleText(12),
+                                    ),
+                                  ),
+                                  Icon(
+                                    FontAwesomeIcons.lightChevronDown,
+                                    color: primaryColor,
+                                    size: 12,
+                                  ),
+                                ],
+                              ),
                             ),
-                          ],
-                        ),
+                          ),
+                          BlocBuilder<PlayerCubit, PlayerState>(
+                            builder: (context, state) {
+                              return IconButton(
+                                onPressed: () =>
+                                    context.read<PlayerCubit>().toggleShuffle(),
+                                icon: Icon(
+                                  state.isShuffleEnabled
+                                      ? FontAwesomeIcons.solidShuffle
+                                      : FontAwesomeIcons.lightShuffle,
+                                  size: 20.0,
+                                  color: state.isShuffleEnabled
+                                      ? primaryColor
+                                      : null,
+                                ),
+                              );
+                            },
+                          ),
+                        ],
                       ),
                       const SizedBox(height: 16),
                       Expanded(

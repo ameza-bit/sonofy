@@ -7,6 +7,7 @@ import 'package:sonofy/presentation/blocs/player/player_state.dart';
 import 'package:sonofy/presentation/blocs/settings/settings_cubit.dart';
 import 'package:sonofy/presentation/blocs/settings/settings_state.dart';
 import 'package:sonofy/presentation/widgets/common/font_awesome/font_awesome_flutter.dart';
+import 'package:sonofy/presentation/widgets/player/sleep_modal.dart';
 
 class PlayerControl extends StatelessWidget {
   const PlayerControl({super.key});
@@ -21,11 +22,31 @@ class PlayerControl extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            IconButton(
-              onPressed: () {
-                // TODO(Armando): Implement shuffle functionality
+            BlocBuilder<PlayerCubit, PlayerState>(
+              builder: (context, state) {
+                IconData repeatIcon;
+                Color? iconColor;
+
+                switch (state.repeatMode) {
+                  case RepeatMode.none:
+                    repeatIcon = FontAwesomeIcons.lightRepeat;
+                    iconColor = null;
+                    break;
+                  case RepeatMode.one:
+                    repeatIcon = FontAwesomeIcons.solidRepeat1;
+                    iconColor = primaryColor;
+                    break;
+                  case RepeatMode.all:
+                    repeatIcon = FontAwesomeIcons.solidRepeat;
+                    iconColor = primaryColor;
+                    break;
+                }
+
+                return IconButton(
+                  onPressed: () => context.read<PlayerCubit>().toggleRepeat(),
+                  icon: Icon(repeatIcon, size: 20.0, color: iconColor),
+                );
               },
-              icon: const Icon(FontAwesomeIcons.lightShuffle, size: 20.0),
             ),
             Expanded(
               child: Row(
@@ -71,11 +92,19 @@ class PlayerControl extends StatelessWidget {
                 ],
               ),
             ),
-            IconButton(
-              onPressed: () {
-                // TODO(Armando): Implement repeat functionality
+            BlocBuilder<PlayerCubit, PlayerState>(
+              builder: (context, state) {
+                return IconButton(
+                  onPressed: () => SleepModal.show(context),
+                  icon: Icon(
+                    state.isSleepTimerActive 
+                        ? FontAwesomeIcons.solidTimer
+                        : FontAwesomeIcons.lightTimer,
+                    size: 20.0,
+                    color: state.isSleepTimerActive ? primaryColor : null,
+                  ),
+                );
               },
-              icon: const Icon(FontAwesomeIcons.lightRepeat, size: 20.0),
             ),
           ],
         );

@@ -73,11 +73,33 @@
   },
   "library": {
     "title": "Library",
+    "playlists": "Playlists",
     "empty": "No songs in your library"
+  },
+  "playlist": {
+    "title": "Playlist",
+    "empty": "No songs in this playlist",
+    "songs_count": "{count} songs"
   },
   "player": {
     "now_playing": "Now Playing",
     "lyrics": "Lyrics",
-    "playlist": "Playlist"
+    "playlist": "Playlist",
+    "sleep": {
+      "title": "Sleep Timer",
+      "wait_description": "Wait for the last song to finish",
+      "timer_active": "Timer Active",
+      "select_duration": "Select Duration",
+      "cancel_timer": "Cancel Timer",
+      "custom_duration": "Custom Duration",
+      "select_minutes": "Select minutes:",
+      "minutes": "min",
+      "start_timer": "Start Timer",
+      "duration_minutes": "{} minutes",
+      "duration_hours": "{} hour",
+      "range_description": "Enter a value between 1 and 180 minutes",
+      "waiting_for_song_end": "Waiting for Song to End",
+      "will_pause_after_song": "Music will pause when the current song finishes"
+    }
   }
 }

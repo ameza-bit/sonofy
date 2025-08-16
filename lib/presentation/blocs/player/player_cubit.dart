@@ -1,12 +1,16 @@
 import 'dart:async';
+import 'dart:math';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:on_audio_query_pluse/on_audio_query.dart';
+import 'package:sonofy/core/services/preferences.dart';
+import 'package:sonofy/data/models/player_preferences.dart';
 import 'package:sonofy/domain/repositories/player_repository.dart';
 import 'package:sonofy/presentation/blocs/player/player_state.dart';
 
 class PlayerCubit extends Cubit<PlayerState> {
   final PlayerRepository _playerRepository;
   StreamController<int>? _positionController;
+  Timer? _sleepTimer;
 
   PlayerCubit(this._playerRepository) : super(PlayerState.initial()) {
     _initializePositionStream();
@@ -25,29 +29,35 @@ class PlayerCubit extends Cubit<PlayerState> {
   }
 
   Future<void> nextSong() async {
-    var currentIndex = state.currentIndex;
-    if (currentIndex < state.playlist.length - 1) {
-      currentIndex = currentIndex + 1;
+    if (state.playlist.isEmpty) return;
+
+    int nextIndex;
+    if (state.repeatMode == RepeatMode.one) {
+      nextIndex = state.currentIndex;
     } else {
-      currentIndex = 0;
+      nextIndex = _getNextIndex();
     }
+
     final bool isPlaying = await _playerRepository.play(
-      state.playlist[currentIndex].data,
+      state.playlist[nextIndex].data,
     );
-    emit(state.copyWith(currentIndex: currentIndex, isPlaying: isPlaying));
+    emit(state.copyWith(currentIndex: nextIndex, isPlaying: isPlaying));
   }
 
   Future<void> previousSong() async {
-    var currentIndex = state.currentIndex;
-    if (currentIndex > 0) {
-      currentIndex = currentIndex - 1;
+    if (state.playlist.isEmpty) return;
+
+    int previousIndex;
+    if (state.repeatMode == RepeatMode.one) {
+      previousIndex = state.currentIndex;
     } else {
-      currentIndex = state.playlist.length - 1;
+      previousIndex = _getPreviousIndex();
     }
+
     final bool isPlaying = await _playerRepository.play(
-      state.playlist[currentIndex].data,
+      state.playlist[previousIndex].data,
     );
-    emit(state.copyWith(currentIndex: currentIndex, isPlaying: isPlaying));
+    emit(state.copyWith(currentIndex: previousIndex, isPlaying: isPlaying));
   }
 
   Future<void> togglePlayPause() async {
@@ -75,8 +85,25 @@ class PlayerCubit extends Cubit<PlayerState> {
           final songDurationMs = currentSong.duration ?? 0;
           final isNearEnd = currentPositionMs >= (songDurationMs - 1000);
 
-          if (isNearEnd && state.hasSelectedSong && state.playlist.length > 1) {
-            await nextSong();
+          // Verificar si el sleep timer está esperando que termine la canción
+          if (state.isSleepTimerActive && 
+              state.sleepTimerRemaining == Duration.zero && 
+              state.waitForSongToFinish && 
+              isNearEnd) {
+            // La canción terminó y estábamos esperando - pausar ahora
+            await _playerRepository.pause();
+            emit(state.copyWith(isPlaying: false));
+            stopSleepTimer();
+            return;
+          }
+
+          if (isNearEnd && state.hasSelectedSong) {
+            if (state.repeatMode == RepeatMode.one) {
+              await _playerRepository.seek(Duration.zero);
+            } else if (state.repeatMode == RepeatMode.all ||
+                state.playlist.length > 1) {
+              await nextSong();
+            }
           }
         }
 
@@ -100,9 +127,143 @@ class PlayerCubit extends Cubit<PlayerState> {
     emit(state.copyWith(isPlaying: isPlaying));
   }
 
+  void toggleShuffle() {
+    final newShuffleState = !state.isShuffleEnabled;
+    emit(state.copyWith(isShuffleEnabled: newShuffleState));
+    _savePlayerPreferences();
+  }
+
+  void toggleRepeat() {
+    RepeatMode newMode;
+    switch (state.repeatMode) {
+      case RepeatMode.none:
+        newMode = RepeatMode.one;
+        break;
+      case RepeatMode.one:
+        newMode = RepeatMode.all;
+        break;
+      case RepeatMode.all:
+        newMode = RepeatMode.none;
+        break;
+    }
+    emit(state.copyWith(repeatMode: newMode));
+    _savePlayerPreferences();
+  }
+
+  int _getNextIndex() {
+    if (state.isShuffleEnabled) {
+      if (state.playlist.length <= 1) return state.currentIndex;
+      final random = Random();
+      int nextIndex;
+      do {
+        nextIndex = random.nextInt(state.playlist.length);
+      } while (nextIndex == state.currentIndex);
+      return nextIndex;
+    } else {
+      if (state.currentIndex < state.playlist.length - 1) {
+        return state.currentIndex + 1;
+      } else {
+        return 0;
+      }
+    }
+  }
+
+  int _getPreviousIndex() {
+    if (state.isShuffleEnabled) {
+      if (state.playlist.length <= 1) return state.currentIndex;
+      final random = Random();
+      int previousIndex;
+      do {
+        previousIndex = random.nextInt(state.playlist.length);
+      } while (previousIndex == state.currentIndex);
+      return previousIndex;
+    } else {
+      if (state.currentIndex > 0) {
+        return state.currentIndex - 1;
+      } else {
+        return state.playlist.length - 1;
+      }
+    }
+  }
+
+  void startSleepTimer(Duration duration, bool waitForSong) {
+    stopSleepTimer();
+
+    emit(
+      state.copyWith(
+        sleepTimerDuration: duration,
+        sleepTimerRemaining: duration,
+        isSleepTimerActive: true,
+        waitForSongToFinish: waitForSong,
+      ),
+    );
+
+    _sleepTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      final remaining = state.sleepTimerRemaining;
+      if (remaining == null || remaining.inSeconds <= 0) {
+        _handleSleepTimerExpired();
+        return;
+      }
+
+      final newRemaining = Duration(seconds: remaining.inSeconds - 1);
+      emit(state.copyWith(sleepTimerRemaining: newRemaining));
+    });
+  }
+
+  void stopSleepTimer() {
+    _sleepTimer?.cancel();
+    _sleepTimer = null;
+
+    emit(state.copyWith(isSleepTimerActive: false, waitForSongToFinish: false));
+  }
+
+  void toggleWaitForSongToFinish() {
+    emit(state.copyWith(waitForSongToFinish: !state.waitForSongToFinish));
+  }
+
+  Future<void> _handleSleepTimerExpired() async {
+    if (state.waitForSongToFinish && state.isPlaying && state.hasSelectedSong) {
+      final currentSong = state.currentSong;
+      if (currentSong != null) {
+        final position = await _playerRepository.getCurrentPosition();
+        final currentPositionMs = position?.inMilliseconds ?? 0;
+        final songDurationMs = currentSong.duration ?? 0;
+        final isNearEnd = currentPositionMs >= (songDurationMs - 5000);
+
+        if (!isNearEnd) {
+          // Timer expiró pero esperamos el final de la canción
+          // Cambiar el timer para que se active cuando termine la canción
+          _sleepTimer?.cancel();
+          _sleepTimer = null;
+          
+          // Actualizar estado para mostrar que está esperando el final
+          emit(state.copyWith(
+            sleepTimerRemaining: Duration.zero,
+            // Mantener isSleepTimerActive true para indicar que sigue esperando
+          ));
+          return;
+        }
+      }
+    }
+
+    // Pausar la música y limpiar el timer
+    await _playerRepository.pause();
+    emit(state.copyWith(isPlaying: false));
+    stopSleepTimer();
+  }
+
+  void _savePlayerPreferences() {
+    final preferences = PlayerPreferences(
+      isShuffleEnabled: state.isShuffleEnabled,
+      repeatMode: state.repeatMode,
+    );
+    Preferences.playerPreferences = preferences;
+  }
+
   @override
   Future<void> close() {
     _positionController?.close();
+    _sleepTimer?.cancel();
     return super.close();
   }
 }

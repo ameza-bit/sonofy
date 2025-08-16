@@ -274,6 +274,26 @@ EasyLocalization(
 - **Manual**: Ajuste personalizado de frecuencias
 - **Persistencia**: Configuración por canción/global
 
+### Temporizador de Sueño
+**Estado**: ✅ Implementado
+
+#### Características Implementadas
+- **Duración configurable**: 1-180 minutos con opciones predeterminadas (15min, 30min, 45min, 1h)
+- **Duración personalizada**: Slider interactivo con botones rápidos
+- **Esperar final de canción**: Opción para pausar al terminar la canción actual
+- **Estados visuales**: Countdown activo y estado de espera
+- **Cancelación**: Posibilidad de cancelar el timer en cualquier momento
+
+#### Ubicación en el Código
+- **Modal**: `lib/presentation/widgets/player/sleep_modal.dart`
+- **Lógica**: `lib/presentation/blocs/player/player_cubit.dart:184-248`
+- **Estados**: Incluidos en `PlayerState`
+
+#### Casos de Uso
+1. **Timer estándar**: Pausar después de X minutos exactos
+2. **Esperar canción**: Pausar cuando termine la canción actual después del tiempo
+3. **Timer personalizado**: Configurar duración específica entre 1-180 minutos
+
 ### Letras de Canciones
 **Estado**: 🚧 En Desarrollo
 
@@ -281,6 +301,22 @@ EasyLocalization(
 - **Modal preparado**: `lib/presentation/widgets/player/lirycs_modal.dart`
 - **Integración pendiente**: Fuente de letras por definir
 - **UI implementada**: Interface lista para usar
+
+### Repetir y Aleatorio
+**Estado**: ✅ Implementado
+
+#### Características Implementadas
+- **Modos de repetición**:
+  - `RepeatMode.none`: Sin repetición
+  - `RepeatMode.one`: Repetir canción actual
+  - `RepeatMode.all`: Repetir toda la playlist
+- **Modo aleatorio**: Reproducción shuffle con selección inteligente
+- **Navegación inteligente**: Respeta los modos al cambiar de canción
+
+#### Ubicación en el Código
+- **Estados**: `lib/presentation/blocs/player/player_state.dart:3-4`
+- **Lógica shuffle**: `lib/presentation/blocs/player/player_cubit.dart:148-182`
+- **Controles UI**: `lib/presentation/widgets/player/player_control.dart`
 
 ### Compartir y Social
 **Estado**: 📝 Planificado

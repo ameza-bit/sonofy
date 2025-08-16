@@ -30,6 +30,8 @@
 - ⏭️ Navegación entre canciones (anterior/siguiente)
 - 📊 Slider de progreso con control manual
 - 🖼️ Visualización de carátulas de álbum
+- 🔀 Modo aleatorio (shuffle) inteligente
+- 🔁 Modos de repetición (uno, todos, ninguno)
 
 ### Gestión de Biblioteca
 - 📁 Escaneo automático de música del dispositivo
@@ -37,14 +39,22 @@
 - 🔍 Búsqueda de canciones (próximamente)
 - 📱 Reproductor mini en la interfaz principal
 
+### Temporizador de Sueño
+- ⏰ Configuración de duración (1-180 minutos)
+- ⏱️ Opciones predeterminadas (15min, 30min, 45min, 1h)
+- 🎵 Opción de esperar al final de la canción
+- 📊 Slider personalizado con vista previa
+- ❌ Cancelación en cualquier momento
+
 ### Personalización
 - 🌙 Temas claro/oscuro/automático
 - 🎨 Selector de color primario personalizable
-- 📏 Escalado de fuente ajustable
+- 📏 Escalado de fuente ajustable (8 niveles)
 - 🔐 Configuración de seguridad biométrica
 
 ### Internacionalización
-- 🌍 Soporte multiidioma (actualmente español)
+- 🇪🇸 Español (por defecto)
+- 🇺🇸 Inglés
 - 📝 Sistema de traducciones extensible
 
 ## 🛠️ Stack Tecnológico
@@ -100,6 +110,6 @@ Para consultas técnicas o reportar problemas, por favor revisa la documentació
 
 ---
 
-**Versión de Documentación**: 1.0.0  
+**Versión de Documentación**: 1.1.0  
 **Última Actualización**: Agosto 2024  
 **Mantenedor**: Equipo de Desarrollo Sonofy

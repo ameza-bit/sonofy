@@ -73,11 +73,33 @@
   },
   "library": {
     "title": "Biblioteca",
+    "playlists": "Listas de Reproducción",
     "empty": "No hay canciones en tu biblioteca"
+  },
+  "playlist": {
+    "title": "Lista de Reproducción",
+    "empty": "No hay canciones en esta lista de reproducción",
+    "songs_count": "{count} canciones"
   },
   "player": {
     "now_playing": "Sonando",
     "lyrics": "Letras",
-    "playlist": "Lista de Reproducción"
+    "playlist": "Lista de Reproducción",
+    "sleep": {
+      "title": "Apagado automático",
+      "wait_description": "Esperar a terminar la ultima canción",
+      "timer_active": "Temporizador Activo",
+      "select_duration": "Seleccionar Duración",
+      "cancel_timer": "Cancelar Temporizador",
+      "custom_duration": "Duración Personalizada",
+      "select_minutes": "Seleccionar minutos:",
+      "minutes": "min",
+      "start_timer": "Iniciar Temporizador",
+      "duration_minutes": "{} minutos",
+      "duration_hours": "{} hora",
+      "range_description": "Ingresa un valor entre 1 y 180 minutos",
+      "waiting_for_song_end": "Esperando que Termine la Canción",
+      "will_pause_after_song": "La música se pausará cuando termine la canción actual"
+    }
   }
 }
