@@ -45,22 +45,58 @@ class GetAllSongsUseCase {
   List<SongModel> _convertFilesToSongModel(List<File> files) {
     return files.map((file) {
       final fileName = file.path.split('/').last;
-      final title = fileName.replaceAll('.mp3', '');
+      final title = fileName.split('.').first;
+      
+      // Extraer información básica del nombre del archivo
+      final String artistName = _extractArtistFromFileName(fileName);
+      final String albumName = 'Local Files';
+      final String songTitle = title;
+      
+      // Calcular duración estimada basada en el tamaño del archivo
+      final int durationMs = _estimateDurationFromFileSize(file.lengthSync());
       
       return SongModel({
         '_id': file.hashCode,
         '_data': file.path,
         '_display_name': fileName,
-        'title': title,
-        'artist': 'Unknown Artist',
-        'album': 'Local Files',
+        '_display_name_wo_ext': title,
+        'file_extension': fileName.split('.').last,
+        'is_music': true,
+        'title': songTitle,
+        'artist': artistName,
+        'album': albumName,
         '_size': file.lengthSync(),
-        'duration': null,
-        'album_id': null,
-        'artist_id': null,
+        'duration': durationMs,
+        'album_id': albumName.hashCode,
+        'artist_id': artistName.hashCode,
         'date_added': DateTime.now().millisecondsSinceEpoch,
         'date_modified': file.lastModifiedSync().millisecondsSinceEpoch,
       });
     }).toList();
+  }
+
+  String _extractArtistFromFileName(String fileName) {
+    // Intentar extraer artista del nombre del archivo
+    // Formatos comunes: "Artista - Canción.mp3", "Artista_Canción.mp3"
+    final nameWithoutExt = fileName.split('.').first;
+    
+    if (nameWithoutExt.contains(' - ')) {
+      return nameWithoutExt.split(' - ').first.trim();
+    } else if (nameWithoutExt.contains('_')) {
+      final parts = nameWithoutExt.split('_');
+      if (parts.length >= 2) {
+        return parts.first.trim();
+      }
+    }
+    
+    return 'Unknown Artist';
+  }
+
+  int _estimateDurationFromFileSize(int fileSizeBytes) {
+    // Estimación aproximada: MP3 a 128kbps ≈ 16KB/s
+    // Esta es una estimación muy aproximada
+    const int averageBytesPerSecond = 16000; // 128kbps / 8 = 16KB/s
+    final int estimatedSeconds = fileSizeBytes ~/ averageBytesPerSecond;
+    return estimatedSeconds * 1000; // Convertir a milisegundos
   }
 }
