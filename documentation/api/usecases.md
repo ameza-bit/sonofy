@@ -42,6 +42,11 @@ class GetLocalSongsUseCase {
   GetLocalSongsUseCase(this._songsRepository, this._settingsRepository);
 
   Future<List<SongModel>> call() async {
+    // Solo iOS soporta canciones locales de carpetas específicas
+    if (Platform.isAndroid) {
+      return []; // Android no tiene canciones "locales" separadas
+    }
+
     try {
       final settings = _settingsRepository.getSettings();
       final localPath = settings.localMusicPath;
@@ -63,11 +68,12 @@ class GetLocalSongsUseCase {
 
 ### Flujo de Ejecución
 
-1. **Obtener configuraciones**: Lee la ruta de música local desde las configuraciones
-2. **Validar ruta**: Verifica que existe una ruta configurada
-3. **Escanear archivos**: Obtiene lista de archivos MP3 de la carpeta
-4. **Convertir datos**: Transforma archivos en objetos SongModel con metadatos
-5. **Retornar resultado**: Lista de canciones con duración estimada
+1. **Verificar plataforma**: Comprueba si es iOS (Android retorna lista vacía inmediatamente)
+2. **Obtener configuraciones**: Lee la ruta de música local desde las configuraciones
+3. **Validar ruta**: Verifica que existe una ruta configurada
+4. **Escanear archivos**: Obtiene lista de archivos MP3 de la carpeta
+5. **Convertir datos**: Transforma archivos en objetos SongModel con metadatos
+6. **Retornar resultado**: Lista de canciones con duración estimada
 
 ### Casos de Uso
 
@@ -81,10 +87,24 @@ final mp3Files = await settingsCubit.getMp3FilesFromCurrentFolder();
 
 ### Manejo de Errores
 
+- **Plataforma Android**: Retorna lista vacía inmediatamente
 - **Carpeta no configurada**: Retorna lista vacía
 - **Carpeta inexistente**: Retorna lista vacía
 - **Sin permisos**: Retorna lista vacía
 - **Errores de E/O**: Retorna lista vacía
+
+### Comportamiento por Plataforma
+
+#### 🍎 iOS
+- ✅ **Funcionalidad completa**: Escanea carpetas seleccionadas por el usuario
+- ✅ **Conversión de archivos**: Utiliza Mp3FileConverter para crear SongModel
+- ✅ **Persistencia**: Recuerda la carpeta seleccionada en configuraciones
+- ✅ **Integración**: Se combina con canciones del dispositivo
+
+#### 🤖 Android
+- ❌ **No funcional**: Retorna lista vacía inmediatamente
+- ✅ **Alternativa**: Toda la música accesible via getSongsFromDevice()
+- 📝 **Razón**: Android usa on_audio_query_pluse para acceso completo automático
 
 ## 📂 GetSongsFromFolderUseCase
 

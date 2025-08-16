@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -30,12 +31,19 @@ Future<void> main() async {
   final SongsRepository songsRepository = SongsRepositoryImpl();
   final PlayerRepository playerRepository = PlayerRepositoryImpl();
 
-  final SelectMusicFolderUseCase selectMusicFolderUseCase =
-      SelectMusicFolderUseCase(songsRepository);
-  final GetSongsFromFolderUseCase getSongsFromFolderUseCase =
-      GetSongsFromFolderUseCase(songsRepository);
-  final GetLocalSongsUseCase getLocalSongsUseCase =
-      GetLocalSongsUseCase(songsRepository, settingsRepository);
+  // Use Cases para música local - solo iOS
+  SelectMusicFolderUseCase? selectMusicFolderUseCase;
+  GetSongsFromFolderUseCase? getSongsFromFolderUseCase;
+  GetLocalSongsUseCase? getLocalSongsUseCase;
+
+  if (Platform.isIOS) {
+    selectMusicFolderUseCase = SelectMusicFolderUseCase(songsRepository);
+    getSongsFromFolderUseCase = GetSongsFromFolderUseCase(songsRepository);
+    getLocalSongsUseCase = GetLocalSongsUseCase(
+      songsRepository,
+      settingsRepository,
+    );
+  }
 
   runApp(
     MultiBlocProvider(
@@ -48,10 +56,8 @@ Future<void> main() async {
           ),
         ),
         BlocProvider<SongsCubit>(
-          create: (context) => SongsCubit(
-            songsRepository,
-            getLocalSongsUseCase,
-          ),
+          create: (context) =>
+              SongsCubit(songsRepository, getLocalSongsUseCase),
         ),
         BlocProvider<PlayerCubit>(
           create: (context) => PlayerCubit(playerRepository),

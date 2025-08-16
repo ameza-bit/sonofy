@@ -96,37 +96,63 @@ Future<List<SongModel>> getSongsFromDevice() async {
 }
 ```
 
-### Importación de Música Local
+### Funcionalidad Híbrida por Plataforma
 **Estado**: ✅ Implementado
 
-#### Características
-- **Selección de carpeta**: Permite al usuario seleccionar carpetas con MP3
-- **Escaneo recursivo**: Busca archivos MP3 en subcarpetas automáticamente
-- **Integración automática**: Combina música local con biblioteca del dispositivo
-- **Metadatos estimados**: Calcula duración y extrae información del nombre de archivo
-- **Persistencia**: Recuerda la carpeta seleccionada entre sesiones
+#### Estrategia Diferenciada
+Sonofy implementa un enfoque híbrido que optimiza la experiencia para cada plataforma:
 
-#### Funcionalidades Implementadas
-1. **Selector de carpeta nativo**: Utiliza el picker del sistema operativo
-2. **Procesamiento en segundo plano**: No bloquea la UI durante el escaneo
-3. **Estimación de duración**: Calcula duración aproximada basada en tamaño de archivo
-4. **Extracción de artista**: Soporta formatos comunes de nomenclatura
-5. **Manejo de errores**: Gestión robusta de carpetas inaccesibles o sin permisos
+- **🍎 iOS**: FilePicker + on_audio_query_pluse (selección manual + automática)
+- **🤖 Android**: Solo on_audio_query_pluse (acceso automático completo)
+
+#### Características iOS
+- **Selección manual de carpetas**: FilePicker nativo del sistema
+- **Biblioteca del dispositivo**: on_audio_query_pluse para música nativa
+- **Fuentes combinadas**: Integración de múltiples orígenes
+- **Control granular**: Usuario decide qué carpetas incluir
+- **Metadatos estimados**: Mp3FileConverter para archivos locales
+
+#### Características Android
+- **Acceso automático completo**: Solo on_audio_query_pluse
+- **Sin configuración manual**: Experiencia simplificada
+- **Biblioteca unificada**: Toda la música del dispositivo automáticamente
+- **Menor complejidad**: Sin gestión manual de archivos
+
+#### Implementación Técnica
+
+```dart
+// Lógica condicional en SongsRepository
+Future<String?> selectMusicFolder() async {
+  if (Platform.isIOS) {
+    return await FilePicker.platform.getDirectoryPath();
+  }
+  return null; // Android no soporta selección manual
+}
+
+// Use Cases con comportamiento específico
+Future<List<SongModel>> call() async {
+  if (Platform.isAndroid) {
+    return []; // Android no tiene canciones "locales" separadas
+  }
+  // Lógica específica de iOS...
+}
+```
 
 #### Ubicación en el Código
-- **UI**: `lib/presentation/views/settings/local_music_section.dart`
-- **Use Cases**: `lib/domain/usecases/get_local_songs_usecase.dart`
-- **Utility**: `lib/core/utils/mp3_file_converter.dart`
-- **Repository**: `lib/data/repositories/songs_repository_impl.dart:145-178`
+- **Repository híbrido**: `lib/data/repositories/songs_repository_impl.dart`
+- **Use Cases condicionales**: `lib/domain/usecases/get_local_songs_usecase.dart`
+- **BLoC con null safety**: `lib/presentation/blocs/songs/songs_cubit.dart`
+- **UI solo iOS**: `lib/presentation/views/settings/local_music_section.dart`
+- **Dependency Injection**: `lib/main.dart` (condicional por plataforma)
 
-#### Configuraciones iOS
-Requiere permisos específicos en `ios/Runner/Info.plist`:
-```xml
-<key>NSDocumentsFolderUsageDescription</key>
-<string>Esta aplicación necesita acceso para importar música local</string>
-<key>NSDownloadsFolderUsageDescription</key>
-<string>Esta aplicación necesita acceso para importar música local</string>
-```
+#### Experiencia de Usuario
+
+| Aspecto | iOS | Android |
+|---------|-----|---------|
+| **Configuraciones** | Sección "Música Local" visible | Sin configuraciones adicionales |
+| **Fuentes de música** | Dispositivo + carpetas seleccionadas | Solo dispositivo (completo) |
+| **Interacción** | Selección manual opcional | Completamente automático |
+| **Complejidad** | Media (más control) | Baja (simplicidad) |
 
 ### Lista de Canciones
 **Estado**: ✅ Implementado

@@ -12,8 +12,8 @@ import 'package:sonofy/presentation/blocs/settings/settings_state.dart';
 
 class SettingsCubit extends Cubit<SettingsState> {
   final SettingsRepository _settingsRepository;
-  final SelectMusicFolderUseCase _selectMusicFolderUseCase;
-  final GetSongsFromFolderUseCase _getSongsFromFolderUseCase;
+  final SelectMusicFolderUseCase? _selectMusicFolderUseCase;
+  final GetSongsFromFolderUseCase? _getSongsFromFolderUseCase;
 
   SettingsCubit(
     this._settingsRepository,
@@ -58,12 +58,22 @@ class SettingsCubit extends Cubit<SettingsState> {
   }
 
   Future<bool> selectAndSetMusicFolder() async {
+    // Solo iOS soporta selección de carpetas
+    if (_selectMusicFolderUseCase == null ||
+        _getSongsFromFolderUseCase == null) {
+      return false;
+    }
+
     emit(state.copyWith(isLoading: true));
     try {
       final String? selectedPath = await _selectMusicFolderUseCase();
       if (selectedPath != null) {
-        final List<File> mp3Files = await _getSongsFromFolderUseCase(selectedPath);
-        final newSettings = state.settings.copyWith(localMusicPath: selectedPath);
+        final List<File> mp3Files = await _getSongsFromFolderUseCase(
+          selectedPath,
+        );
+        final newSettings = state.settings.copyWith(
+          localMusicPath: selectedPath,
+        );
         _updateSetting(newSettings);
         emit(state.copyWith(isLoading: false));
         return mp3Files.isNotEmpty;
@@ -78,11 +88,16 @@ class SettingsCubit extends Cubit<SettingsState> {
   }
 
   Future<List<File>> getMp3FilesFromCurrentFolder() async {
+    // Solo iOS soporta obtención de archivos de carpetas
+    if (_getSongsFromFolderUseCase == null) {
+      return [];
+    }
+
     final currentPath = state.settings.localMusicPath;
     if (currentPath == null || currentPath.isEmpty) {
       return [];
     }
-    
+
     try {
       return await _getSongsFromFolderUseCase(currentPath);
     } catch (e) {

@@ -26,33 +26,44 @@ final class SongsRepositoryImpl implements SongsRepository {
 
   @override
   Future<String?> selectMusicFolder() async {
-    try {
-      final String? selectedDirectory = await FilePicker.platform.getDirectoryPath();
-      return selectedDirectory;
-    } catch (e) {
-      return null;
+    // Solo iOS soporta selección manual de carpetas
+    if (Platform.isIOS) {
+      try {
+        final String? selectedDirectory = await FilePicker.platform
+            .getDirectoryPath();
+        return selectedDirectory;
+      } catch (e) {
+        return null;
+      }
     }
+    // Android no soporta selección manual, retorna null
+    return null;
   }
 
   @override
   Future<List<File>> getSongsFromFolder(String folderPath) async {
-    try {
-      final directory = Directory(folderPath);
-      if (!directory.existsSync()) {
+    // Solo iOS soporta escaneo de carpetas específicas
+    if (Platform.isIOS) {
+      try {
+        final directory = Directory(folderPath);
+        if (!directory.existsSync()) {
+          return [];
+        }
+
+        final List<File> mp3Files = [];
+        await for (final entity in directory.list(recursive: true)) {
+          if (entity is File && _isMp3File(entity.path)) {
+            mp3Files.add(entity);
+          }
+        }
+
+        return mp3Files;
+      } catch (e) {
         return [];
       }
-
-      final List<File> mp3Files = [];
-      await for (final entity in directory.list(recursive: true)) {
-        if (entity is File && _isMp3File(entity.path)) {
-          mp3Files.add(entity);
-        }
-      }
-
-      return mp3Files;
-    } catch (e) {
-      return [];
     }
+    // Android no soporta escaneo de carpetas específicas, retorna lista vacía
+    return [];
   }
 
   bool _isMp3File(String filePath) {

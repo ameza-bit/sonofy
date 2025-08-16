@@ -49,7 +49,7 @@ class LibraryScreen extends StatelessWidget {
                     SizedBox(height: AppSpacing.bottomSheetHeight),
                   ],
                 );
-              } else if (state.songs.isEmpty) {
+              } else if (state.orderedSongs.isEmpty) {
                 return Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -77,8 +77,9 @@ class LibraryScreen extends StatelessWidget {
                 );
               }
 
+              final orderedSongs = state.orderedSongs;
               return ListView.builder(
-                itemCount: state.songs.length + 2,
+                itemCount: orderedSongs.length + 2,
                 itemBuilder: (context, index) {
                   if (index == 0) {
                     // Título
@@ -131,7 +132,7 @@ class LibraryScreen extends StatelessWidget {
                         const SizedBox(height: 8.0),
                       ],
                     );
-                  } else if (index == state.songs.length + 1) {
+                  } else if (index == orderedSongs.length + 1) {
                     // Espacio final
                     return const SizedBox(height: AppSpacing.bottomSheetHeight);
                   } else {
@@ -139,8 +140,8 @@ class LibraryScreen extends StatelessWidget {
                     return Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 24.0),
                       child: SongCard(
-                        playlist: state.songs,
-                        song: state.songs[index - 1],
+                        playlist: orderedSongs,
+                        song: orderedSongs[index - 1],
                       ),
                     );
                   }

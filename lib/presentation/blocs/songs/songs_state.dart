@@ -18,12 +18,12 @@ class SongsState {
   });
 
   SongsState.initial()
-      : songs = [],
-        localSongs = [],
-        deviceSongs = [],
-        isLoading = false,
-        isLoadingLocal = false,
-        error = null;
+    : songs = [],
+      localSongs = [],
+      deviceSongs = [],
+      isLoading = false,
+      isLoadingLocal = false,
+      error = null;
 
   SongsState copyWith({
     List<SongModel>? songs,
@@ -49,4 +49,10 @@ class SongsState {
   int get totalSongs => songs.length;
   int get localSongsCount => localSongs.length;
   int get deviceSongsCount => deviceSongs.length;
+
+  List<SongModel> get orderedSongs {
+    final combined = [...localSongs, ...deviceSongs];
+    combined.sort((a, b) => a.title.compareTo(b.title));
+    return combined;
+  }
 }

@@ -12,12 +12,14 @@
   - [Clean Architecture](./architecture/clean-architecture.md)
 - [API y Código](./api/)
   - [Repositorios](./api/repositories.md)
+  - [Use Cases](./api/usecases.md)
   - [Estados y Cubits](./api/state-management.md)
   - [Modelos de Datos](./api/data-models.md)
 - [Guías](./guides/)
   - [Configuración de Desarrollo](./guides/development-setup.md)
   - [Guía de Contribución](./guides/contributing.md)
-  - [Deployment](./guides/deployment.md)
+  - [Resumen de Funcionalidades](./guides/features-overview.md)
+  - [Funcionalidades por Plataforma](./guides/platform-specific-features.md)
 - [Componentes](./components/)
   - [Widgets Comunes](./components/common-widgets.md)
   - [Pantallas](./components/screens.md)
@@ -33,11 +35,13 @@
 - 🔀 Modo aleatorio (shuffle) inteligente
 - 🔁 Modos de repetición (uno, todos, ninguno)
 
-### Gestión de Biblioteca
-- 📁 Escaneo automático de música del dispositivo
-- 📋 Lista organizada de canciones
+### Gestión de Biblioteca Híbrida
+- 📁 **iOS**: Escaneo automático + selección manual de carpetas (FilePicker)
+- 🤖 **Android**: Escaneo automático completo (on_audio_query_pluse)
+- 📋 Lista organizada de canciones con fuentes combinadas
 - 🔍 Búsqueda de canciones (próximamente)
 - 📱 Reproductor mini en la interfaz principal
+- 🎯 Experiencia optimizada por plataforma
 
 ### Temporizador de Sueño
 - ⏰ Configuración de duración (1-180 minutos)
@@ -66,6 +70,7 @@
 | Navegación | go_router | ^16.1.0 |
 | Audio | audioplayers | ^6.5.0 |
 | Metadata Musical | on_audio_query_pluse | ^2.9.4 |
+| Selección de Archivos | file_picker | ^10.3.1 (Solo iOS) |
 | Internacionalización | easy_localization | ^3.0.8 |
 | Persistencia | shared_preferences | ^2.5.3 |
 
@@ -110,6 +115,16 @@ Para consultas técnicas o reportar problemas, por favor revisa la documentació
 
 ---
 
-**Versión de Documentación**: 1.1.0  
-**Última Actualización**: Agosto 2024  
+**Versión de Documentación**: 2.0.0  
+**Última Actualización**: Agosto 2024 - Funcionalidad Híbrida iOS/Android  
 **Mantenedor**: Equipo de Desarrollo Sonofy
+
+## 🆕 Novedades v2.0.0
+
+### Arquitectura Híbrida por Plataforma
+- **🍎 iOS**: FilePicker + on_audio_query_pluse para máxima flexibilidad
+- **🤖 Android**: Solo on_audio_query_pluse para simplicidad óptima
+- **🔧 Dependency Injection Condicional**: Use Cases opcionales según plataforma
+- **🎯 UX Optimizada**: Experiencia nativa para cada sistema operativo
+
+Consulta la [documentación completa de funcionalidades por plataforma](./guides/platform-specific-features.md) para más detalles.
