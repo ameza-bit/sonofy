@@ -13,6 +13,8 @@ import 'package:sonofy/domain/repositories/settings_repository.dart';
 import 'package:sonofy/domain/repositories/songs_repository.dart';
 import 'package:sonofy/domain/usecases/select_music_folder_usecase.dart';
 import 'package:sonofy/domain/usecases/get_songs_from_folder_usecase.dart';
+import 'package:sonofy/domain/usecases/get_all_songs_usecase.dart';
+import 'package:sonofy/domain/usecases/get_local_songs_usecase.dart';
 import 'package:sonofy/presentation/blocs/player/player_cubit.dart';
 import 'package:sonofy/presentation/blocs/settings/settings_cubit.dart';
 import 'package:sonofy/presentation/blocs/settings/settings_state.dart';
@@ -33,6 +35,10 @@ Future<void> main() async {
       SelectMusicFolderUseCase(songsRepository);
   final GetSongsFromFolderUseCase getSongsFromFolderUseCase =
       GetSongsFromFolderUseCase(songsRepository);
+  final GetAllSongsUseCase getAllSongsUseCase =
+      GetAllSongsUseCase(songsRepository, settingsRepository);
+  final GetLocalSongsUseCase getLocalSongsUseCase =
+      GetLocalSongsUseCase(songsRepository, settingsRepository);
 
   runApp(
     MultiBlocProvider(
@@ -45,7 +51,11 @@ Future<void> main() async {
           ),
         ),
         BlocProvider<SongsCubit>(
-          create: (context) => SongsCubit(songsRepository),
+          create: (context) => SongsCubit(
+            songsRepository,
+            getAllSongsUseCase,
+            getLocalSongsUseCase,
+          ),
         ),
         BlocProvider<PlayerCubit>(
           create: (context) => PlayerCubit(playerRepository),

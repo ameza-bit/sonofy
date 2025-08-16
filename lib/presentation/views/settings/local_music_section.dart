@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sonofy/core/utils/toast.dart';
 import 'package:sonofy/presentation/blocs/settings/settings_cubit.dart';
 import 'package:sonofy/presentation/blocs/settings/settings_state.dart';
+import 'package:sonofy/presentation/blocs/songs/songs_cubit.dart';
 import 'package:sonofy/presentation/widgets/common/font_awesome/font_awesome_flutter.dart';
 import 'package:sonofy/presentation/widgets/common/section_card.dart';
 import 'package:sonofy/presentation/widgets/common/section_item.dart';
@@ -31,6 +32,12 @@ class _LocalMusicSectionState extends State<LocalMusicSection> {
       
       if (success) {
         final mp3Files = await settingsCubit.getMp3FilesFromCurrentFolder();
+        if (!mounted) return;
+        
+        // Actualizar las canciones en SongsCubit
+        final songsCubit = context.read<SongsCubit>();
+        await songsCubit.refreshLocalSongs();
+        
         if (!mounted) return;
         Toast.show(context.tr('settings.music_import_success', namedArgs: {
           'count': mp3Files.length.toString()
