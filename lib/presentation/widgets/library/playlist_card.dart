@@ -1,7 +1,9 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:sonofy/core/extensions/color_extensions.dart';
 import 'package:sonofy/core/extensions/theme_extensions.dart';
+import 'package:sonofy/presentation/screens/playlist_screen.dart';
 
 class PlaylistCard extends StatelessWidget {
   const PlaylistCard({super.key});
@@ -10,63 +12,68 @@ class PlaylistCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      elevation: 2.0,
-      margin: const EdgeInsets.symmetric(horizontal: 4.0),
+    return InkWell(
+      onTap: () {
+        context.goNamed(PlaylistScreen.routeName);
+      },
+      child: Card(
+        elevation: 2.0,
+        margin: const EdgeInsets.symmetric(horizontal: 4.0),
 
-      child: Column(
-        children: [
-          SizedBox(
-            width: cardWidth,
-            height: cardWidth,
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                image: const DecorationImage(
-                  image: AssetImage('assets/images/piano.png'),
-                  fit: BoxFit.cover,
+        child: Column(
+          children: [
+            SizedBox(
+              width: cardWidth,
+              height: cardWidth,
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  image: const DecorationImage(
+                    image: AssetImage('assets/images/piano.png'),
+                    fit: BoxFit.cover,
+                  ),
+                  borderRadius: BorderRadius.circular(16),
                 ),
-                borderRadius: BorderRadius.circular(16),
               ),
             ),
-          ),
-          const SizedBox(height: 8.0),
-          SizedBox(
-            width: cardWidth,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 16.0,
-                vertical: 8.0,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                spacing: 8.0,
-                children: [
-                  Text(
-                    'Playlist With Long Title',
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: context.scaleText(16),
-                      fontWeight: FontWeight.bold,
+            const SizedBox(height: 8.0),
+            SizedBox(
+              width: cardWidth,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16.0,
+                  vertical: 8.0,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  spacing: 8.0,
+                  children: [
+                    Text(
+                      'Playlist With Long Title',
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: context.scaleText(16),
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                  ),
-                  Text(
-                    context.tr(
-                      'playlist.songs_count',
-                      namedArgs: {'count': '${10}'},
+                    Text(
+                      context.tr(
+                        'playlist.songs_count',
+                        namedArgs: {'count': '${10}'},
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: context.scaleText(12),
+                        color: context.musicLightGrey,
+                      ),
                     ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: context.scaleText(12),
-                      color: context.musicLightGrey,
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

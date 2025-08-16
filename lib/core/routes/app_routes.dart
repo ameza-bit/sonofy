@@ -4,6 +4,7 @@ import 'package:sonofy/core/transitions/player_transition.dart';
 import 'package:sonofy/core/utils/page_transition.dart';
 import 'package:sonofy/presentation/screens/library_screen.dart';
 import 'package:sonofy/presentation/screens/player_screen.dart';
+import 'package:sonofy/presentation/screens/playlist_screen.dart';
 import 'package:sonofy/presentation/screens/settings_screen.dart';
 import 'package:sonofy/presentation/screens/splash_screen.dart';
 
@@ -31,6 +32,16 @@ class AppRoutes {
               page: const LibraryScreen(),
             ).fadeTransition(),
             routes: [
+              GoRoute(
+                path: PlaylistScreen.routeName,
+                name: PlaylistScreen.routeName,
+                pageBuilder: (context, state) => PlayerSlideTransition(
+                  child: const PlaylistScreen(),
+                  key: state.pageKey,
+                  name: state.name,
+                  arguments: state.extra,
+                ),
+              ),
               GoRoute(
                 path: PlayerScreen.routeName,
                 name: PlayerScreen.routeName,
