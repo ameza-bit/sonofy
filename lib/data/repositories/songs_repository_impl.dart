@@ -44,6 +44,13 @@ final class SongsRepositoryImpl implements SongsRepository {
         dummySong,
         dummySong,
         dummySong,
+        dummySong,
+        dummySong,
+        dummySong,
+        dummySong,
+        dummySong,
+        dummySong,
+        dummySong,
       ];
     }
 

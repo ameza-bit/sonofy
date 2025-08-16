@@ -13,9 +13,7 @@ class PlaylistCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: () {
-        context.goNamed(PlaylistScreen.routeName);
-      },
+      onTap: () => context.goNamed(PlaylistScreen.routeName),
       child: Card(
         elevation: 2.0,
         margin: const EdgeInsets.symmetric(horizontal: 4.0),
