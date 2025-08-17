@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 import 'package:on_audio_query_pluse/on_audio_query.dart';
 import 'package:sonofy/core/extensions/color_extensions.dart';
 import 'package:sonofy/core/extensions/theme_extensions.dart';
@@ -10,13 +9,19 @@ import 'package:sonofy/presentation/blocs/player/player_cubit.dart';
 import 'package:sonofy/presentation/blocs/player/player_state.dart';
 import 'package:sonofy/presentation/blocs/settings/settings_cubit.dart';
 import 'package:sonofy/presentation/blocs/settings/settings_state.dart';
-import 'package:sonofy/presentation/screens/player_screen.dart';
 import 'package:sonofy/presentation/widgets/common/font_awesome/font_awesome_flutter.dart';
 
 class SongCard extends StatelessWidget {
-  const SongCard({required this.playlist, required this.song, super.key});
+  const SongCard({
+    required this.playlist,
+    required this.song,
+    required this.onTap,
+    super.key,
+  });
+
   final List<SongModel> playlist;
   final SongModel song;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +32,7 @@ class SongCard extends StatelessWidget {
         return InkWell(
           onTap: () {
             context.read<PlayerCubit>().setPlayingSong(playlist, song);
-            context.goNamed(PlayerScreen.routeName);
+            onTap();
           },
           child: Card(
             margin: const EdgeInsets.symmetric(vertical: 4.0),

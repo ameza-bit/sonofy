@@ -2,35 +2,72 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:sonofy/core/constants/app_constants.dart';
 import 'package:sonofy/core/extensions/color_extensions.dart';
 import 'package:sonofy/core/extensions/theme_extensions.dart';
-import 'package:sonofy/presentation/blocs/player/player_cubit.dart';
-import 'package:sonofy/presentation/blocs/player/player_state.dart';
 import 'package:sonofy/presentation/blocs/settings/settings_cubit.dart';
 import 'package:sonofy/presentation/blocs/settings/settings_state.dart';
 import 'package:sonofy/presentation/widgets/common/font_awesome/font_awesome_flutter.dart';
-import 'package:sonofy/presentation/widgets/library/bottom_player.dart';
-import 'package:sonofy/presentation/widgets/library/song_card.dart';
+import 'package:sonofy/presentation/widgets/common/section_card.dart';
+import 'package:sonofy/presentation/widgets/options/add_playlist_option.dart';
+import 'package:sonofy/presentation/widgets/options/create_playlist_option.dart';
+import 'package:sonofy/presentation/widgets/options/delete_playlist_option.dart';
+import 'package:sonofy/presentation/widgets/options/equalizer_option.dart';
+import 'package:sonofy/presentation/widgets/options/order_option.dart';
+import 'package:sonofy/presentation/widgets/options/remove_playlist_option.dart';
+import 'package:sonofy/presentation/widgets/options/rename_playlist_option.dart';
+import 'package:sonofy/presentation/widgets/options/reorder_option.dart';
+import 'package:sonofy/presentation/widgets/options/settings_option.dart';
+import 'package:sonofy/presentation/widgets/options/share_option.dart';
+import 'package:sonofy/presentation/widgets/options/sleep_option.dart';
+import 'package:sonofy/presentation/widgets/options/speed_option.dart';
 
-class PlaylistModal extends StatelessWidget {
-  const PlaylistModal({super.key});
+class OptionsModal extends StatelessWidget {
+  const OptionsModal({required this.options, super.key});
 
-  static void show(BuildContext context) {
+  final List<Widget> options;
+
+  static void _show(BuildContext context, List<Widget> options) {
     showModalBottomSheet(
       context: context,
       useSafeArea: true,
       isScrollControlled: true,
       backgroundColor: context.musicBackground,
       constraints: BoxConstraints(
-        maxHeight: MediaQuery.of(context).size.height * 0.85,
+        maxHeight: MediaQuery.of(context).size.height * 0.65,
         maxWidth: MediaQuery.of(context).size.width,
         minHeight: MediaQuery.of(context).size.height * 0.25,
         minWidth: MediaQuery.of(context).size.width,
       ),
-      builder: (context) => const PlaylistModal(),
+      builder: (context) => OptionsModal(options: options),
     );
   }
+
+  static void library(BuildContext context) => _show(context, [
+    const SleepOption(),
+    const OrderOption(),
+    const CreatePlaylistOption(),
+    const EqualizerOption(),
+    const SettingsOption(),
+  ]);
+
+  static void playlist(BuildContext context) => _show(context, [
+    const SleepOption(),
+    const ReorderOption(),
+    const RenamePlaylistOption(),
+    const DeletePlaylistOption(),
+    const EqualizerOption(),
+    const SettingsOption(),
+  ]);
+
+  static void player(BuildContext context) => _show(context, [
+    const SleepOption(),
+    const AddPlaylistOption(),
+    const RemovePlaylistOption(),
+    const SpeedOption(),
+    const ShareOption(),
+    const EqualizerOption(),
+    const SettingsOption(),
+  ]);
 
   @override
   Widget build(BuildContext context) {
@@ -58,7 +95,7 @@ class PlaylistModal extends StatelessWidget {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Text(
-                              context.tr('player.playlist'),
+                              context.tr('options.title'),
                               textAlign: TextAlign.center,
                               style: TextStyle(fontSize: context.scaleText(12)),
                             ),
@@ -71,49 +108,12 @@ class PlaylistModal extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 16),
-                      Expanded(
-                        child: BlocBuilder<PlayerCubit, PlayerState>(
-                          builder: (context, state) => ListView.builder(
-                            itemCount: state.playlist.length + 1,
-                            itemBuilder: (context, index) {
-                              if (index == state.playlist.length) {
-                                return const SizedBox(
-                                  height: AppSpacing.bottomSheetHeight,
-                                );
-                              }
-
-                              return SongCard(
-                                playlist: state.playlist,
-                                song:
-                                    state.playlist[(index +
-                                            state.currentIndex) %
-                                        state.playlist.length],
-                                onTap: () => context.pop(),
-                              );
-                            },
-                          ),
-                        ),
-                      ),
+                      SectionCard(title: '', children: options),
                     ],
                   ),
                 ),
               ),
             ),
-          ),
-          resizeToAvoidBottomInset: false,
-          bottomSheet: Stack(
-            children: [
-              Positioned(
-                bottom: 0,
-                left: 0,
-                right: 0,
-                child: Container(
-                  height: 80,
-                  color: Theme.of(context).cardColor,
-                ),
-              ),
-              BottomPlayer(onTap: () => context.pop()),
-            ],
           ),
         );
       },

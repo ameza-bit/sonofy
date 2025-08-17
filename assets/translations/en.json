@@ -85,6 +85,21 @@
     "music_import_error": "Error selecting folder or importing music",
     "music_folder_selected": "Folder: {folder}"
   },
+  "options": {
+    "title": "Options",
+    "sleep": "Sleep Timer",
+    "order_by": "Order by",
+    "reorder": "Reorder",
+    "create_playlist": "Create Playlist",
+    "delete_playlist": "Delete Playlist",
+    "rename_playlist": "Rename Playlist",
+    "add_playlist": "Add to Playlist",
+    "remove_playlist": "Remove from Playlist",
+    "player_speed": "Playback Speed",
+    "equalizer": "Equalizer",
+    "share": "Share",
+    "settings": "Settings"
+  },
   "library": {
     "title": "Library",
     "playlists": "Playlists",
@@ -93,7 +108,8 @@
   "playlist": {
     "title": "Playlist",
     "empty": "No songs in this playlist",
-    "songs_count": "{count} songs"
+    "songs_count": "{count} songs",
+    "playlists_count": "{count} playlists"
   },
   "player": {
     "now_playing": "Now Playing",

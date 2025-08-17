@@ -7,7 +7,6 @@ import 'package:sonofy/presentation/blocs/player/player_state.dart';
 import 'package:sonofy/presentation/blocs/settings/settings_cubit.dart';
 import 'package:sonofy/presentation/blocs/settings/settings_state.dart';
 import 'package:sonofy/presentation/widgets/common/font_awesome/font_awesome_flutter.dart';
-import 'package:sonofy/presentation/widgets/player/sleep_modal.dart';
 
 class PlayerControl extends StatelessWidget {
   const PlayerControl({super.key});
@@ -95,13 +94,13 @@ class PlayerControl extends StatelessWidget {
             BlocBuilder<PlayerCubit, PlayerState>(
               builder: (context, state) {
                 return IconButton(
-                  onPressed: () => SleepModal.show(context),
+                  onPressed: () => context.read<PlayerCubit>().toggleShuffle(),
                   icon: Icon(
-                    state.isSleepTimerActive 
-                        ? FontAwesomeIcons.solidTimer
-                        : FontAwesomeIcons.lightTimer,
+                    state.isShuffleEnabled
+                        ? FontAwesomeIcons.solidShuffle
+                        : FontAwesomeIcons.lightShuffle,
                     size: 20.0,
-                    color: state.isSleepTimerActive ? primaryColor : null,
+                    color: state.isShuffleEnabled ? primaryColor : null,
                   ),
                 );
               },

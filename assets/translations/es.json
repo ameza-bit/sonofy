@@ -85,6 +85,21 @@
     "music_import_error": "Error al seleccionar carpeta o importar música",
     "music_folder_selected": "Carpeta: {folder}"
   },
+  "options": {
+    "title": "Opciones",
+    "sleep": "Apagado automático",
+    "order_by": "Ordenar por",
+    "reorder": "Reordenar",
+    "create_playlist": "Crear lista de reproducción",
+    "delete_playlist": "Eliminar lista de reproducción",
+    "rename_playlist": "Renombrar lista de reproducción",
+    "add_playlist": "Agregar a la lista de reproducción",
+    "remove_playlist": "Eliminar de la lista de reproducción",
+    "player_speed": "Velocidad de reproducción",
+    "equalizer": "Ecualizador",
+    "share": "Compartir",
+    "settings": "Configuración"
+  },
   "library": {
     "title": "Biblioteca",
     "playlists": "Listas de Reproducción",
@@ -93,7 +108,8 @@
   "playlist": {
     "title": "Lista de Reproducción",
     "empty": "No hay canciones en esta lista de reproducción",
-    "songs_count": "{count} canciones"
+    "songs_count": "{count} canciones",
+    "playlists_count": "{count} listas de reproducción"
   },
   "player": {
     "now_playing": "Sonando",
