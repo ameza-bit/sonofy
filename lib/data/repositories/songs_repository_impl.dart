@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:on_audio_query_pluse/on_audio_query.dart';
 import 'package:sonofy/domain/repositories/songs_repository.dart';
@@ -27,7 +28,7 @@ final class SongsRepositoryImpl implements SongsRepository {
   @override
   Future<String?> selectMusicFolder() async {
     // Solo iOS soporta selección manual de carpetas
-    if (Platform.isIOS) {
+    if (!kIsWeb && Platform.isIOS) {
       try {
         final String? selectedDirectory = await FilePicker.platform
             .getDirectoryPath();
@@ -43,7 +44,7 @@ final class SongsRepositoryImpl implements SongsRepository {
   @override
   Future<List<File>> getSongsFromFolder(String folderPath) async {
     // Solo iOS soporta escaneo de carpetas específicas
-    if (Platform.isIOS) {
+    if (!kIsWeb && Platform.isIOS) {
       try {
         final directory = Directory(folderPath);
         if (!directory.existsSync()) {

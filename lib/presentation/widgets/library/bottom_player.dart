@@ -9,7 +9,7 @@ import 'package:sonofy/presentation/blocs/player/player_state.dart';
 import 'package:sonofy/presentation/blocs/settings/settings_cubit.dart';
 import 'package:sonofy/presentation/blocs/settings/settings_state.dart';
 import 'package:sonofy/presentation/widgets/common/font_awesome/font_awesome_flutter.dart';
-import 'package:sonofy/presentation/widgets/library/bottom_clipper_container.dart';
+import 'package:sonofy/presentation/widgets/library/player_clipper_container.dart';
 
 class BottomPlayer extends StatelessWidget {
   const BottomPlayer({this.onTap, super.key});
@@ -38,7 +38,7 @@ class BottomPlayer extends StatelessWidget {
                 tag: 'player_container',
                 child: Material(
                   type: MaterialType.transparency,
-                  child: BottomClipperContainer(
+                  child: PlayerClipperContainer(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 24,
                       vertical: 32,

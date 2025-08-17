@@ -24,7 +24,7 @@ class Mp3FileConverter {
     final int durationMs = _estimateDurationFromFileSize(file.lengthSync());
 
     return SongModel({
-      '_id': file.hashCode,
+      '_id': _createPersistentIdFromPath(file.path),
       '_data': file.path,
       '_display_name': fileName,
       '_display_name_wo_ext': title,
@@ -57,6 +57,15 @@ class Mp3FileConverter {
     }
     
     return 'Unknown Artist';
+  }
+
+  /// Creates a persistent ID for local files based on file path
+  /// This ensures the same file always gets the same ID across app sessions
+  static int _createPersistentIdFromPath(String filePath) {
+    // Use a hash of the file path to create a consistent ID
+    // Add a large offset to avoid conflicts with on_audio_query_pluse IDs
+    const int localFileIdOffset = 1000000;
+    return filePath.hashCode.abs() + localFileIdOffset;
   }
 
   /// Estimates MP3 duration based on file size

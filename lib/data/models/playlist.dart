@@ -15,6 +15,56 @@ class Playlist {
        updatedAt = updatedAt ?? DateTime.now();
 
   int get songCount => songIds.length;
+  bool get isEmpty => songIds.isEmpty;
+  bool get isNotEmpty => songIds.isNotEmpty;
+
+  bool containsSong(String songId) => songIds.contains(songId);
+
+  Playlist addSong(String songId) {
+    if (songIds.contains(songId)) return this;
+    return copyWith(
+      songIds: [...songIds, songId],
+      updatedAt: DateTime.now(),
+    );
+  }
+
+  Playlist removeSong(String songId) {
+    final newSongIds = songIds.where((id) => id != songId).toList();
+    return copyWith(
+      songIds: newSongIds,
+      updatedAt: DateTime.now(),
+    );
+  }
+
+  Playlist reorderSongs(List<String> newOrder) {
+    return copyWith(
+      songIds: newOrder,
+      updatedAt: DateTime.now(),
+    );
+  }
+
+  Playlist rename(String newTitle) {
+    return copyWith(
+      title: newTitle,
+      updatedAt: DateTime.now(),
+    );
+  }
+
+  Playlist copyWith({
+    String? id,
+    String? title,
+    List<String>? songIds,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) {
+    return Playlist(
+      id: id ?? this.id,
+      title: title ?? this.title,
+      songIds: songIds ?? this.songIds,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+    );
+  }
 
   factory Playlist.fromJson(Map<String, dynamic> json) => Playlist(
     id: json['id'] ?? '',

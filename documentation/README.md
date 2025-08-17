@@ -21,10 +21,12 @@
   - [Resumen de Funcionalidades](./guides/features-overview.md)
   - [Funcionalidades por Plataforma](./guides/platform-specific-features.md)
   - [Integración iPod Library](./guides/ipod-library-integration.md)
+  - [**🆕 Sistema de Playlists**](./guides/playlist-system-guide.md)
 - [Componentes](./components/)
   - [Widgets Comunes](./components/common-widgets.md)
   - [Pantallas](./components/screens.md)
   - [Sistema de Temas](./components/theming-system.md)
+  - [**🆕 Sistema de Modales**](./components/modal-system.md)
 
 ## 🚀 Características Principales
 
@@ -38,6 +40,7 @@
 - 🍎 **NUEVO**: Soporte nativo para URLs iPod Library (iOS)
 - 🎵 **NUEVO**: Reproductor dual (AudioPlayers + MPMusicPlayerController)
 - 🔒 **NUEVO**: Verificación automática de protección DRM
+- 📋 **NUEVO**: Sistema completo de gestión de playlists
 
 ### Gestión de Biblioteca Híbrida
 - 📁 **iOS**: Escaneo automático + selección manual de carpetas (FilePicker)
@@ -121,11 +124,27 @@ Para consultas técnicas o reportar problemas, por favor revisa la documentació
 
 ---
 
-**Versión de Documentación**: 3.0.0  
-**Última Actualización**: Agosto 2024 - Integración iPod Library Nativa  
+**Versión de Documentación**: 3.1.0  
+**Última Actualización**: Agosto 2024 - Sistema de Playlists  
 **Mantenedor**: Equipo de Desarrollo Sonofy
 
-## 🆕 Novedades v3.0.0 - iPod Library Integration
+## 🆕 Novedades v3.1.0 - Playlist Management System
+
+### Sistema Completo de Playlists
+- **📋 Gestión CRUD**: Crear, editar, eliminar y gestionar playlists
+- **🎶 Integración Total**: Agregar/quitar canciones desde cualquier pantalla
+- **💾 Persistencia Local**: Almacenamiento con SharedPreferences
+- **🎨 UI Unificada**: Modales consistentes y responsive al teclado
+- **🏗️ Clean Architecture**: Implementación siguiendo patrones establecidos
+
+### Sistema de Modales Mejorado
+- **🔧 modalView() Unificado**: Una función para todos los modales
+- **⌨️ Responsive al Teclado**: Elevación automática al aparecer teclado
+- **🎭 Animaciones Suaves**: Transiciones optimizadas (100ms)
+- **📱 Adaptativo**: Soporte para BottomPlayer cuando sea necesario
+- **🧹 Código Limpio**: -87% menos líneas de código por modal
+
+## 🔄 Historial v3.0.0 - iPod Library Integration
 
 ### Reproductor Dual Nativo iOS
 - **🎵 MPMusicPlayerController**: Reproductor nativo para URLs `ipod-library://`

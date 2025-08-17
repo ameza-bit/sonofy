@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -7,15 +8,24 @@ import 'package:sonofy/core/routes/app_routes.dart';
 import 'package:sonofy/core/services/preferences.dart';
 import 'package:sonofy/core/themes/main_theme.dart';
 import 'package:sonofy/data/repositories/player_repository_impl.dart';
+import 'package:sonofy/data/repositories/playlist_repository_impl.dart';
 import 'package:sonofy/data/repositories/settings_repository_impl.dart';
 import 'package:sonofy/data/repositories/songs_repository_impl.dart';
 import 'package:sonofy/domain/repositories/player_repository.dart';
+import 'package:sonofy/domain/repositories/playlist_repository.dart';
 import 'package:sonofy/domain/repositories/settings_repository.dart';
 import 'package:sonofy/domain/repositories/songs_repository.dart';
-import 'package:sonofy/domain/usecases/select_music_folder_usecase.dart';
-import 'package:sonofy/domain/usecases/get_songs_from_folder_usecase.dart';
+import 'package:sonofy/domain/usecases/add_song_to_playlist_usecase.dart';
+import 'package:sonofy/domain/usecases/create_playlist_usecase.dart';
+import 'package:sonofy/domain/usecases/delete_playlist_usecase.dart';
+import 'package:sonofy/domain/usecases/get_all_playlists_usecase.dart';
 import 'package:sonofy/domain/usecases/get_local_songs_usecase.dart';
+import 'package:sonofy/domain/usecases/get_songs_from_folder_usecase.dart';
+import 'package:sonofy/domain/usecases/remove_song_from_playlist_usecase.dart';
+import 'package:sonofy/domain/usecases/select_music_folder_usecase.dart';
+import 'package:sonofy/domain/usecases/update_playlist_usecase.dart';
 import 'package:sonofy/presentation/blocs/player/player_cubit.dart';
+import 'package:sonofy/presentation/blocs/playlists/playlists_cubit.dart';
 import 'package:sonofy/presentation/blocs/settings/settings_cubit.dart';
 import 'package:sonofy/presentation/blocs/settings/settings_state.dart';
 import 'package:sonofy/presentation/blocs/songs/songs_cubit.dart';
@@ -30,13 +40,14 @@ Future<void> main() async {
   final SettingsRepository settingsRepository = SettingsRepositoryImpl();
   final SongsRepository songsRepository = SongsRepositoryImpl();
   final PlayerRepository playerRepository = PlayerRepositoryImpl();
+  final PlaylistRepository playlistRepository = PlaylistRepositoryImpl();
 
   // Use Cases para música local - solo iOS
   SelectMusicFolderUseCase? selectMusicFolderUseCase;
   GetSongsFromFolderUseCase? getSongsFromFolderUseCase;
   GetLocalSongsUseCase? getLocalSongsUseCase;
 
-  if (Platform.isIOS) {
+  if (!kIsWeb && Platform.isIOS) {
     selectMusicFolderUseCase = SelectMusicFolderUseCase(songsRepository);
     getSongsFromFolderUseCase = GetSongsFromFolderUseCase(songsRepository);
     getLocalSongsUseCase = GetLocalSongsUseCase(
@@ -44,6 +55,24 @@ Future<void> main() async {
       settingsRepository,
     );
   }
+
+  // Use Cases para playlists
+  final GetAllPlaylistsUseCase getAllPlaylistsUseCase = GetAllPlaylistsUseCase(
+    playlistRepository,
+  );
+  final CreatePlaylistUseCase createPlaylistUseCase = CreatePlaylistUseCase(
+    playlistRepository,
+  );
+  final DeletePlaylistUseCase deletePlaylistUseCase = DeletePlaylistUseCase(
+    playlistRepository,
+  );
+  final UpdatePlaylistUseCase updatePlaylistUseCase = UpdatePlaylistUseCase(
+    playlistRepository,
+  );
+  final AddSongToPlaylistUseCase addSongToPlaylistUseCase =
+      AddSongToPlaylistUseCase(playlistRepository);
+  final RemoveSongFromPlaylistUseCase removeSongFromPlaylistUseCase =
+      RemoveSongFromPlaylistUseCase(playlistRepository);
 
   runApp(
     MultiBlocProvider(
@@ -61,6 +90,16 @@ Future<void> main() async {
         ),
         BlocProvider<PlayerCubit>(
           create: (context) => PlayerCubit(playerRepository),
+        ),
+        BlocProvider<PlaylistsCubit>(
+          create: (context) => PlaylistsCubit(
+            getAllPlaylistsUseCase,
+            createPlaylistUseCase,
+            deletePlaylistUseCase,
+            updatePlaylistUseCase,
+            addSongToPlaylistUseCase,
+            removeSongFromPlaylistUseCase,
+          ),
         ),
       ],
       child: EasyLocalization(
