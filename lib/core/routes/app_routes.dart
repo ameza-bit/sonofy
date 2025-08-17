@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sonofy/core/transitions/player_transition.dart';
 import 'package:sonofy/core/utils/page_transition.dart';
+import 'package:sonofy/main.dart';
 import 'package:sonofy/presentation/screens/library_screen.dart';
 import 'package:sonofy/presentation/screens/player_screen.dart';
 import 'package:sonofy/presentation/screens/playlist_screen.dart';
@@ -87,5 +88,12 @@ class AppRoutes {
         return null;
       },
     );
+  }
+
+  static String get actualRoute {
+    final BuildContext? context = navigatorKey.currentContext;
+    if (context == null) return '';
+
+    return GoRouter.of(context).routeInformationProvider.value.uri.path;
   }
 }

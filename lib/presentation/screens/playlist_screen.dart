@@ -79,6 +79,7 @@ class PlaylistScreen extends StatelessWidget {
                     child: SongCard(
                       playlist: state.songs,
                       song: state.songs[index],
+                      onTap: () => context.pushNamed(PlayerScreen.routeName),
                     ),
                   );
                 }

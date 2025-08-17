@@ -88,6 +88,7 @@ class PlaylistModal extends StatelessWidget {
                                     state.playlist[(index +
                                             state.currentIndex) %
                                         state.playlist.length],
+                                onTap: () => context.pop(),
                               );
                             },
                           ),

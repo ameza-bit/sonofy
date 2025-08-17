@@ -175,6 +175,7 @@ class LibraryScreen extends StatelessWidget {
                       child: SongCard(
                         playlist: orderedSongs,
                         song: orderedSongs[index - 1],
+                        onTap: () => context.pushNamed(PlayerScreen.routeName),
                       ),
                     );
                   }
