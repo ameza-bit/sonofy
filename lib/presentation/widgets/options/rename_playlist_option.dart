@@ -14,18 +14,6 @@ import 'package:sonofy/presentation/widgets/common/section_item.dart';
 class RenamePlaylistOption extends StatelessWidget {
   const RenamePlaylistOption({super.key});
 
-  @override
-  Widget build(BuildContext context) {
-    return SectionItem(
-      icon: FontAwesomeIcons.lightInputText,
-      title: context.tr('options.rename_playlist'),
-      onTap: () {
-        context.pop();
-        _showRenameDialog(context);
-      },
-    );
-  }
-
   void _showRenameDialog(BuildContext context) {
     final playlistsState = context.read<PlaylistsCubit>().state;
     final selectedPlaylist = playlistsState.selectedPlaylist;
@@ -41,7 +29,7 @@ class RenamePlaylistOption extends StatelessWidget {
       isScrollControlled: true,
       backgroundColor: context.musicBackground,
       constraints: BoxConstraints(
-        maxHeight: MediaQuery.of(context).size.height * 0.4,
+        maxHeight: MediaQuery.of(context).size.height * 0.40,
         maxWidth: MediaQuery.of(context).size.width,
         minHeight: MediaQuery.of(context).size.height * 0.25,
         minWidth: MediaQuery.of(context).size.width,
@@ -50,12 +38,24 @@ class RenamePlaylistOption extends StatelessWidget {
           RenamePlaylistModal(playlist: selectedPlaylist),
     );
   }
+
+  @override
+  Widget build(BuildContext context) {
+    return SectionItem(
+      icon: FontAwesomeIcons.lightInputText,
+      title: context.tr('options.rename_playlist'),
+      onTap: () {
+        context.pop();
+        _showRenameDialog(context);
+      },
+    );
+  }
 }
 
 class RenamePlaylistModal extends StatefulWidget {
-  final dynamic playlist;
-
   const RenamePlaylistModal({required this.playlist, super.key});
+
+  final dynamic playlist;
 
   @override
   State<RenamePlaylistModal> createState() => _RenamePlaylistModalState();
@@ -63,6 +63,17 @@ class RenamePlaylistModal extends StatefulWidget {
 
 class _RenamePlaylistModalState extends State<RenamePlaylistModal> {
   late final TextEditingController _controller;
+
+  void _renamePlaylist(String name) {
+    if (name.trim().isNotEmpty && name.trim() != widget.playlist.title) {
+      context.pop();
+      context.read<PlaylistsCubit>().renamePlaylist(
+        widget.playlist.id,
+        name.trim(),
+      );
+      Toast.show(context.tr('playlist.playlist_renamed'));
+    }
+  }
 
   @override
   void initState() {
@@ -83,7 +94,7 @@ class _RenamePlaylistModalState extends State<RenamePlaylistModal> {
         final primaryColor = state.settings.primaryColor;
 
         return Scaffold(
-          backgroundColor: context.musicBackground,
+          backgroundColor: Colors.transparent,
           body: SafeArea(
             child: Hero(
               tag: 'rename_playlist_container',
@@ -96,6 +107,7 @@ class _RenamePlaylistModalState extends State<RenamePlaylistModal> {
                   ),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
+                    spacing: 24,
                     children: [
                       GestureDetector(
                         onTap: () => context.pop(),
@@ -115,7 +127,6 @@ class _RenamePlaylistModalState extends State<RenamePlaylistModal> {
                           ],
                         ),
                       ),
-                      const SizedBox(height: 24),
                       TextField(
                         controller: _controller,
                         decoration: InputDecoration(
@@ -125,9 +136,9 @@ class _RenamePlaylistModalState extends State<RenamePlaylistModal> {
                         autofocus: true,
                         onSubmitted: _renamePlaylist,
                       ),
-                      const SizedBox(height: 24),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        spacing: 16,
                         children: [
                           Expanded(
                             child: TextButton(
@@ -135,7 +146,6 @@ class _RenamePlaylistModalState extends State<RenamePlaylistModal> {
                               child: Text(context.tr('common.cancel')),
                             ),
                           ),
-                          const SizedBox(width: 16),
                           Expanded(
                             child: ElevatedButton(
                               onPressed: () =>
@@ -154,16 +164,5 @@ class _RenamePlaylistModalState extends State<RenamePlaylistModal> {
         );
       },
     );
-  }
-
-  void _renamePlaylist(String name) {
-    if (name.trim().isNotEmpty && name.trim() != widget.playlist.title) {
-      context.pop();
-      context.read<PlaylistsCubit>().renamePlaylist(
-        widget.playlist.id,
-        name.trim(),
-      );
-      Toast.show(context.tr('playlist.playlist_renamed'));
-    }
   }
 }

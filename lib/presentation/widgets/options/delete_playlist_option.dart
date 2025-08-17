@@ -14,18 +14,6 @@ import 'package:sonofy/presentation/widgets/common/section_item.dart';
 class DeletePlaylistOption extends StatelessWidget {
   const DeletePlaylistOption({super.key});
 
-  @override
-  Widget build(BuildContext context) {
-    return SectionItem(
-      icon: FontAwesomeIcons.lightCompactDisc,
-      title: context.tr('options.delete_playlist'),
-      onTap: () {
-        context.pop();
-        _showDeleteConfirmation(context);
-      },
-    );
-  }
-
   void _showDeleteConfirmation(BuildContext context) {
     final playlistsState = context.read<PlaylistsCubit>().state;
     final selectedPlaylist = playlistsState.selectedPlaylist;
@@ -48,6 +36,18 @@ class DeletePlaylistOption extends StatelessWidget {
       ),
       builder: (modalContext) =>
           DeletePlaylistModal(playlist: selectedPlaylist),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SectionItem(
+      icon: FontAwesomeIcons.lightCompactDisc,
+      title: context.tr('options.delete_playlist'),
+      onTap: () {
+        context.pop();
+        _showDeleteConfirmation(context);
+      },
     );
   }
 }
@@ -77,6 +77,7 @@ class DeletePlaylistModal extends StatelessWidget {
                   ),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
+                    spacing: 24,
                     children: [
                       GestureDetector(
                         onTap: () => context.pop(),
@@ -96,7 +97,6 @@ class DeletePlaylistModal extends StatelessWidget {
                           ],
                         ),
                       ),
-                      const SizedBox(height: 24),
                       Text(
                         context.tr(
                           'playlist.delete_confirmation',
@@ -105,9 +105,9 @@ class DeletePlaylistModal extends StatelessWidget {
                         textAlign: TextAlign.center,
                         style: TextStyle(fontSize: context.scaleText(16)),
                       ),
-                      const SizedBox(height: 24),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        spacing: 16,
                         children: [
                           Expanded(
                             child: TextButton(
@@ -115,7 +115,6 @@ class DeletePlaylistModal extends StatelessWidget {
                               child: Text(context.tr('common.cancel')),
                             ),
                           ),
-                          const SizedBox(width: 16),
                           Expanded(
                             child: ElevatedButton(
                               style: ElevatedButton.styleFrom(
