@@ -162,5 +162,31 @@
       "waiting_for_song_end": "Esperando que Termine la Canción",
       "will_pause_after_song": "La música se pausará cuando termine la canción actual"
     }
+  },
+  "equalizer": {
+    "title": "Ecualizador",
+    "enabled": "Habilitado",
+    "disabled": "Deshabilitado",
+    "enabled_description": "El ecualizador está activo y aplicando efectos",
+    "disabled_description": "El ecualizador está desactivado",
+    "custom_mode": "Modo personalizado activo",
+    "reset": "Reiniciar",
+    "presets": {
+      "normal": "Normal",
+      "rock": "Rock",
+      "pop": "Pop",
+      "jazz": "Jazz",
+      "classical": "Clásico"
+    },
+    "bands": {
+      "bass": "Graves",
+      "mid": "Medios",
+      "treble": "Agudos"
+    },
+    "frequencies": {
+      "60hz": "60 Hz",
+      "1khz": "1 kHz",
+      "16khz": "16 kHz"
+    }
   }
 }
