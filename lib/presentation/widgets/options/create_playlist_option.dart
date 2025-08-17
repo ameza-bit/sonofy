@@ -15,6 +15,22 @@ import 'package:sonofy/presentation/widgets/common/section_item.dart';
 class CreatePlaylistOption extends StatelessWidget {
   const CreatePlaylistOption({super.key});
 
+  void _showCreatePlaylistDialog(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      useSafeArea: true,
+      isScrollControlled: true,
+      backgroundColor: context.musicBackground,
+      constraints: BoxConstraints(
+        maxHeight: MediaQuery.of(context).size.height * 0.40,
+        maxWidth: MediaQuery.of(context).size.width,
+        minHeight: MediaQuery.of(context).size.height * 0.25,
+        minWidth: MediaQuery.of(context).size.width,
+      ),
+      builder: (modalContext) => const CreatePlaylistModal(),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return SectionItem(
@@ -24,22 +40,6 @@ class CreatePlaylistOption extends StatelessWidget {
         context.pop();
         _showCreatePlaylistDialog(navigatorKey.currentContext!);
       },
-    );
-  }
-
-  void _showCreatePlaylistDialog(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      useSafeArea: true,
-      isScrollControlled: true,
-      backgroundColor: context.musicBackground,
-      constraints: BoxConstraints(
-        maxHeight: MediaQuery.of(context).size.height * 0.4,
-        maxWidth: MediaQuery.of(context).size.width,
-        minHeight: MediaQuery.of(context).size.height * 0.25,
-        minWidth: MediaQuery.of(context).size.width,
-      ),
-      builder: (modalContext) => const CreatePlaylistModal(),
     );
   }
 }
@@ -54,6 +54,14 @@ class CreatePlaylistModal extends StatefulWidget {
 class _CreatePlaylistModalState extends State<CreatePlaylistModal> {
   final TextEditingController _controller = TextEditingController();
 
+  void _createPlaylist(String name) {
+    if (name.trim().isNotEmpty) {
+      context.pop();
+      context.read<PlaylistsCubit>().createPlaylist(name.trim());
+      Toast.show(context.tr('playlist.created_successfully'));
+    }
+  }
+
   @override
   void dispose() {
     _controller.dispose();
@@ -67,7 +75,7 @@ class _CreatePlaylistModalState extends State<CreatePlaylistModal> {
         final primaryColor = state.settings.primaryColor;
 
         return Scaffold(
-          backgroundColor: context.musicBackground,
+          backgroundColor: Colors.transparent,
           body: SafeArea(
             child: Hero(
               tag: 'create_playlist_container',
@@ -79,6 +87,8 @@ class _CreatePlaylistModalState extends State<CreatePlaylistModal> {
                     vertical: 16.0,
                   ),
                   child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    spacing: 24,
                     children: [
                       GestureDetector(
                         onTap: () => context.pop(),
@@ -98,7 +108,6 @@ class _CreatePlaylistModalState extends State<CreatePlaylistModal> {
                           ],
                         ),
                       ),
-                      const SizedBox(height: 24),
                       TextField(
                         controller: _controller,
                         decoration: InputDecoration(
@@ -108,9 +117,9 @@ class _CreatePlaylistModalState extends State<CreatePlaylistModal> {
                         autofocus: true,
                         onSubmitted: _createPlaylist,
                       ),
-                      const SizedBox(height: 24),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        spacing: 16,
                         children: [
                           Expanded(
                             child: TextButton(
@@ -118,7 +127,6 @@ class _CreatePlaylistModalState extends State<CreatePlaylistModal> {
                               child: Text(context.tr('common.cancel')),
                             ),
                           ),
-                          const SizedBox(width: 16),
                           Expanded(
                             child: ElevatedButton(
                               onPressed: () =>
@@ -137,13 +145,5 @@ class _CreatePlaylistModalState extends State<CreatePlaylistModal> {
         );
       },
     );
-  }
-
-  void _createPlaylist(String name) {
-    if (name.trim().isNotEmpty) {
-      context.pop();
-      context.read<PlaylistsCubit>().createPlaylist(name.trim());
-      Toast.show(context.tr('playlist.created_successfully'));
-    }
   }
 }

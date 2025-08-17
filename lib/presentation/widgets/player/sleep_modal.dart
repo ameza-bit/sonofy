@@ -10,7 +10,6 @@ import 'package:sonofy/presentation/blocs/player/player_state.dart';
 import 'package:sonofy/presentation/blocs/settings/settings_cubit.dart';
 import 'package:sonofy/presentation/blocs/settings/settings_state.dart';
 import 'package:sonofy/presentation/widgets/common/font_awesome/font_awesome_flutter.dart';
-import 'package:sonofy/presentation/widgets/library/bottom_player.dart';
 
 class SleepModal extends StatelessWidget {
   const SleepModal({super.key});
@@ -22,7 +21,7 @@ class SleepModal extends StatelessWidget {
       isScrollControlled: true,
       backgroundColor: context.musicBackground,
       constraints: BoxConstraints(
-        maxHeight: MediaQuery.of(context).size.height * 0.85,
+        maxHeight: MediaQuery.of(context).size.height * 0.65,
         maxWidth: MediaQuery.of(context).size.width,
         minHeight: MediaQuery.of(context).size.height * 0.25,
         minWidth: MediaQuery.of(context).size.width,
@@ -85,21 +84,6 @@ class SleepModal extends StatelessWidget {
                     ),
                   ),
                 ),
-              ),
-              resizeToAvoidBottomInset: false,
-              bottomSheet: Stack(
-                children: [
-                  Positioned(
-                    bottom: 0,
-                    left: 0,
-                    right: 0,
-                    child: Container(
-                      height: 80,
-                      color: Theme.of(context).cardColor,
-                    ),
-                  ),
-                  BottomPlayer(onTap: () => context.pop()),
-                ],
               ),
             );
           },
