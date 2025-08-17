@@ -1,103 +1,48 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 import 'package:sonofy/core/constants/app_constants.dart';
-import 'package:sonofy/core/extensions/color_extensions.dart';
 import 'package:sonofy/core/extensions/theme_extensions.dart';
-import 'package:sonofy/presentation/blocs/settings/settings_cubit.dart';
-import 'package:sonofy/presentation/blocs/settings/settings_state.dart';
-import 'package:sonofy/presentation/widgets/common/font_awesome/font_awesome_flutter.dart';
-import 'package:sonofy/presentation/widgets/library/bottom_player.dart';
+import 'package:sonofy/presentation/views/modal_view.dart';
 
 class LyricsModal extends StatelessWidget {
   const LyricsModal({super.key});
 
   static void show(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      useSafeArea: true,
-      isScrollControlled: true,
-      backgroundColor: context.musicBackground,
-      constraints: BoxConstraints(
-        maxHeight: MediaQuery.of(context).size.height * 0.85,
-        maxWidth: MediaQuery.of(context).size.width,
-        minHeight: MediaQuery.of(context).size.height * 0.25,
-        minWidth: MediaQuery.of(context).size.width,
-      ),
-      builder: (context) => const LyricsModal(),
+    modalView(
+      context,
+      title: context.tr('player.lyrics'),
+      maxHeight: 0.85,
+      showPlayer: true,
+      children: [const LyricsModal()],
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<SettingsCubit, SettingsState>(
-      builder: (context, state) {
-        final primaryColor = state.settings.primaryColor;
-
-        return Scaffold(
-          backgroundColor: Colors.transparent,
-          body: SafeArea(
-            child: Hero(
-              tag: 'lyrics_container',
-              child: SizedBox(
-                width: double.infinity,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 24.0,
-                    vertical: 16.0,
+    return Expanded(
+      child: Column(
+        children: [
+          Expanded(
+            child: ListView(
+              children: [
+                for (int i = 0; i < 10; i++) ...[
+                  ListTile(
+                    title: Text(
+                      'Lyric $i',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: context.scaleText(16)),
+                    ),
+                    onTap: () {
+                      // Handle lyric tap
+                    },
                   ),
-                  child: Column(
-                    children: [
-                      GestureDetector(
-                        onTap: () => context.pop(),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              context.tr('player.lyrics'),
-                              textAlign: TextAlign.center,
-                              style: TextStyle(fontSize: context.scaleText(12)),
-                            ),
-                            Icon(
-                              FontAwesomeIcons.lightChevronDown,
-                              color: primaryColor,
-                              size: 12,
-                            ),
-                          ],
-                        ),
-                      ),
-                      Expanded(
-                        child: ListView(
-                          children: [
-                            for (int i = 0; i < 10; i++) ...[
-                              ListTile(
-                                title: Text(
-                                  'Lyric $i',
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    fontSize: context.scaleText(16),
-                                  ),
-                                ),
-                                onTap: () {
-                                  // Handle lyric tap
-                                },
-                              ),
-                            ],
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: AppSpacing.bottomSheetHeight),
-                    ],
-                  ),
-                ),
-              ),
+                ],
+              ],
             ),
           ),
-          resizeToAvoidBottomInset: false,
-          bottomSheet: BottomPlayer(onTap: () => context.pop()),
-        );
-      },
+          const SizedBox(height: AppSpacing.bottomSheetHeight),
+        ],
+      ),
     );
   }
 }
