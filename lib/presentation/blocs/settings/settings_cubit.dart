@@ -58,6 +58,10 @@ class SettingsCubit extends Cubit<SettingsState> {
     _updateSetting(state.settings.copyWith(orderBy: orderBy));
   }
 
+  void updatePlaybackSpeed(double playbackSpeed) {
+    _updateSetting(state.settings.copyWith(playbackSpeed: playbackSpeed));
+  }
+
   void updateSettings(Settings settings) {
     _updateSetting(settings);
   }

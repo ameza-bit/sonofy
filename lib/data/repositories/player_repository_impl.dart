@@ -6,6 +6,7 @@ import 'package:sonofy/core/utils/ipod_library_converter.dart';
 final class PlayerRepositoryImpl implements PlayerRepository {
   final player = AudioPlayer();
   bool _usingNativePlayer = false;
+  double _playbackSpeed = 1.0;
 
   @override
   bool isPlaying() {
@@ -104,5 +105,24 @@ final class PlayerRepositoryImpl implements PlayerRepository {
     } else {
       return player.getDuration();
     }
+  }
+
+  @override
+  Future<bool> setPlaybackSpeed(double speed) async {
+    _playbackSpeed = speed;
+
+    if (_usingNativePlayer && Platform.isIOS) {
+      // TODO(Armando): Implement native iOS playback speed control
+      // Native iOS player doesn't support speed control via Method Channel yet
+      return false;
+    } else {
+      await player.setPlaybackRate(speed);
+      return true;
+    }
+  }
+
+  @override
+  double getPlaybackSpeed() {
+    return _playbackSpeed;
   }
 }

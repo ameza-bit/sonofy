@@ -15,6 +15,7 @@ class Settings {
   final bool biometricEnabled;
   final String? localMusicPath;
   final OrderBy orderBy;
+  final double playbackSpeed;
 
   Settings({
     this.themeMode = ThemeMode.system,
@@ -24,6 +25,7 @@ class Settings {
     this.biometricEnabled = false,
     this.localMusicPath,
     this.orderBy = OrderBy.titleAsc,
+    this.playbackSpeed = 1.0,
   });
 
   factory Settings.fromJson(Map<String, dynamic> json) => Settings(
@@ -34,6 +36,7 @@ class Settings {
     biometricEnabled: json['biometricEnabled'] ?? false,
     localMusicPath: json['localMusicPath'],
     orderBy: OrderByExtension.fromString(json['orderBy'] ?? 'titleAsc'),
+    playbackSpeed: (json['playbackSpeed'] ?? 1.0).toDouble(),
   );
 
   Map<String, dynamic> toJson() => {
@@ -44,6 +47,7 @@ class Settings {
     'biometricEnabled': biometricEnabled,
     'localMusicPath': localMusicPath,
     'orderBy': orderBy.stringValue,
+    'playbackSpeed': playbackSpeed,
   };
 
   Settings copyWith({
@@ -54,6 +58,7 @@ class Settings {
     bool? biometricEnabled,
     String? localMusicPath,
     OrderBy? orderBy,
+    double? playbackSpeed,
   }) {
     return Settings(
       themeMode: themeMode ?? this.themeMode,
@@ -63,6 +68,7 @@ class Settings {
       biometricEnabled: biometricEnabled ?? this.biometricEnabled,
       localMusicPath: localMusicPath ?? this.localMusicPath,
       orderBy: orderBy ?? this.orderBy,
+      playbackSpeed: playbackSpeed ?? this.playbackSpeed,
     );
   }
 }

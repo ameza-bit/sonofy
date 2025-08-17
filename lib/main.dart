@@ -92,7 +92,8 @@ Future<void> main() async {
           ),
         ),
         BlocProvider<PlayerCubit>(
-          create: (context) => PlayerCubit(playerRepository),
+          create: (context) =>
+              PlayerCubit(playerRepository, settingsRepository),
         ),
         BlocProvider<PlaylistsCubit>(
           create: (context) => PlaylistsCubit(

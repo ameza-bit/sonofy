@@ -11,6 +11,7 @@ class PlayerState {
   final RepeatMode repeatMode;
   final bool isSleepTimerActive;
   final bool waitForSongToFinish;
+  final double playbackSpeed;
   final Duration? sleepTimerDuration;
   final Duration? sleepTimerRemaining;
 
@@ -22,6 +23,7 @@ class PlayerState {
     required this.repeatMode,
     required this.isSleepTimerActive,
     required this.waitForSongToFinish,
+    required this.playbackSpeed,
     this.sleepTimerDuration,
     this.sleepTimerRemaining,
   });
@@ -34,6 +36,7 @@ class PlayerState {
       repeatMode = Preferences.playerPreferences.repeatMode,
       sleepTimerDuration = null,
       sleepTimerRemaining = null,
+      playbackSpeed = 1.0,
       isSleepTimerActive = false,
       waitForSongToFinish = false;
 
@@ -45,6 +48,7 @@ class PlayerState {
     RepeatMode? repeatMode,
     bool? isSleepTimerActive,
     bool? waitForSongToFinish,
+    double? playbackSpeed,
     Duration? sleepTimerDuration,
     Duration? sleepTimerRemaining,
   }) {
@@ -56,6 +60,7 @@ class PlayerState {
       repeatMode: repeatMode ?? this.repeatMode,
       isSleepTimerActive: isSleepTimerActive ?? this.isSleepTimerActive,
       waitForSongToFinish: waitForSongToFinish ?? this.waitForSongToFinish,
+      playbackSpeed: playbackSpeed ?? this.playbackSpeed,
       sleepTimerDuration: sleepTimerDuration ?? this.sleepTimerDuration,
       sleepTimerRemaining: sleepTimerRemaining ?? this.sleepTimerRemaining,
     );

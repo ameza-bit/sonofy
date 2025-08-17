@@ -5,15 +5,25 @@ import 'package:on_audio_query_pluse/on_audio_query.dart';
 import 'package:sonofy/core/services/preferences.dart';
 import 'package:sonofy/data/models/player_preferences.dart';
 import 'package:sonofy/domain/repositories/player_repository.dart';
+import 'package:sonofy/domain/repositories/settings_repository.dart';
 import 'package:sonofy/presentation/blocs/player/player_state.dart';
 
 class PlayerCubit extends Cubit<PlayerState> {
   final PlayerRepository _playerRepository;
+  final SettingsRepository _settingsRepository;
   StreamController<int>? _positionController;
   Timer? _sleepTimer;
 
-  PlayerCubit(this._playerRepository) : super(PlayerState.initial()) {
+  PlayerCubit(this._playerRepository, this._settingsRepository)
+    : super(PlayerState.initial()) {
     _initializePositionStream();
+    _initializePlaybackSpeed();
+  }
+
+  void _initializePlaybackSpeed() {
+    final savedSpeed = _settingsRepository.getSettings().playbackSpeed;
+    emit(state.copyWith(playbackSpeed: savedSpeed));
+    _playerRepository.setPlaybackSpeed(savedSpeed);
   }
 
   Future<void> setPlayingSong(List<SongModel> playlist, SongModel song) async {
@@ -252,6 +262,22 @@ class PlayerCubit extends Cubit<PlayerState> {
     await _playerRepository.pause();
     emit(state.copyWith(isPlaying: false));
     stopSleepTimer();
+  }
+
+  Future<bool> setPlaybackSpeed(double speed) async {
+    if (!state.hasSelectedSong) {
+      return false;
+    }
+
+    final success = await _playerRepository.setPlaybackSpeed(speed);
+    if (success) {
+      emit(state.copyWith(playbackSpeed: speed));
+    }
+    return success;
+  }
+
+  double getPlaybackSpeed() {
+    return _playerRepository.getPlaybackSpeed();
   }
 
   void _savePlayerPreferences() {
