@@ -10,6 +10,7 @@ import 'package:sonofy/presentation/screens/player_screen.dart';
 import 'package:sonofy/presentation/widgets/common/font_awesome/font_awesome_flutter.dart';
 import 'package:sonofy/presentation/widgets/library/bottom_player.dart';
 import 'package:sonofy/presentation/widgets/library/song_card.dart';
+import 'package:sonofy/presentation/widgets/options/options_modal.dart';
 
 class PlaylistScreen extends StatelessWidget {
   static const String routeName = 'playlist';
@@ -26,6 +27,16 @@ class PlaylistScreen extends StatelessWidget {
             fontWeight: FontWeight.bold,
           ),
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(
+              FontAwesomeIcons.lightEllipsisStrokeVertical,
+              size: 20.0,
+            ),
+            onPressed: () => OptionsModal.playlist(context),
+          ),
+          const SizedBox(width: 12),
+        ],
       ),
       body: SafeArea(
         child: BlocBuilder<SongsCubit, SongsState>(

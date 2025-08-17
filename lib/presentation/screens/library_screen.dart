@@ -10,9 +10,9 @@ import 'package:sonofy/presentation/blocs/songs/songs_state.dart';
 import 'package:sonofy/presentation/screens/player_screen.dart';
 import 'package:sonofy/presentation/widgets/common/font_awesome/font_awesome_flutter.dart';
 import 'package:sonofy/presentation/widgets/library/bottom_player.dart';
-import 'package:sonofy/presentation/widgets/library/library_modal.dart';
 import 'package:sonofy/presentation/widgets/library/playlist_card.dart';
 import 'package:sonofy/presentation/widgets/library/song_card.dart';
+import 'package:sonofy/presentation/widgets/options/options_modal.dart';
 // import 'package:sonofy/presentation/widgets/library/song_card.dart';
 
 class LibraryScreen extends StatelessWidget {
@@ -40,7 +40,7 @@ class LibraryScreen extends StatelessWidget {
                 FontAwesomeIcons.lightEllipsisStrokeVertical,
                 size: 20.0,
               ),
-              onPressed: () => LibraryModal.show(context),
+              onPressed: () => OptionsModal.library(context),
             ),
             const SizedBox(width: 12),
           ],

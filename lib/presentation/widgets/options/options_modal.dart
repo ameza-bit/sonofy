@@ -4,8 +4,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sonofy/core/extensions/color_extensions.dart';
 import 'package:sonofy/core/extensions/theme_extensions.dart';
-import 'package:sonofy/presentation/blocs/player/player_cubit.dart';
-import 'package:sonofy/presentation/blocs/player/player_state.dart';
 import 'package:sonofy/presentation/blocs/settings/settings_cubit.dart';
 import 'package:sonofy/presentation/blocs/settings/settings_state.dart';
 import 'package:sonofy/presentation/widgets/common/font_awesome/font_awesome_flutter.dart';
@@ -17,10 +15,12 @@ import 'package:sonofy/presentation/widgets/options/settings_option.dart';
 import 'package:sonofy/presentation/widgets/options/share_option.dart';
 import 'package:sonofy/presentation/widgets/options/sleep_option.dart';
 
-class MusicModal extends StatelessWidget {
-  const MusicModal({super.key});
+class OptionsModal extends StatelessWidget {
+  const OptionsModal({required this.options, super.key});
 
-  static void show(BuildContext context) {
+  final List<Widget> options;
+
+  static void _show(BuildContext context, List<Widget> options) {
     showModalBottomSheet(
       context: context,
       useSafeArea: true,
@@ -32,9 +32,30 @@ class MusicModal extends StatelessWidget {
         minHeight: MediaQuery.of(context).size.height * 0.25,
         minWidth: MediaQuery.of(context).size.width,
       ),
-      builder: (context) => const MusicModal(),
+      builder: (context) => OptionsModal(options: options),
     );
   }
+
+  static void library(BuildContext context) => _show(context, [
+    const SleepOption(),
+    const EqualizerOption(),
+    const SettingsOption(),
+  ]);
+
+  static void playlist(BuildContext context) => _show(context, [
+    const SleepOption(),
+    const EqualizerOption(),
+    const SettingsOption(),
+  ]);
+
+  static void player(BuildContext context) => _show(context, [
+    const SleepOption(),
+    const AddPlaylistOption(),
+    const RemovePlaylistOption(),
+    const EqualizerOption(),
+    const ShareOption(),
+    const SettingsOption(),
+  ]);
 
   @override
   Widget build(BuildContext context) {
@@ -75,22 +96,7 @@ class MusicModal extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 16),
-
-                      BlocBuilder<PlayerCubit, PlayerState>(
-                        builder: (context, state) {
-                          return const SectionCard(
-                            title: '',
-                            children: [
-                              SleepOption(),
-                              AddPlaylistOption(),
-                              RemovePlaylistOption(),
-                              EqualizerOption(),
-                              ShareOption(),
-                              SettingsOption(),
-                            ],
-                          );
-                        },
-                      ),
+                      SectionCard(title: '', children: options),
                     ],
                   ),
                 ),

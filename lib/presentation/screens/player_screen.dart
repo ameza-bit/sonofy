@@ -9,7 +9,7 @@ import 'package:sonofy/presentation/blocs/player/player_cubit.dart';
 import 'package:sonofy/presentation/blocs/player/player_state.dart';
 import 'package:sonofy/presentation/widgets/common/font_awesome/font_awesome_flutter.dart';
 import 'package:sonofy/presentation/widgets/library/bottom_clipper_container.dart';
-import 'package:sonofy/presentation/widgets/player/music_modal.dart';
+import 'package:sonofy/presentation/widgets/options/options_modal.dart';
 import 'package:sonofy/presentation/widgets/player/player_control.dart';
 import 'package:sonofy/presentation/widgets/player/player_bottom_modals.dart';
 import 'package:sonofy/presentation/widgets/player/player_slider.dart';
@@ -53,7 +53,7 @@ class PlayerScreen extends StatelessWidget {
                   FontAwesomeIcons.lightEllipsisStrokeVertical,
                   size: 20.0,
                 ),
-                onPressed: () => MusicModal.show(context),
+                onPressed: () => OptionsModal.player(context),
               ),
             ],
           ),
