@@ -23,7 +23,7 @@ class PlaylistScreen extends StatelessWidget {
     return BlocBuilder<PlaylistsCubit, PlaylistsState>(
       builder: (context, playlistsState) {
         final selectedPlaylist = playlistsState.selectedPlaylist;
-        
+
         return Scaffold(
           appBar: AppBar(
             title: Text(
@@ -50,9 +50,7 @@ class PlaylistScreen extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Expanded(
-                        child: Center(
-                          child: Text('No playlist selected'),
-                        ),
+                        child: Center(child: Text('No playlist selected')),
                       ),
                       SizedBox(height: AppSpacing.bottomSheetHeight),
                     ],
@@ -63,7 +61,9 @@ class PlaylistScreen extends StatelessWidget {
                         return const Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Expanded(child: Center(child: CircularProgressIndicator())),
+                            Expanded(
+                              child: Center(child: CircularProgressIndicator()),
+                            ),
                             SizedBox(height: AppSpacing.bottomSheetHeight),
                           ],
                         );
@@ -71,7 +71,11 @@ class PlaylistScreen extends StatelessWidget {
 
                       // Filtrar canciones que están en la playlist
                       final playlistSongs = songsState.songs
-                          .where((song) => selectedPlaylist.songIds.contains(song.id.toString()))
+                          .where(
+                            (song) => selectedPlaylist.songIds.contains(
+                              song.id.toString(),
+                            ),
+                          )
                           .toList();
 
                       if (playlistSongs.isEmpty) {
@@ -91,13 +95,17 @@ class PlaylistScreen extends StatelessWidget {
                                     ),
                                     Text(
                                       context.tr('playlist.empty'),
-                                      style: TextStyle(fontSize: context.scaleText(18)),
+                                      style: TextStyle(
+                                        fontSize: context.scaleText(18),
+                                      ),
                                     ),
                                   ],
                                 ),
                               ),
                             ),
-                            const SizedBox(height: AppSpacing.bottomSheetHeight),
+                            const SizedBox(
+                              height: AppSpacing.bottomSheetHeight,
+                            ),
                           ],
                         );
                       }
@@ -106,14 +114,19 @@ class PlaylistScreen extends StatelessWidget {
                         itemCount: playlistSongs.length + 1,
                         itemBuilder: (context, index) {
                           if (index == playlistSongs.length) {
-                            return const SizedBox(height: AppSpacing.bottomSheetHeight);
+                            return const SizedBox(
+                              height: AppSpacing.bottomSheetHeight,
+                            );
                           } else {
                             return Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 24.0,
+                              ),
                               child: SongCard(
                                 playlist: playlistSongs,
                                 song: playlistSongs[index],
-                                onTap: () => context.pushNamed(PlayerScreen.routeName),
+                                onTap: () =>
+                                    context.pushNamed(PlayerScreen.routeName),
                               ),
                             );
                           }
@@ -123,16 +136,8 @@ class PlaylistScreen extends StatelessWidget {
                   ),
           ),
           resizeToAvoidBottomInset: false,
-          bottomSheet: Stack(
-            children: [
-              Positioned(
-                bottom: 0,
-                left: 0,
-                right: 0,
-                child: Container(height: 80, color: Theme.of(context).cardColor),
-              ),
-              BottomPlayer(onTap: () => context.pushNamed(PlayerScreen.routeName)),
-            ],
+          bottomSheet: BottomPlayer(
+            onTap: () => context.pushNamed(PlayerScreen.routeName),
           ),
         );
       },

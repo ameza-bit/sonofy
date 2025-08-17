@@ -6,12 +6,14 @@ import 'package:sonofy/core/extensions/theme_extensions.dart';
 import 'package:sonofy/presentation/blocs/settings/settings_cubit.dart';
 import 'package:sonofy/presentation/blocs/settings/settings_state.dart';
 import 'package:sonofy/presentation/widgets/common/font_awesome/font_awesome_flutter.dart';
+import 'package:sonofy/presentation/widgets/library/bottom_player.dart';
 
 void modalView(
   BuildContext context, {
   required String title,
   required List<Widget> children,
   double? maxHeight = 0.65,
+  bool showPlayer = false,
 }) => showModalBottomSheet(
   context: context,
   useSafeArea: true,
@@ -28,7 +30,7 @@ void modalView(
       final primaryColor = state.settings.primaryColor;
 
       return Scaffold(
-        backgroundColor: context.musicBackground,
+        backgroundColor: Colors.transparent,
         body: SafeArea(
           child: Hero(
             tag: 'delete_playlist_container',
@@ -61,7 +63,6 @@ void modalView(
                         ],
                       ),
                     ),
-                    const SizedBox(height: 16),
                     ...children,
                   ],
                 ),
@@ -69,6 +70,10 @@ void modalView(
             ),
           ),
         ),
+        resizeToAvoidBottomInset: showPlayer ? false : null,
+        bottomSheet: showPlayer
+            ? BottomPlayer(onTap: () => context.pop())
+            : null,
       );
     },
   ),

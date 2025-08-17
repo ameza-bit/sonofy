@@ -95,20 +95,7 @@ class LyricsModal extends StatelessWidget {
             ),
           ),
           resizeToAvoidBottomInset: false,
-          bottomSheet: Stack(
-            children: [
-              Positioned(
-                bottom: 0,
-                left: 0,
-                right: 0,
-                child: Container(
-                  height: 80,
-                  color: Theme.of(context).cardColor,
-                ),
-              ),
-              BottomPlayer(onTap: () => context.pop()),
-            ],
-          ),
+          bottomSheet: BottomPlayer(onTap: () => context.pop()),
         );
       },
     );

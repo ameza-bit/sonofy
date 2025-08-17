@@ -2,13 +2,10 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:sonofy/core/extensions/color_extensions.dart';
-import 'package:sonofy/core/extensions/theme_extensions.dart';
 import 'package:sonofy/core/utils/toast.dart';
 import 'package:sonofy/main.dart';
 import 'package:sonofy/presentation/blocs/playlists/playlists_cubit.dart';
-import 'package:sonofy/presentation/blocs/settings/settings_cubit.dart';
-import 'package:sonofy/presentation/blocs/settings/settings_state.dart';
+import 'package:sonofy/presentation/views/modal_view.dart';
 import 'package:sonofy/presentation/widgets/common/font_awesome/font_awesome_flutter.dart';
 import 'package:sonofy/presentation/widgets/common/section_item.dart';
 
@@ -16,18 +13,11 @@ class CreatePlaylistOption extends StatelessWidget {
   const CreatePlaylistOption({super.key});
 
   void _showCreatePlaylistDialog(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      useSafeArea: true,
-      isScrollControlled: true,
-      backgroundColor: context.musicBackground,
-      constraints: BoxConstraints(
-        maxHeight: MediaQuery.of(context).size.height * 0.40,
-        maxWidth: MediaQuery.of(context).size.width,
-        minHeight: MediaQuery.of(context).size.height * 0.25,
-        minWidth: MediaQuery.of(context).size.width,
-      ),
-      builder: (modalContext) => const CreatePlaylistModal(),
+    modalView(
+      context,
+      title: context.tr('options.create_playlist'),
+      maxHeight: 0.40,
+      children: [const CreatePlaylistForm()],
     );
   }
 
@@ -44,14 +34,14 @@ class CreatePlaylistOption extends StatelessWidget {
   }
 }
 
-class CreatePlaylistModal extends StatefulWidget {
-  const CreatePlaylistModal({super.key});
+class CreatePlaylistForm extends StatefulWidget {
+  const CreatePlaylistForm({super.key});
 
   @override
-  State<CreatePlaylistModal> createState() => _CreatePlaylistModalState();
+  State<CreatePlaylistForm> createState() => _CreatePlaylistFormState();
 }
 
-class _CreatePlaylistModalState extends State<CreatePlaylistModal> {
+class _CreatePlaylistFormState extends State<CreatePlaylistForm> {
   final TextEditingController _controller = TextEditingController();
 
   void _createPlaylist(String name) {
@@ -70,80 +60,38 @@ class _CreatePlaylistModalState extends State<CreatePlaylistModal> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<SettingsCubit, SettingsState>(
-      builder: (context, state) {
-        final primaryColor = state.settings.primaryColor;
-
-        return Scaffold(
-          backgroundColor: Colors.transparent,
-          body: SafeArea(
-            child: Hero(
-              tag: 'create_playlist_container',
-              child: SizedBox(
-                width: double.infinity,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 24.0,
-                    vertical: 16.0,
-                  ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    spacing: 24,
-                    children: [
-                      GestureDetector(
-                        onTap: () => context.pop(),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              context.tr('options.create_playlist'),
-                              textAlign: TextAlign.center,
-                              style: TextStyle(fontSize: context.scaleText(12)),
-                            ),
-                            Icon(
-                              FontAwesomeIcons.lightChevronDown,
-                              color: primaryColor,
-                              size: 12,
-                            ),
-                          ],
-                        ),
-                      ),
-                      TextField(
-                        controller: _controller,
-                        decoration: InputDecoration(
-                          hintText: context.tr('playlist.enter_name'),
-                          border: const OutlineInputBorder(),
-                        ),
-                        autofocus: true,
-                        onSubmitted: _createPlaylist,
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        spacing: 16,
-                        children: [
-                          Expanded(
-                            child: TextButton(
-                              onPressed: () => context.pop(),
-                              child: Text(context.tr('common.cancel')),
-                            ),
-                          ),
-                          Expanded(
-                            child: ElevatedButton(
-                              onPressed: () =>
-                                  _createPlaylist(_controller.text),
-                              child: Text(context.tr('common.create')),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      spacing: 24,
+      children: [
+        TextField(
+          controller: _controller,
+          decoration: InputDecoration(
+            hintText: context.tr('playlist.enter_name'),
+            border: const OutlineInputBorder(),
+          ),
+          autofocus: true,
+          onSubmitted: _createPlaylist,
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          spacing: 16,
+          children: [
+            Expanded(
+              child: TextButton(
+                onPressed: () => context.pop(),
+                child: Text(context.tr('common.cancel')),
               ),
             ),
-          ),
-        );
-      },
+            Expanded(
+              child: ElevatedButton(
+                onPressed: () => _createPlaylist(_controller.text),
+                child: Text(context.tr('common.create')),
+              ),
+            ),
+          ],
+        ),
+      ],
     );
   }
 }
