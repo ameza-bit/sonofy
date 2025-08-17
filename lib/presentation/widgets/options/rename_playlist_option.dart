@@ -4,17 +4,17 @@ import 'package:go_router/go_router.dart';
 import 'package:sonofy/presentation/widgets/common/font_awesome/font_awesome_flutter.dart';
 import 'package:sonofy/presentation/widgets/common/section_item.dart';
 
-class AddPlaylistOption extends StatelessWidget {
-  const AddPlaylistOption({super.key});
+class RenamePlaylistOption extends StatelessWidget {
+  const RenamePlaylistOption({super.key});
 
   @override
   Widget build(BuildContext context) {
     return SectionItem(
-      icon: FontAwesomeIcons.lightAlbumCirclePlus,
-      title: context.tr('options.add_playlist'),
+      icon: FontAwesomeIcons.lightInputText,
+      title: context.tr('options.rename_playlist'),
       onTap: () {
         context.pop();
-        // TODO(Armando): Implement add to playlist functionality
+        // TODO(Armando): Implement rename playlist functionality
       },
     );
   }

@@ -88,8 +88,14 @@
   "options": {
     "title": "Options",
     "sleep": "Sleep Timer",
+    "order_by": "Order by",
+    "reorder": "Reorder",
+    "create_playlist": "Create Playlist",
+    "delete_playlist": "Delete Playlist",
+    "rename_playlist": "Rename Playlist",
     "add_playlist": "Add to Playlist",
     "remove_playlist": "Remove from Playlist",
+    "player_speed": "Playback Speed",
     "equalizer": "Equalizer",
     "share": "Share",
     "settings": "Settings"

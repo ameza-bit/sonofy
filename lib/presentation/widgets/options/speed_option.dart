@@ -4,17 +4,17 @@ import 'package:go_router/go_router.dart';
 import 'package:sonofy/presentation/widgets/common/font_awesome/font_awesome_flutter.dart';
 import 'package:sonofy/presentation/widgets/common/section_item.dart';
 
-class AddPlaylistOption extends StatelessWidget {
-  const AddPlaylistOption({super.key});
+class SpeedOption extends StatelessWidget {
+  const SpeedOption({super.key});
 
   @override
   Widget build(BuildContext context) {
     return SectionItem(
-      icon: FontAwesomeIcons.lightAlbumCirclePlus,
-      title: context.tr('options.add_playlist'),
+      icon: FontAwesomeIcons.lightGauge,
+      title: context.tr('options.player_speed'),
       onTap: () {
         context.pop();
-        // TODO(Armando): Implement add to playlist functionality
+        // TODO(Armando): Implement speed adjustment functionality
       },
     );
   }

@@ -9,11 +9,17 @@ import 'package:sonofy/presentation/blocs/settings/settings_state.dart';
 import 'package:sonofy/presentation/widgets/common/font_awesome/font_awesome_flutter.dart';
 import 'package:sonofy/presentation/widgets/common/section_card.dart';
 import 'package:sonofy/presentation/widgets/options/add_playlist_option.dart';
+import 'package:sonofy/presentation/widgets/options/create_playlist_option.dart';
+import 'package:sonofy/presentation/widgets/options/delete_playlist_option.dart';
 import 'package:sonofy/presentation/widgets/options/equalizer_option.dart';
+import 'package:sonofy/presentation/widgets/options/order_option.dart';
 import 'package:sonofy/presentation/widgets/options/remove_playlist_option.dart';
+import 'package:sonofy/presentation/widgets/options/rename_playlist_option.dart';
+import 'package:sonofy/presentation/widgets/options/reorder_option.dart';
 import 'package:sonofy/presentation/widgets/options/settings_option.dart';
 import 'package:sonofy/presentation/widgets/options/share_option.dart';
 import 'package:sonofy/presentation/widgets/options/sleep_option.dart';
+import 'package:sonofy/presentation/widgets/options/speed_option.dart';
 
 class OptionsModal extends StatelessWidget {
   const OptionsModal({required this.options, super.key});
@@ -38,12 +44,17 @@ class OptionsModal extends StatelessWidget {
 
   static void library(BuildContext context) => _show(context, [
     const SleepOption(),
+    const OrderOption(),
+    const CreatePlaylistOption(),
     const EqualizerOption(),
     const SettingsOption(),
   ]);
 
   static void playlist(BuildContext context) => _show(context, [
     const SleepOption(),
+    const ReorderOption(),
+    const RenamePlaylistOption(),
+    const DeletePlaylistOption(),
     const EqualizerOption(),
     const SettingsOption(),
   ]);
@@ -52,8 +63,9 @@ class OptionsModal extends StatelessWidget {
     const SleepOption(),
     const AddPlaylistOption(),
     const RemovePlaylistOption(),
-    const EqualizerOption(),
+    const SpeedOption(),
     const ShareOption(),
+    const EqualizerOption(),
     const SettingsOption(),
   ]);
 
