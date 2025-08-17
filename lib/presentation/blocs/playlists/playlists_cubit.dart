@@ -1,5 +1,4 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:sonofy/data/models/playlist.dart';
 import 'package:sonofy/domain/usecases/add_song_to_playlist_usecase.dart';
 import 'package:sonofy/domain/usecases/create_playlist_usecase.dart';
 import 'package:sonofy/domain/usecases/delete_playlist_usecase.dart';

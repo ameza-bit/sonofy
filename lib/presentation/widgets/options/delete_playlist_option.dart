@@ -2,9 +2,11 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:sonofy/core/extensions/theme_extensions.dart';
 import 'package:sonofy/core/utils/toast.dart';
 import 'package:sonofy/presentation/blocs/playlists/playlists_cubit.dart';
-import 'package:sonofy/presentation/blocs/playlists/playlists_state.dart';
+import 'package:sonofy/presentation/blocs/settings/settings_cubit.dart';
+import 'package:sonofy/presentation/blocs/settings/settings_state.dart';
 import 'package:sonofy/presentation/widgets/common/font_awesome/font_awesome_flutter.dart';
 import 'package:sonofy/presentation/widgets/common/section_item.dart';
 
@@ -26,39 +28,132 @@ class DeletePlaylistOption extends StatelessWidget {
   void _showDeleteConfirmation(BuildContext context) {
     final playlistsState = context.read<PlaylistsCubit>().state;
     final selectedPlaylist = playlistsState.selectedPlaylist;
-    
+
     if (selectedPlaylist == null) {
       Toast.show(context.tr('playlist.no_playlist_selected'));
       return;
     }
 
-    showDialog(
+    showModalBottomSheet(
       context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: Text(context.tr('options.delete_playlist')),
-        content: Text(
-          context.tr('playlist.delete_confirmation', namedArgs: {'playlist': selectedPlaylist.title}),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(),
-            child: Text(context.tr('common.cancel')),
-          ),
-          TextButton(
-            style: TextButton.styleFrom(
-              foregroundColor: Theme.of(context).colorScheme.error,
-            ),
-            onPressed: () {
-              Navigator.of(dialogContext).pop();
-              context.read<PlaylistsCubit>().deletePlaylist(selectedPlaylist.id);
-              Toast.show(context.tr('playlist.playlist_deleted'));
-              // Volver a la pantalla anterior
-              context.pop();
-            },
-            child: Text(context.tr('common.delete')),
-          ),
-        ],
+      useSafeArea: true,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      constraints: BoxConstraints(
+        maxHeight: MediaQuery.of(context).size.height * 0.4,
+        maxWidth: MediaQuery.of(context).size.width,
+        minHeight: MediaQuery.of(context).size.height * 0.25,
+        minWidth: MediaQuery.of(context).size.width,
       ),
+      builder: (modalContext) =>
+          DeletePlaylistModal(playlist: selectedPlaylist),
+    );
+  }
+}
+
+class DeletePlaylistModal extends StatelessWidget {
+  final dynamic playlist;
+
+  const DeletePlaylistModal({required this.playlist, super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<SettingsCubit, SettingsState>(
+      builder: (context, state) {
+        final primaryColor = state.settings.primaryColor;
+
+        return Scaffold(
+          backgroundColor: Colors.transparent,
+          body: SafeArea(
+            child: Hero(
+              tag: 'delete_playlist_container',
+              child: Container(
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  color: Theme.of(context).scaffoldBackgroundColor,
+                  borderRadius: const BorderRadius.vertical(
+                    top: Radius.circular(20),
+                  ),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24.0,
+                    vertical: 16.0,
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      GestureDetector(
+                        onTap: () => context.pop(),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              context.tr('options.delete_playlist'),
+                              textAlign: TextAlign.center,
+                              style: TextStyle(fontSize: context.scaleText(12)),
+                            ),
+                            Icon(
+                              FontAwesomeIcons.lightChevronDown,
+                              color: primaryColor,
+                              size: 12,
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                      Text(
+                        context.tr(
+                          'playlist.delete_confirmation',
+                          namedArgs: {'playlist': playlist.title},
+                        ),
+                        textAlign: TextAlign.center,
+                        style: TextStyle(fontSize: context.scaleText(16)),
+                      ),
+                      const SizedBox(height: 24),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          Expanded(
+                            child: TextButton(
+                              onPressed: () => context.pop(),
+                              child: Text(context.tr('common.cancel')),
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Theme.of(
+                                  context,
+                                ).colorScheme.error,
+                                foregroundColor: Theme.of(
+                                  context,
+                                ).colorScheme.onError,
+                              ),
+                              onPressed: () {
+                                context.pop();
+                                context.read<PlaylistsCubit>().deletePlaylist(
+                                  playlist.id,
+                                );
+                                Toast.show(
+                                  context.tr('playlist.playlist_deleted'),
+                                );
+                                context.pop(); // Volver a la pantalla anterior
+                              },
+                              child: Text(context.tr('common.delete')),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }
