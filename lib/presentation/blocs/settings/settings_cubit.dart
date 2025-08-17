@@ -4,6 +4,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart' show ThemeMode;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sonofy/core/enums/language.dart';
+import 'package:sonofy/core/enums/order_by.dart';
 import 'package:sonofy/data/models/setting.dart';
 import 'package:sonofy/domain/repositories/settings_repository.dart';
 import 'package:sonofy/domain/usecases/select_music_folder_usecase.dart';
@@ -51,6 +52,14 @@ class SettingsCubit extends Cubit<SettingsState> {
 
   void updateBiometricEnabled(bool biometricEnabled) {
     _updateSetting(state.settings.copyWith(biometricEnabled: biometricEnabled));
+  }
+
+  void updateOrderBy(OrderBy orderBy) {
+    _updateSetting(state.settings.copyWith(orderBy: orderBy));
+  }
+
+  void updatePlaybackSpeed(double playbackSpeed) {
+    _updateSetting(state.settings.copyWith(playbackSpeed: playbackSpeed));
   }
 
   void updateSettings(Settings settings) {

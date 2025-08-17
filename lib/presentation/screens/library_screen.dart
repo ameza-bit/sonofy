@@ -56,7 +56,7 @@ class LibraryScreen extends StatelessWidget {
                     SizedBox(height: AppSpacing.bottomSheetHeight),
                   ],
                 );
-              } else if (state.orderedSongs.isEmpty) {
+              } else if (state.songs.isEmpty) {
                 return Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -84,7 +84,7 @@ class LibraryScreen extends StatelessWidget {
                 );
               }
 
-              final orderedSongs = state.orderedSongs;
+              final orderedSongs = state.songs;
               return ListView.builder(
                 itemCount: orderedSongs.length + 2,
                 itemBuilder: (context, index) {

@@ -2,6 +2,8 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:on_audio_query_pluse/on_audio_query.dart';
+import 'package:sonofy/core/enums/order_by.dart';
+import 'package:sonofy/domain/repositories/settings_repository.dart';
 import 'package:sonofy/domain/usecases/get_local_songs_usecase.dart';
 import 'package:sonofy/domain/repositories/songs_repository.dart';
 import 'package:sonofy/presentation/blocs/songs/songs_state.dart';
@@ -9,10 +11,20 @@ import 'package:sonofy/presentation/blocs/songs/songs_state.dart';
 class SongsCubit extends Cubit<SongsState> {
   final SongsRepository _songsRepository;
   final GetLocalSongsUseCase? _getLocalSongsUseCase;
+  final SettingsRepository _settingsRepository;
 
-  SongsCubit(this._songsRepository, this._getLocalSongsUseCase)
-    : super(SongsState.initial()) {
+  SongsCubit(
+    this._songsRepository,
+    this._getLocalSongsUseCase,
+    this._settingsRepository,
+  ) : super(SongsState.initial()) {
     loadAllSongs();
+  }
+
+  OrderBy get _currentOrderBy => _settingsRepository.getSettings().orderBy;
+
+  List<SongModel> _applySorting(List<SongModel> songs) {
+    return _currentOrderBy.applySorting(songs);
   }
 
   Future<void> loadAllSongs() async {
@@ -33,7 +45,7 @@ class SongsCubit extends Cubit<SongsState> {
 
         emit(
           state.copyWith(
-            songs: allSongs,
+            songs: _applySorting(allSongs),
             deviceSongs: deviceSongs,
             localSongs: localSongs,
             isLoading: false,
@@ -43,7 +55,7 @@ class SongsCubit extends Cubit<SongsState> {
         // Android: solo canciones del dispositivo
         emit(
           state.copyWith(
-            songs: deviceSongs,
+            songs: _applySorting(deviceSongs),
             deviceSongs: deviceSongs,
             localSongs: [], // Android no tiene canciones locales separadas
             isLoading: false,
@@ -69,7 +81,7 @@ class SongsCubit extends Cubit<SongsState> {
 
         emit(
           state.copyWith(
-            songs: allSongs,
+            songs: _applySorting(allSongs),
             deviceSongs: deviceSongs,
             isLoading: false,
           ),
@@ -78,7 +90,7 @@ class SongsCubit extends Cubit<SongsState> {
         // Android: solo canciones del dispositivo
         emit(
           state.copyWith(
-            songs: deviceSongs,
+            songs: _applySorting(deviceSongs),
             deviceSongs: deviceSongs,
             isLoading: false,
           ),
@@ -107,7 +119,7 @@ class SongsCubit extends Cubit<SongsState> {
 
       emit(
         state.copyWith(
-          songs: allSongs,
+          songs: _applySorting(allSongs),
           localSongs: localSongs,
           isLoadingLocal: false,
         ),
@@ -121,66 +133,71 @@ class SongsCubit extends Cubit<SongsState> {
     await loadLocalSongs();
   }
 
-  void filterSongs(String query) {
+  void filterSongs(String query, [OrderBy? orderBy]) {
+    List<SongModel> songsToFilter;
+
     if (query.isEmpty) {
       // Mostrar todas las canciones según la plataforma
       if (!kIsWeb && Platform.isIOS) {
-        final allSongs = <SongModel>[];
-        allSongs.addAll(state.deviceSongs);
-        allSongs.addAll(state.localSongs);
-        emit(state.copyWith(songs: allSongs));
+        songsToFilter = <SongModel>[];
+        songsToFilter.addAll(state.deviceSongs);
+        songsToFilter.addAll(state.localSongs);
       } else {
         // Android: solo canciones del dispositivo
-        emit(state.copyWith(songs: state.deviceSongs));
+        songsToFilter = state.deviceSongs;
       }
     } else {
       // Filtrar canciones
-      final filteredSongs = state.songs.where((song) {
+      songsToFilter = state.songs.where((song) {
         return song.title.toLowerCase().contains(query.toLowerCase()) ||
             song.artist!.toLowerCase().contains(query.toLowerCase()) ||
             song.album!.toLowerCase().contains(query.toLowerCase());
       }).toList();
-
-      emit(state.copyWith(songs: filteredSongs));
     }
+
+    // Aplicar ordenamiento
+    final currentOrderBy = orderBy ?? _currentOrderBy;
+    songsToFilter = currentOrderBy.applySorting(songsToFilter);
+
+    emit(state.copyWith(songs: songsToFilter));
   }
 
-  void showOnlyLocalSongs() {
+  void showOnlyLocalSongs([OrderBy? orderBy]) {
     // Solo iOS tiene canciones locales
     if (!kIsWeb && Platform.isIOS) {
-      emit(state.copyWith(songs: state.localSongs));
+      final currentOrderBy = orderBy ?? _currentOrderBy;
+      final sortedLocalSongs = currentOrderBy.applySorting(state.localSongs);
+      emit(state.copyWith(songs: sortedLocalSongs));
     }
   }
 
-  void showOnlyDeviceSongs() {
-    emit(state.copyWith(songs: state.deviceSongs));
+  void showOnlyDeviceSongs([OrderBy? orderBy]) {
+    final currentOrderBy = orderBy ?? _currentOrderBy;
+    final sortedDeviceSongs = currentOrderBy.applySorting(state.deviceSongs);
+    emit(state.copyWith(songs: sortedDeviceSongs));
   }
 
-  void showAllSongs() {
+  void showAllSongs([OrderBy? orderBy]) {
+    List<SongModel> allSongs;
+
     if (!kIsWeb && Platform.isIOS) {
       // iOS: combinar canciones del dispositivo + locales
-      final allSongs = <SongModel>[];
+      allSongs = <SongModel>[];
       allSongs.addAll(state.deviceSongs);
       allSongs.addAll(state.localSongs);
-      emit(state.copyWith(songs: allSongs));
     } else {
       // Android: solo canciones del dispositivo (que incluye toda la música)
-      emit(state.copyWith(songs: state.deviceSongs));
+      allSongs = state.deviceSongs;
     }
+
+    final currentOrderBy = orderBy ?? _currentOrderBy;
+    allSongs = currentOrderBy.applySorting(allSongs);
+
+    emit(state.copyWith(songs: allSongs));
   }
 
-  // TODO(Armando): Implement song sorting functionality
-  // void sortSongs(SortBy sortBy, SortOrder order) {
-  //   final sortedSongs = List<SongModel>.from(state.songs);
-  //   sortedSongs.sort((a, b) {
-  //     switch (sortBy) {
-  //       case SortBy.title:
-  //         return order == SortOrder.ascending
-  //             ? a.title.compareTo(b.title)
-  //             : b.title.compareTo(a.title);
-  //       // Add other sorting criteria
-  //     }
-  //   });
-  //   emit(state.copyWith(songs: sortedSongs));
-  // }
+  void applySorting(OrderBy orderBy) {
+    final sortedSongs = orderBy.applySorting(state.songs);
+    emit(state.copyWith(songs: sortedSongs));
+  }
 }

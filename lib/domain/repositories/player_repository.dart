@@ -7,9 +7,8 @@ abstract class PlayerRepository {
   Future<Duration?> getCurrentPosition();
   Future<Duration?> getDuration();
 
-  // TODO(Armando): Add playback speed control methods
-  // Future<bool> setPlaybackSpeed(double speed);
-  // double getPlaybackSpeed();
+  Future<bool> setPlaybackSpeed(double speed);
+  double getPlaybackSpeed();
 
   // TODO(Armando): Add equalizer control methods
   // Future<bool> setEqualizerBand(int bandIndex, double gain);

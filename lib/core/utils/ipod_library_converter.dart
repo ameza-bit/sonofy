@@ -148,4 +148,28 @@ class IpodLibraryConverter {
       return false;
     }
   }
+
+  static Future<bool> setPlaybackSpeed(double speed) async {
+    if (!_isIOS) return false;
+
+    try {
+      final result = await _channel.invokeMethod('setPlaybackSpeed', {
+        'speed': speed,
+      });
+      return result as bool? ?? false;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  static Future<double> getPlaybackSpeed() async {
+    if (!_isIOS) return 1.0;
+
+    try {
+      final result = await _channel.invokeMethod('getPlaybackSpeed');
+      return result as double? ?? 1.0;
+    } catch (e) {
+      return 1.0;
+    }
+  }
 }
