@@ -37,13 +37,13 @@ class PlaylistsState {
   }) {
     return PlaylistsState(
       playlists: playlists ?? this.playlists,
-      selectedPlaylist: clearSelectedPlaylist == true 
+      selectedPlaylist: (clearSelectedPlaylist ?? false)
           ? null 
           : selectedPlaylist ?? this.selectedPlaylist,
       isLoading: isLoading ?? this.isLoading,
       isCreating: isCreating ?? this.isCreating,
       isDeleting: isDeleting ?? this.isDeleting,
-      error: clearError == true ? null : error ?? this.error,
+      error: (clearError ?? false) ? null : error ?? this.error,
     );
   }
 

@@ -3,16 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sonofy/core/constants/app_constants.dart';
-import 'package:sonofy/core/extensions/color_extensions.dart';
 import 'package:sonofy/core/extensions/theme_extensions.dart';
-import 'package:sonofy/presentation/blocs/playlists/playlists_cubit.dart';
-import 'package:sonofy/presentation/blocs/playlists/playlists_state.dart';
 import 'package:sonofy/presentation/blocs/songs/songs_cubit.dart';
 import 'package:sonofy/presentation/blocs/songs/songs_state.dart';
 import 'package:sonofy/presentation/screens/player_screen.dart';
 import 'package:sonofy/presentation/widgets/common/font_awesome/font_awesome_flutter.dart';
 import 'package:sonofy/presentation/widgets/library/bottom_player.dart';
-import 'package:sonofy/presentation/widgets/library/playlist_card.dart';
+import 'package:sonofy/presentation/widgets/library/playlist_list_section.dart';
+import 'package:sonofy/presentation/widgets/library/section_title.dart';
 import 'package:sonofy/presentation/widgets/library/song_card.dart';
 import 'package:sonofy/presentation/widgets/options/options_modal.dart';
 // import 'package:sonofy/presentation/widgets/library/song_card.dart';
@@ -95,102 +93,14 @@ class LibraryScreen extends StatelessWidget {
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                          child: Text(
-                            context.tr('library.playlists'),
-                            style: TextStyle(
-                              fontSize: context.scaleText(24),
-                              fontWeight: FontWeight.bold,
-                            ),
+                        const PlaylistListSection(),
+                        SectionTitle(
+                          title: context.tr('library.title'),
+                          subtitle: context.tr(
+                            'playlist.songs_count',
+                            namedArgs: {'count': '${orderedSongs.length}'},
                           ),
                         ),
-                        BlocBuilder<PlaylistsCubit, PlaylistsState>(
-                          builder: (context, playlistsState) {
-                            return Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                                  child: Text(
-                                    context.tr(
-                                      'playlist.playlists_count',
-                                      namedArgs: {'count': '${playlistsState.playlistCount}'},
-                                    ),
-                                    style: TextStyle(
-                                      fontSize: context.scaleText(12),
-                                      color: context.musicLightGrey,
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(height: 12.0),
-                                playlistsState.hasPlaylists 
-                                    ? SingleChildScrollView(
-                                        scrollDirection: Axis.horizontal,
-                                        child: Padding(
-                                          padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                                          child: Row(
-                                            children: playlistsState.playlists
-                                                .map((playlist) => PlaylistCard(playlist: playlist))
-                                                .toList(),
-                                          ),
-                                        ),
-                                      )
-                                    : Padding(
-                                        padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                                        child: Container(
-                                          width: double.infinity,
-                                          height: 100,
-                                          decoration: BoxDecoration(
-                                            color: context.musicLightGrey.withOpacity(0.1),
-                                            borderRadius: BorderRadius.circular(12),
-                                          ),
-                                          child: Center(
-                                            child: Text(
-                                              context.tr('playlist.no_playlists'),
-                                              style: TextStyle(
-                                                fontSize: context.scaleText(14),
-                                                color: context.musicLightGrey,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                              ],
-                            );
-                          },
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.all(24.0),
-                          child: Divider(
-                            thickness: 1.0,
-                            color: context.musicLightGrey,
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                          child: Text(
-                            context.tr('library.title'),
-                            style: TextStyle(
-                              fontSize: context.scaleText(24),
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                          child: Text(
-                            context.tr(
-                              'playlist.songs_count',
-                              namedArgs: {'count': '${orderedSongs.length}'},
-                            ),
-                            style: TextStyle(
-                              fontSize: context.scaleText(12),
-                              color: context.musicLightGrey,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 12.0),
                       ],
                     );
                   } else if (index == orderedSongs.length + 1) {

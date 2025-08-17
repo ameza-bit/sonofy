@@ -2,6 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:sonofy/core/extensions/color_extensions.dart';
 import 'package:sonofy/core/extensions/theme_extensions.dart';
 import 'package:sonofy/core/utils/toast.dart';
 import 'package:sonofy/presentation/blocs/playlists/playlists_cubit.dart';
@@ -38,7 +39,7 @@ class DeletePlaylistOption extends StatelessWidget {
       context: context,
       useSafeArea: true,
       isScrollControlled: true,
-      backgroundColor: Colors.transparent,
+      backgroundColor: context.musicBackground,
       constraints: BoxConstraints(
         maxHeight: MediaQuery.of(context).size.height * 0.4,
         maxWidth: MediaQuery.of(context).size.width,
@@ -63,18 +64,12 @@ class DeletePlaylistModal extends StatelessWidget {
         final primaryColor = state.settings.primaryColor;
 
         return Scaffold(
-          backgroundColor: Colors.transparent,
+          backgroundColor: context.musicBackground,
           body: SafeArea(
             child: Hero(
               tag: 'delete_playlist_container',
-              child: Container(
+              child: SizedBox(
                 width: double.infinity,
-                decoration: BoxDecoration(
-                  color: Theme.of(context).scaffoldBackgroundColor,
-                  borderRadius: const BorderRadius.vertical(
-                    top: Radius.circular(20),
-                  ),
-                ),
                 child: Padding(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 24.0,
