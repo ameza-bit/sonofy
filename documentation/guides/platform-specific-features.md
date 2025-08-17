@@ -127,6 +127,7 @@ Future<bool> play(String url) async {
 - **✅ Estados de reproducción** (playing/paused/stopped/interrupted/seeking)
 - **✅ Verificación DRM** automática
 - **✅ Reanudar después de pausa**
+- **✅ Control de velocidad** (0.5x-2.0x) con `MPMusicPlayerController.currentPlaybackRate`
 
 ##### Method Channels Implementados
 ```swift
@@ -140,6 +141,8 @@ case "getCurrentPosition":      // Posición en segundos
 case "getDuration":            // Duración total
 case "seekToPosition":         // Cambiar posición
 case "checkDrmProtection":     // Verificar DRM
+case "setPlaybackSpeed":       // Control de velocidad
+case "getPlaybackSpeed":       // Obtener velocidad actual
 ```
 
 ##### Permisos Adicionales iOS
@@ -456,4 +459,14 @@ group('Android Music Tests', () {
 | **Seek/posición** | ✅ Nativo | ✅ AudioPlayers | Control preciso de posición |
 | **DRM protection** | ✅ Verificación | ❌ N/A | Solo relevante para biblioteca iOS |
 
-Esta implementación híbrida aprovecha las fortalezas de cada plataforma mientras mantiene la arquitectura limpia y el código mantenible. La nueva integración de iPod Library en iOS proporciona soporte nativo completo para la biblioteca de música del dispositivo, manteniendo la simplicidad en Android.
+### 🆕 Nuevas Capacidades v3.3.0 - Control de Velocidad Nativo
+
+| Característica | iOS | Android | Notas |
+|----------------|-----|---------|-------|
+| **Control de velocidad** | ✅ Nativo + AudioPlayers | ✅ AudioPlayers | iOS soporta ambos reproductores |
+| **Rango de velocidad** | ✅ 0.5x-2.0x | ✅ 0.5x-2.0x | Mismo rango en ambas plataformas |
+| **Persistencia** | ✅ SharedPreferences | ✅ SharedPreferences | Configuración guardada automáticamente |
+| **Switching automático** | ✅ Dual player | ✅ AudioPlayers único | iOS detecta reproductor activo |
+| **Method Channels** | ✅ setPlaybackSpeed/getPlaybackSpeed | ❌ N/A | Solo relevante para reproductor nativo |
+
+Esta implementación híbrida aprovecha las fortalezas de cada plataforma mientras mantiene la arquitectura limpia y el código mantenible. La nueva integración de iPod Library en iOS proporciona soporte nativo completo para la biblioteca de música del dispositivo, y ahora incluye control total de velocidad de reproducción, manteniendo la simplicidad en Android.

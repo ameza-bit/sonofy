@@ -22,6 +22,7 @@
   - [Funcionalidades por Plataforma](./guides/platform-specific-features.md)
   - [Integración iPod Library](./guides/ipod-library-integration.md)
   - [**🆕 Sistema de Playlists**](./guides/playlist-system-guide.md)
+  - [**🆕 Control de Velocidad de Reproducción**](./guides/playback-speed-system.md)
 - [Componentes](./components/)
   - [Widgets Comunes](./components/common-widgets.md)
   - [Pantallas](./components/screens.md)
@@ -42,6 +43,7 @@
 - 🔒 **NUEVO**: Verificación automática de protección DRM
 - 📋 **NUEVO**: Sistema completo de gestión de playlists
 - 🔄 **NUEVO**: Sistema de ordenamiento personalizable (10 opciones)
+- 🚀 **NUEVO**: Control de velocidad de reproducción nativo (0.5x-2.0x)
 
 ### Gestión de Biblioteca Híbrida
 - 📁 **iOS**: Escaneo automático + selección manual de carpetas (FilePicker)
@@ -53,6 +55,7 @@
 - 🍎 **NUEVO**: Integración completa con biblioteca nativa de iOS
 - 🔄 **NUEVO**: Sistema dual de reproducción inteligente
 - 📊 **NUEVO**: Ordenamiento avanzado con persistencia automática
+- 🚀 **NUEVO**: Control de velocidad multiplataforma con persistencia
 
 ### Temporizador de Sueño
 - ⏰ Configuración de duración (1-180 minutos)
@@ -126,11 +129,33 @@ Para consultas técnicas o reportar problemas, por favor revisa la documentació
 
 ---
 
-**Versión de Documentación**: 3.2.0  
-**Última Actualización**: Agosto 2024 - Sistema de Ordenamiento  
+**Versión de Documentación**: 3.3.0  
+**Última Actualización**: Agosto 2024 - Control de Velocidad Nativo  
 **Mantenedor**: Equipo de Desarrollo Sonofy
 
-## 🆕 Novedades v3.2.0 - Sistema de Ordenamiento Avanzado
+## 🆕 Novedades v3.3.0 - Control de Velocidad de Reproducción Nativo
+
+### Sistema de Velocidad Multiplataforma
+- **🚀 7 Velocidades Disponibles**: 0.5x, 0.75x, 1.0x, 1.25x, 1.5x, 1.75x, 2.0x
+- **🍎 Soporte Nativo iOS**: Integración con MPMusicPlayerController.currentPlaybackRate
+- **🤖 Soporte AudioPlayers**: Control via AudioPlayer.setPlaybackRate() para archivos locales
+- **🔄 Switching Inteligente**: Detección automática del reproductor activo
+- **💾 Persistencia Automática**: Configuración guardada con SharedPreferences
+- **🎨 UI Elegante**: Selector con indicador visual de velocidad actual
+
+### Method Channels iOS Ampliados
+- **📱 setPlaybackSpeed**: Control nativo de velocidad via Swift
+- **📊 getPlaybackSpeed**: Obtener velocidad actual del reproductor nativo
+- **🔧 Logging Completo**: Debug detallado para troubleshooting
+- **⚡ Performance Optimizada**: Comunicación eficiente Flutter ↔ Swift
+
+### Integración Completa con Estado
+- **⚙️ Settings Model**: Campo playbackSpeed con persistencia
+- **🎵 PlayerCubit**: Métodos setPlaybackSpeed() y getPlaybackSpeed()
+- **📱 SpeedOption Widget**: Modal completamente funcional con BLoC
+- **🏗️ Clean Architecture**: Implementación siguiendo patrones establecidos
+
+## 🔄 Historial v3.2.0 - Sistema de Ordenamiento Avanzado
 
 ### Ordenamiento Inteligente de Biblioteca
 - **📊 10 Opciones de Ordenamiento**: Título, Artista, Álbum, Fecha Agregado, Duración (A-Z/Z-A)
