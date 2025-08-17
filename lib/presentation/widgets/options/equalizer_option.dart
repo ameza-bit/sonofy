@@ -11,7 +11,7 @@ class EqualizerOption extends StatelessWidget {
   Widget build(BuildContext context) {
     return SectionItem(
       icon: FontAwesomeIcons.lightSlidersUp,
-      title: context.tr('player.options.equalizer'),
+      title: context.tr('options.equalizer'),
       onTap: () {
         context.pop();
         // TODO(Armando): Implement equalizer functionality

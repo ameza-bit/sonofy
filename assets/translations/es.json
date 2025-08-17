@@ -85,6 +85,15 @@
     "music_import_error": "Error al seleccionar carpeta o importar música",
     "music_folder_selected": "Carpeta: {folder}"
   },
+  "options": {
+    "title": "Opciones",
+    "sleep": "Apagado automático",
+    "add_playlist": "Agregar a la lista de reproducción",
+    "remove_playlist": "Eliminar de la lista de reproducción",
+    "equalizer": "Ecualizador",
+    "share": "Compartir",
+    "settings": "Configuración"
+  },
   "library": {
     "title": "Biblioteca",
     "playlists": "Listas de Reproducción",
@@ -100,15 +109,6 @@
     "now_playing": "Sonando",
     "lyrics": "Letras",
     "playlist": "Lista de Reproducción",
-    "options": {
-      "title": "Opciones",
-      "sleep": "Apagado automático",
-      "add_playlist": "Agregar a la lista de reproducción",
-      "remove_playlist": "Eliminar de la lista de reproducción",
-      "equalizer": "Ecualizador",
-      "share": "Compartir",
-      "settings": "Configuración"
-    },
     "sleep": {
       "title": "Apagado automático",
       "wait_description": "Esperar a terminar la ultima canción",

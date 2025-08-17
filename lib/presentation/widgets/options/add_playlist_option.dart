@@ -11,7 +11,7 @@ class AddPlaylistOption extends StatelessWidget {
   Widget build(BuildContext context) {
     return SectionItem(
       icon: FontAwesomeIcons.lightAlbumCollectionCirclePlus,
-      title: context.tr('player.options.add_playlist'),
+      title: context.tr('options.add_playlist'),
       onTap: () {
         context.pop();
         // TODO(Armando): Implement add to playlist functionality

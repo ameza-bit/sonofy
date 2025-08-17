@@ -20,7 +20,7 @@ class SleepOption extends StatelessWidget {
           icon: state.isSleepTimerActive
               ? FontAwesomeIcons.solidAlarmSnooze
               : FontAwesomeIcons.lightAlarmSnooze,
-          title: context.tr('player.options.sleep'),
+          title: context.tr('options.sleep'),
           onTap: () {
             context.pop();
             SleepModal.show(navigatorKey.currentContext ?? context);

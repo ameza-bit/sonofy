@@ -11,7 +11,7 @@ class ShareOption extends StatelessWidget {
   Widget build(BuildContext context) {
     return SectionItem(
       icon: FontAwesomeIcons.lightShareNodes,
-      title: context.tr('player.options.share'),
+      title: context.tr('options.share'),
       onTap: () {
         context.pop();
         // TODO(Armando): Implement share functionality

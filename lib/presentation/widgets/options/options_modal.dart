@@ -83,7 +83,7 @@ class OptionsModal extends StatelessWidget {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Text(
-                              context.tr('player.options.title'),
+                              context.tr('options.title'),
                               textAlign: TextAlign.center,
                               style: TextStyle(fontSize: context.scaleText(12)),
                             ),

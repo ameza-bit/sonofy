@@ -85,6 +85,15 @@
     "music_import_error": "Error selecting folder or importing music",
     "music_folder_selected": "Folder: {folder}"
   },
+  "options": {
+    "title": "Options",
+    "sleep": "Sleep Timer",
+    "add_playlist": "Add to Playlist",
+    "remove_playlist": "Remove from Playlist",
+    "equalizer": "Equalizer",
+    "share": "Share",
+    "settings": "Settings"
+  },
   "library": {
     "title": "Library",
     "playlists": "Playlists",
@@ -100,15 +109,6 @@
     "now_playing": "Now Playing",
     "lyrics": "Lyrics",
     "playlist": "Playlist",
-    "options": {
-      "title": "Options",
-      "sleep": "Sleep Timer",
-      "add_playlist": "Add to Playlist",
-      "remove_playlist": "Remove from Playlist",
-      "equalizer": "Equalizer",
-      "share": "Share",
-      "settings": "Settings"
-    },
     "sleep": {
       "title": "Sleep Timer",
       "wait_description": "Wait for the last song to finish",

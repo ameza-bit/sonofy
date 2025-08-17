@@ -11,7 +11,7 @@ class RemovePlaylistOption extends StatelessWidget {
   Widget build(BuildContext context) {
     return SectionItem(
       icon: FontAwesomeIcons.lightHexagonXmark,
-      title: context.tr('player.options.remove_playlist'),
+      title: context.tr('options.remove_playlist'),
       onTap: () {
         context.pop();
         // TODO(Armando): Implement remove from playlist functionality

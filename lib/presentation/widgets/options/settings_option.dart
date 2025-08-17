@@ -12,7 +12,7 @@ class SettingsOption extends StatelessWidget {
   Widget build(BuildContext context) {
     return SectionItem(
       icon: FontAwesomeIcons.lightGear,
-      title: context.tr('player.options.settings'),
+      title: context.tr('options.settings'),
       onTap: () {
         context.pop();
         context.pushNamed(SettingsScreen.routeName);
