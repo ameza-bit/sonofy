@@ -25,9 +25,11 @@ presentation/
 
 **Responsabilidades**:
 - Renderizado de UI
-- Gestión de estado local
+- Gestión de estado local con BLoC pattern
 - Manejo de eventos de usuario
 - Navegación entre pantallas
+- **🆕 Modales unificados**: Sistema consistente con modalView()
+- **🆕 Gestión de opciones**: Implementación completa de funcionalidades
 
 **Dependencias**: Solo depende de la capa de dominio a través de repositorios abstractos.
 

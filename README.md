@@ -14,6 +14,9 @@
 - ⏰ **Temporizador de Sueño**: Control automático de apagado con opciones avanzadas
 - 📋 **🆕 Gestión de Playlists**: Crear, editar, eliminar y gestionar listas de reproducción personalizadas
 - 🎶 **🆕 Integración de Canciones**: Agregar/quitar canciones de playlists desde cualquier pantalla
+- 🔄 **🆕 Compartir Canciones**: Copiar información de canciones al portapapeles  
+- ⚡ **🆕 Control de Velocidad**: Ajustar la velocidad de reproducción (0.5x - 2.0x)
+- ✨ **🆕 Opciones Mejoradas**: Sistema de modales unificado con mejores transiciones
 - 🍎 **🆕 iPod Library Nativa**: Soporte completo para URLs iPod library en iOS
 - 🔄 **🆕 Reproductor Dual**: Sistema inteligente AudioPlayers + MPMusicPlayerController
 - 🔒 **🆕 Protección DRM**: Verificación automática de archivos protegidos
@@ -98,13 +101,18 @@ Pantalla de carga inicial con branding de la aplicación.
 - Visualización de carátulas y metadata
 - Controles completos de reproducción
 - Acceso a modales de letras, playlist y temporizador
-- Opciones para agregar canciones a playlists
+- Opciones para agregar/quitar canciones de playlists
+- **🆕 Compartir canciones**: Copiar información al portapapeles
+- **🆕 Control de velocidad**: Ajustar velocidad de reproducción
+- **🆕 Modales unificados**: Sistema consistente de modalView()
 
 ### 📋 Playlist Screen (`/library/playlist/:id`)
 - Visualización de canciones en playlist específica
 - Gestión completa de contenido (agregar/quitar canciones)
-- Opciones de edición (renombrar, eliminar playlist)
+- Opciones de edición (renombrar, eliminar playlist)  
 - Integración con reproductor de audio
+- **🆕 Persistencia mejorada**: IDs consistentes para canciones locales iOS
+- **🆕 Filtrado optimizado**: Comparación eficiente de tipos de ID
 
 ### ⚙️ Settings Screen (`/settings`)
 - Configuración de apariencia y temas
@@ -161,6 +169,20 @@ Sonofy incluye un sistema de temas dinámico y personalizable:
 - **Persistencia Local**: Almacenamiento usando SharedPreferences
 - **Interfaz Unificada**: Modales consistentes con adaptación al teclado
 - **Navegación Intuitiva**: Acceso desde Library Screen y Player Screen
+
+### **✨ Mejoras de Código Recientes**
+- **Eliminación de TODOs**: Implementación completa de funcionalidades pendientes
+- **Refactorización**: Código más limpio, organizado y mantenible
+- **Optimización**: Métodos extraídos para mejor reutilización
+- **Consistencia**: Indentación y patrones de código unificados
+- **Compatibilidad Web**: Verificaciones `!kIsWeb` para Platform.isIOS
+- **Tipos Mejorados**: Manejo consistente de IDs (int vs String)
+
+### **🔧 Funcionalidades Implementadas**
+- **RemovePlaylistOption**: Quitar canciones de playlists existentes
+- **ShareOption**: Compartir información de canciones 
+- **SpeedOption**: Control de velocidad de reproducción
+- **Opciones Simplificadas**: Placeholders informativos para funciones futuras
 
 ## 📚 Documentación Completa
 

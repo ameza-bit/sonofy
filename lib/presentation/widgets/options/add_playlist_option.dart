@@ -51,98 +51,88 @@ class PlaylistSelectorForm extends StatelessWidget {
   Widget build(BuildContext context) {
     return Expanded(
       child: BlocBuilder<PlaylistsCubit, PlaylistsState>(
-                          builder: (context, state) {
-                            if (state.isLoading) {
-                              return const Center(
-                                child: CircularProgressIndicator(),
-                              );
-                            }
+        builder: (context, state) {
+          if (state.isLoading) {
+            return const Center(child: CircularProgressIndicator());
+          }
 
-                            if (!state.hasPlaylists) {
-                              return Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Text(context.tr('playlist.no_playlists')),
-                                  const SizedBox(height: 16),
-                                  ElevatedButton(
-                                    onPressed: () {
-                                      context.pop();
-                                      _showCreatePlaylistDialog(context);
-                                    },
-                                    child: Text(
-                                      context.tr('options.create_playlist'),
-                                    ),
-                                  ),
-                                ],
-                              );
-                            }
+          if (!state.hasPlaylists) {
+            return _buildEmptyState(context);
+          }
 
-                            return ListView.builder(
-                              itemCount: state.playlists.length + 1,
-                              itemBuilder: (context, index) {
-                                if (index == state.playlists.length) {
-                                  return Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: 16,
-                                    ),
-                                    child: ElevatedButton(
-                                      onPressed: () {
-                                        context.pop();
-                                        _showCreatePlaylistDialog(context);
-                                      },
-                                      child: Text(
-                                        context.tr('options.create_playlist'),
-                                      ),
-                                    ),
-                                  );
-                                }
+          return ListView.builder(
+            itemCount: state.playlists.length + 1,
+            itemBuilder: (context, index) {
+              if (index == state.playlists.length) {
+                return _buildCreateButton(context);
+              }
 
-                                final playlist = state.playlists[index];
-                                final alreadyAdded = playlist.containsSong(
-                                  songId,
-                                );
+              final playlist = state.playlists[index];
+              final alreadyAdded = playlist.containsSong(songId);
 
-                                return ListTile(
-                                  title: Text(playlist.title),
-                                  subtitle: Text(
-                                    context.tr(
-                                      'playlist.songs_count',
-                                      namedArgs: {
-                                        'count': '${playlist.songCount}',
-                                      },
-                                    ),
-                                  ),
-                                  trailing: alreadyAdded
-                                      ? Icon(
-                                          FontAwesomeIcons.lightCheck,
-                                          color: Theme.of(
-                                            context,
-                                          ).colorScheme.primary,
-                                        )
-                                      : null,
-                                  onTap: alreadyAdded
-                                      ? null
-                                      : () {
-                                          context.pop();
-                                          context
-                                              .read<PlaylistsCubit>()
-                                              .addSongToPlaylist(
-                                                playlist.id,
-                                                songId,
-                                              );
-                                          Toast.show(
-                                            context.tr(
-                                              'playlist.song_added',
-                                              namedArgs: {
-                                                'playlist': playlist.title,
-                                              },
-                                            ),
-                                          );
-                                        },
-                                );
-                              },
-                            );
-                          },
+              return _buildPlaylistTile(context, playlist, alreadyAdded);
+            },
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildEmptyState(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Text(context.tr('playlist.no_playlists')),
+        const SizedBox(height: 16),
+        ElevatedButton(
+          onPressed: () => _navigateToCreatePlaylist(context),
+          child: Text(context.tr('options.create_playlist')),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildCreateButton(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 16),
+      child: ElevatedButton(
+        onPressed: () => _navigateToCreatePlaylist(context),
+        child: Text(context.tr('options.create_playlist')),
+      ),
+    );
+  }
+
+  Widget _buildPlaylistTile(BuildContext context, playlist, bool alreadyAdded) {
+    return ListTile(
+      title: Text(playlist.title),
+      subtitle: Text(
+        context.tr(
+          'playlist.songs_count',
+          namedArgs: {'count': '${playlist.songCount}'},
+        ),
+      ),
+      trailing: alreadyAdded
+          ? Icon(
+              FontAwesomeIcons.lightCheck,
+              color: Theme.of(context).colorScheme.primary,
+            )
+          : null,
+      onTap: alreadyAdded ? null : () => _addToPlaylist(context, playlist),
+    );
+  }
+
+  void _navigateToCreatePlaylist(BuildContext context) {
+    context.pop();
+    _showCreatePlaylistDialog(context);
+  }
+
+  void _addToPlaylist(BuildContext context, playlist) {
+    context.pop();
+    context.read<PlaylistsCubit>().addSongToPlaylist(playlist.id, songId);
+    Toast.show(
+      context.tr(
+        'playlist.song_added',
+        namedArgs: {'playlist': playlist.title},
       ),
     );
   }
@@ -216,7 +206,6 @@ class _CreatePlaylistWithSongFormState
 
   Future<void> _createPlaylistAndAddSong(String playlistName) async {
     if (playlistName.trim().isEmpty) return;
-
     if (!mounted) return;
 
     final playlistsCubit = context.read<PlaylistsCubit>();
@@ -224,17 +213,12 @@ class _CreatePlaylistWithSongFormState
 
     await playlistsCubit.createPlaylist(playlistName.trim());
 
-    // Encontrar la playlist recién creada
-    final newPlaylist =
-        playlistsCubit.state.playlists
-            .where((p) => p.title == playlistName.trim())
-            .isNotEmpty
-        ? playlistsCubit.state.playlists
-              .where((p) => p.title == playlistName.trim())
-              .first
-        : null;
+    // Find the newly created playlist
+    final newPlaylist = playlistsCubit.state.playlists
+        .where((p) => p.title == playlistName.trim())
+        .firstOrNull;
 
-    if (newPlaylist != null) {
+    if (newPlaylist != null && mounted) {
       await playlistsCubit.addSongToPlaylist(newPlaylist.id, widget.songId);
       if (mounted) {
         Toast.show(

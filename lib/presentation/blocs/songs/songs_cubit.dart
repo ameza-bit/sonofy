@@ -168,4 +168,19 @@ class SongsCubit extends Cubit<SongsState> {
       emit(state.copyWith(songs: state.deviceSongs));
     }
   }
+
+  // TODO(Armando): Implement song sorting functionality
+  // void sortSongs(SortBy sortBy, SortOrder order) {
+  //   final sortedSongs = List<SongModel>.from(state.songs);
+  //   sortedSongs.sort((a, b) {
+  //     switch (sortBy) {
+  //       case SortBy.title:
+  //         return order == SortOrder.ascending
+  //             ? a.title.compareTo(b.title)
+  //             : b.title.compareTo(a.title);
+  //       // Add other sorting criteria
+  //     }
+  //   });
+  //   emit(state.copyWith(songs: sortedSongs));
+  // }
 }
