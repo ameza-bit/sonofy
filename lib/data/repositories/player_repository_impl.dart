@@ -112,9 +112,7 @@ final class PlayerRepositoryImpl implements PlayerRepository {
     _playbackSpeed = speed;
 
     if (_usingNativePlayer && Platform.isIOS) {
-      // TODO(Armando): Implement native iOS playback speed control
-      // Native iOS player doesn't support speed control via Method Channel yet
-      return false;
+      return IpodLibraryConverter.setPlaybackSpeed(speed);
     } else {
       await player.setPlaybackRate(speed);
       return true;
@@ -123,6 +121,11 @@ final class PlayerRepositoryImpl implements PlayerRepository {
 
   @override
   double getPlaybackSpeed() {
+    if (_usingNativePlayer && Platform.isIOS) {
+      // For native player, we return the stored speed since getPlaybackSpeed is async
+      // but this method needs to be sync. The actual speed should be synced when setting.
+      return _playbackSpeed;
+    }
     return _playbackSpeed;
   }
 }
