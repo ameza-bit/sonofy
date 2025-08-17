@@ -2,8 +2,11 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:on_audio_query_pluse/on_audio_query.dart';
 import 'package:sonofy/core/constants/app_constants.dart';
 import 'package:sonofy/core/extensions/theme_extensions.dart';
+import 'package:sonofy/presentation/blocs/playlists/playlists_cubit.dart';
+import 'package:sonofy/presentation/blocs/playlists/playlists_state.dart';
 import 'package:sonofy/presentation/blocs/songs/songs_cubit.dart';
 import 'package:sonofy/presentation/blocs/songs/songs_state.dart';
 import 'package:sonofy/presentation/screens/player_screen.dart';
@@ -18,99 +21,122 @@ class PlaylistScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          context.tr('library.title'),
-          style: TextStyle(
-            fontSize: context.scaleText(24),
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(
-              FontAwesomeIcons.lightEllipsisStrokeVertical,
-              size: 20.0,
+    return BlocBuilder<PlaylistsCubit, PlaylistsState>(
+      builder: (context, playlistsState) {
+        final selectedPlaylist = playlistsState.selectedPlaylist;
+        
+        return Scaffold(
+          appBar: AppBar(
+            title: Text(
+              selectedPlaylist?.title ?? context.tr('playlist.title'),
+              style: TextStyle(
+                fontSize: context.scaleText(24),
+                fontWeight: FontWeight.bold,
+              ),
             ),
-            onPressed: () => OptionsModal.playlist(context),
+            actions: [
+              IconButton(
+                icon: const Icon(
+                  FontAwesomeIcons.lightEllipsisStrokeVertical,
+                  size: 20.0,
+                ),
+                onPressed: () => OptionsModal.playlist(context),
+              ),
+              const SizedBox(width: 12),
+            ],
           ),
-          const SizedBox(width: 12),
-        ],
-      ),
-      body: SafeArea(
-        child: BlocBuilder<SongsCubit, SongsState>(
-          builder: (context, state) {
-            if (state.isLoading) {
-              return const Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Expanded(child: Center(child: CircularProgressIndicator())),
-                  SizedBox(height: AppSpacing.bottomSheetHeight),
-                ],
-              );
-            } else if (state.songs.isEmpty) {
-              return Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Expanded(
-                    child: Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        spacing: 16.0,
-                        children: [
-                          Icon(
-                            FontAwesomeIcons.lightMusic,
-                            size: 64,
-                            color: Theme.of(context).iconTheme.color,
-                          ),
-                          Text(
-                            context.tr('playlist.empty'),
-                            style: TextStyle(fontSize: context.scaleText(18)),
-                          ),
-                        ],
+          body: SafeArea(
+            child: selectedPlaylist == null
+                ? const Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Expanded(
+                        child: Center(
+                          child: Text('No playlist selected'),
+                        ),
                       ),
-                    ),
-                  ),
-                  const SizedBox(height: AppSpacing.bottomSheetHeight),
-                ],
-              );
-            }
+                      SizedBox(height: AppSpacing.bottomSheetHeight),
+                    ],
+                  )
+                : BlocBuilder<SongsCubit, SongsState>(
+                    builder: (context, songsState) {
+                      if (songsState.isLoading) {
+                        return const Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Expanded(child: Center(child: CircularProgressIndicator())),
+                            SizedBox(height: AppSpacing.bottomSheetHeight),
+                          ],
+                        );
+                      }
 
-            return ListView.builder(
-              itemCount: state.songs.length + 1,
-              itemBuilder: (context, index) {
-                if (index == state.songs.length) {
-                  // Espacio final
-                  return const SizedBox(height: AppSpacing.bottomSheetHeight);
-                } else {
-                  // Canción
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                    child: SongCard(
-                      playlist: state.songs,
-                      song: state.songs[index],
-                      onTap: () => context.pushNamed(PlayerScreen.routeName),
-                    ),
-                  );
-                }
-              },
-            );
-          },
-        ),
-      ),
-      resizeToAvoidBottomInset: false,
-      bottomSheet: Stack(
-        children: [
-          Positioned(
-            bottom: 0,
-            left: 0,
-            right: 0,
-            child: Container(height: 80, color: Theme.of(context).cardColor),
+                      // Filtrar canciones que están en la playlist
+                      final playlistSongs = songsState.songs
+                          .where((song) => selectedPlaylist.songIds.contains(song.id.toString()))
+                          .toList();
+
+                      if (playlistSongs.isEmpty) {
+                        return Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Expanded(
+                              child: Center(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  spacing: 16.0,
+                                  children: [
+                                    Icon(
+                                      FontAwesomeIcons.lightMusic,
+                                      size: 64,
+                                      color: Theme.of(context).iconTheme.color,
+                                    ),
+                                    Text(
+                                      context.tr('playlist.empty'),
+                                      style: TextStyle(fontSize: context.scaleText(18)),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: AppSpacing.bottomSheetHeight),
+                          ],
+                        );
+                      }
+
+                      return ListView.builder(
+                        itemCount: playlistSongs.length + 1,
+                        itemBuilder: (context, index) {
+                          if (index == playlistSongs.length) {
+                            return const SizedBox(height: AppSpacing.bottomSheetHeight);
+                          } else {
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                              child: SongCard(
+                                playlist: playlistSongs,
+                                song: playlistSongs[index],
+                                onTap: () => context.pushNamed(PlayerScreen.routeName),
+                              ),
+                            );
+                          }
+                        },
+                      );
+                    },
+                  ),
           ),
-          BottomPlayer(onTap: () => context.pushNamed(PlayerScreen.routeName)),
-        ],
-      ),
+          resizeToAvoidBottomInset: false,
+          bottomSheet: Stack(
+            children: [
+              Positioned(
+                bottom: 0,
+                left: 0,
+                right: 0,
+                child: Container(height: 80, color: Theme.of(context).cardColor),
+              ),
+              BottomPlayer(onTap: () => context.pushNamed(PlayerScreen.routeName)),
+            ],
+          ),
+        );
+      },
     );
   }
 }

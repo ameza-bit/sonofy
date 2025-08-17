@@ -5,6 +5,8 @@ import 'package:go_router/go_router.dart';
 import 'package:sonofy/core/constants/app_constants.dart';
 import 'package:sonofy/core/extensions/color_extensions.dart';
 import 'package:sonofy/core/extensions/theme_extensions.dart';
+import 'package:sonofy/presentation/blocs/playlists/playlists_cubit.dart';
+import 'package:sonofy/presentation/blocs/playlists/playlists_state.dart';
 import 'package:sonofy/presentation/blocs/songs/songs_cubit.dart';
 import 'package:sonofy/presentation/blocs/songs/songs_state.dart';
 import 'package:sonofy/presentation/screens/player_screen.dart';
@@ -103,34 +105,60 @@ class LibraryScreen extends StatelessWidget {
                             ),
                           ),
                         ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                          child: Text(
-                            context.tr(
-                              'playlist.playlists_count',
-                              namedArgs: {'count': '${orderedSongs.length}'},
-                            ),
-                            style: TextStyle(
-                              fontSize: context.scaleText(12),
-                              color: context.musicLightGrey,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 12.0),
-                        const SingleChildScrollView(
-                          scrollDirection: Axis.horizontal,
-                          child: Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 24.0),
-                            child: Row(
+                        BlocBuilder<PlaylistsCubit, PlaylistsState>(
+                          builder: (context, playlistsState) {
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                PlaylistCard(),
-                                PlaylistCard(),
-                                PlaylistCard(),
-                                PlaylistCard(),
-                                PlaylistCard(),
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                                  child: Text(
+                                    context.tr(
+                                      'playlist.playlists_count',
+                                      namedArgs: {'count': '${playlistsState.playlistCount}'},
+                                    ),
+                                    style: TextStyle(
+                                      fontSize: context.scaleText(12),
+                                      color: context.musicLightGrey,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(height: 12.0),
+                                playlistsState.hasPlaylists 
+                                    ? SingleChildScrollView(
+                                        scrollDirection: Axis.horizontal,
+                                        child: Padding(
+                                          padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                                          child: Row(
+                                            children: playlistsState.playlists
+                                                .map((playlist) => PlaylistCard(playlist: playlist))
+                                                .toList(),
+                                          ),
+                                        ),
+                                      )
+                                    : Padding(
+                                        padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                                        child: Container(
+                                          width: double.infinity,
+                                          height: 100,
+                                          decoration: BoxDecoration(
+                                            color: context.musicLightGrey.withOpacity(0.1),
+                                            borderRadius: BorderRadius.circular(12),
+                                          ),
+                                          child: Center(
+                                            child: Text(
+                                              context.tr('playlist.no_playlists'),
+                                              style: TextStyle(
+                                                fontSize: context.scaleText(14),
+                                                color: context.musicLightGrey,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
                               ],
-                            ),
-                          ),
+                            );
+                          },
                         ),
                         Padding(
                           padding: const EdgeInsets.all(24.0),

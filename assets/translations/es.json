@@ -109,12 +109,23 @@
     "title": "Lista de Reproducción",
     "empty": "No hay canciones en esta lista de reproducción",
     "songs_count": "{count} canciones",
-    "playlists_count": "{count} listas de reproducción"
+    "playlists_count": "{count} listas de reproducción",
+    "enter_name": "Ingresa el nombre de la lista de reproducción",
+    "created_successfully": "Lista de reproducción creada exitosamente",
+    "no_playlists": "No tienes listas de reproducción creadas",
+    "song_added": "Canción agregada a {playlist}",
+    "created_and_song_added": "Lista de reproducción '{playlist}' creada y canción agregada",
+    "song_removed": "Canción eliminada de {playlist}",
+    "playlist_deleted": "Lista de reproducción eliminada",
+    "playlist_renamed": "Lista de reproducción renombrada",
+    "no_playlist_selected": "No hay lista de reproducción seleccionada",
+    "delete_confirmation": "¿Estás seguro de que quieres eliminar la lista de reproducción '{playlist}'?"
   },
   "player": {
     "now_playing": "Sonando",
     "lyrics": "Letras",
     "playlist": "Lista de Reproducción",
+    "no_song_selected": "No hay canción seleccionada",
     "sleep": {
       "title": "Apagado automático",
       "wait_description": "Esperar a terminar la ultima canción",
