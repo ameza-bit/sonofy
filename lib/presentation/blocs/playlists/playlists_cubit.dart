@@ -29,79 +29,66 @@ class PlaylistsCubit extends Cubit<PlaylistsState> {
   Future<void> loadPlaylists() async {
     try {
       emit(state.copyWith(isLoading: true, clearError: true));
-      
+
       final playlists = await _getAllPlaylistsUseCase();
-      
-      emit(state.copyWith(
-        playlists: playlists,
-        isLoading: false,
-      ));
+
+      emit(state.copyWith(playlists: playlists, isLoading: false));
     } catch (e) {
-      emit(state.copyWith(
-        error: e.toString(),
-        isLoading: false,
-      ));
+      emit(state.copyWith(error: e.toString(), isLoading: false));
     }
   }
 
   Future<void> createPlaylist(String name) async {
     try {
       emit(state.copyWith(isCreating: true, clearError: true));
-      
+
       final newPlaylist = await _createPlaylistUseCase(name);
       final updatedPlaylists = [...state.playlists, newPlaylist];
-      
-      emit(state.copyWith(
-        playlists: updatedPlaylists,
-        isCreating: false,
-      ));
+
+      emit(state.copyWith(playlists: updatedPlaylists, isCreating: false));
     } catch (e) {
-      emit(state.copyWith(
-        error: e.toString(),
-        isCreating: false,
-      ));
+      emit(state.copyWith(error: e.toString(), isCreating: false));
     }
   }
 
   Future<void> deletePlaylist(String playlistId) async {
     try {
       emit(state.copyWith(isDeleting: true, clearError: true));
-      
+
       await _deletePlaylistUseCase(playlistId);
       final updatedPlaylists = state.playlists
           .where((playlist) => playlist.id != playlistId)
           .toList();
-      
-      emit(state.copyWith(
-        playlists: updatedPlaylists,
-        isDeleting: false,
-        clearSelectedPlaylist: state.selectedPlaylist?.id == playlistId,
-      ));
+
+      emit(
+        state.copyWith(
+          playlists: updatedPlaylists,
+          isDeleting: false,
+          clearSelectedPlaylist: state.selectedPlaylist?.id == playlistId,
+        ),
+      );
     } catch (e) {
-      emit(state.copyWith(
-        error: e.toString(),
-        isDeleting: false,
-      ));
+      emit(state.copyWith(error: e.toString(), isDeleting: false));
     }
   }
 
   Future<void> renamePlaylist(String playlistId, String newName) async {
     try {
       emit(state.copyWith(clearError: true));
-      
+
       final playlist = state.getPlaylistById(playlistId);
       if (playlist == null) {
         emit(state.copyWith(error: 'Playlist not found'));
         return;
       }
-      
+
       final updatedPlaylist = playlist.rename(newName);
       await _updatePlaylistUseCase(updatedPlaylist);
-      
+
       final updatedPlaylists = state.playlists
           .map((p) => p.id == playlistId ? updatedPlaylist : p)
           .toList();
-      
+
       emit(state.copyWith(playlists: updatedPlaylists));
     } catch (e) {
       emit(state.copyWith(error: e.toString()));
@@ -111,13 +98,27 @@ class PlaylistsCubit extends Cubit<PlaylistsState> {
   Future<void> addSongToPlaylist(String playlistId, String songId) async {
     try {
       emit(state.copyWith(clearError: true));
-      
-      final updatedPlaylist = await _addSongToPlaylistUseCase(playlistId, songId);
+
+      final updatedPlaylist = await _addSongToPlaylistUseCase(
+        playlistId,
+        songId,
+      );
+
       final updatedPlaylists = state.playlists
           .map((p) => p.id == playlistId ? updatedPlaylist : p)
           .toList();
-      
-      emit(state.copyWith(playlists: updatedPlaylists));
+
+      // Si la playlist actualizada es la seleccionada, actualizar también selectedPlaylist
+      final updatedSelectedPlaylist = state.selectedPlaylist?.id == playlistId
+          ? updatedPlaylist
+          : state.selectedPlaylist;
+
+      emit(
+        state.copyWith(
+          playlists: updatedPlaylists,
+          selectedPlaylist: updatedSelectedPlaylist,
+        ),
+      );
     } catch (e) {
       emit(state.copyWith(error: e.toString()));
     }
@@ -126,12 +127,15 @@ class PlaylistsCubit extends Cubit<PlaylistsState> {
   Future<void> removeSongFromPlaylist(String playlistId, String songId) async {
     try {
       emit(state.copyWith(clearError: true));
-      
-      final updatedPlaylist = await _removeSongFromPlaylistUseCase(playlistId, songId);
+
+      final updatedPlaylist = await _removeSongFromPlaylistUseCase(
+        playlistId,
+        songId,
+      );
       final updatedPlaylists = state.playlists
           .map((p) => p.id == playlistId ? updatedPlaylist : p)
           .toList();
-      
+
       emit(state.copyWith(playlists: updatedPlaylists));
     } catch (e) {
       emit(state.copyWith(error: e.toString()));

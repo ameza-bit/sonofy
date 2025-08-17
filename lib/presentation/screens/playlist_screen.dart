@@ -14,9 +14,32 @@ import 'package:sonofy/presentation/widgets/library/bottom_player.dart';
 import 'package:sonofy/presentation/widgets/library/song_card.dart';
 import 'package:sonofy/presentation/widgets/options/options_modal.dart';
 
-class PlaylistScreen extends StatelessWidget {
+class PlaylistScreen extends StatefulWidget {
   static const String routeName = 'playlist';
   const PlaylistScreen({super.key});
+
+  @override
+  State<PlaylistScreen> createState() => _PlaylistScreenState();
+}
+
+class _PlaylistScreenState extends State<PlaylistScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // Asegurar que tenemos una playlist seleccionada al entrar a la pantalla
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final playlistsCubit = context.read<PlaylistsCubit>();
+      final playlistsState = playlistsCubit.state;
+
+      // Si no hay playlist seleccionada pero hay playlists disponibles,
+      // esto puede indicar que venimos de un reinicio de app
+      if (playlistsState.selectedPlaylist == null &&
+          playlistsState.hasPlaylists) {
+        // En este caso, volvemos a Library Screen ya que no sabemos cuál playlist mostrar
+        context.go('/library');
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -70,13 +93,13 @@ class PlaylistScreen extends StatelessWidget {
                       }
 
                       // Filtrar canciones que están en la playlist
-                      final playlistSongs = songsState.songs
-                          .where(
-                            (song) => selectedPlaylist.songIds.contains(
-                              song.id.toString(),
-                            ),
-                          )
-                          .toList();
+                      // Convertir song.id (int) a String para comparar con songIds almacenados
+                      final playlistSongs = songsState.songs.where((song) {
+                        final songIdAsString = song.id.toString();
+                        return selectedPlaylist.songIds.contains(
+                          songIdAsString,
+                        );
+                      }).toList();
 
                       if (playlistSongs.isEmpty) {
                         return Column(

@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -46,7 +47,7 @@ Future<void> main() async {
   GetSongsFromFolderUseCase? getSongsFromFolderUseCase;
   GetLocalSongsUseCase? getLocalSongsUseCase;
 
-  if (Platform.isIOS) {
+  if (!kIsWeb && Platform.isIOS) {
     selectMusicFolderUseCase = SelectMusicFolderUseCase(songsRepository);
     getSongsFromFolderUseCase = GetSongsFromFolderUseCase(songsRepository);
     getLocalSongsUseCase = GetLocalSongsUseCase(
@@ -56,12 +57,22 @@ Future<void> main() async {
   }
 
   // Use Cases para playlists
-  final GetAllPlaylistsUseCase getAllPlaylistsUseCase = GetAllPlaylistsUseCase(playlistRepository);
-  final CreatePlaylistUseCase createPlaylistUseCase = CreatePlaylistUseCase(playlistRepository);
-  final DeletePlaylistUseCase deletePlaylistUseCase = DeletePlaylistUseCase(playlistRepository);
-  final UpdatePlaylistUseCase updatePlaylistUseCase = UpdatePlaylistUseCase(playlistRepository);
-  final AddSongToPlaylistUseCase addSongToPlaylistUseCase = AddSongToPlaylistUseCase(playlistRepository);
-  final RemoveSongFromPlaylistUseCase removeSongFromPlaylistUseCase = RemoveSongFromPlaylistUseCase(playlistRepository);
+  final GetAllPlaylistsUseCase getAllPlaylistsUseCase = GetAllPlaylistsUseCase(
+    playlistRepository,
+  );
+  final CreatePlaylistUseCase createPlaylistUseCase = CreatePlaylistUseCase(
+    playlistRepository,
+  );
+  final DeletePlaylistUseCase deletePlaylistUseCase = DeletePlaylistUseCase(
+    playlistRepository,
+  );
+  final UpdatePlaylistUseCase updatePlaylistUseCase = UpdatePlaylistUseCase(
+    playlistRepository,
+  );
+  final AddSongToPlaylistUseCase addSongToPlaylistUseCase =
+      AddSongToPlaylistUseCase(playlistRepository);
+  final RemoveSongFromPlaylistUseCase removeSongFromPlaylistUseCase =
+      RemoveSongFromPlaylistUseCase(playlistRepository);
 
   runApp(
     MultiBlocProvider(

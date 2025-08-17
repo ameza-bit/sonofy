@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:on_audio_query_pluse/on_audio_query.dart';
 import 'package:sonofy/domain/usecases/get_local_songs_usecase.dart';
@@ -23,7 +24,7 @@ class SongsCubit extends Cubit<SongsState> {
 
       // Para iOS: combinar canciones del dispositivo + canciones locales
       // Para Android: solo canciones del dispositivo (incluye toda la música)
-      if (Platform.isIOS && _getLocalSongsUseCase != null) {
+      if (!kIsWeb && Platform.isIOS && _getLocalSongsUseCase != null) {
         final localSongs = await _getLocalSongsUseCase();
 
         final allSongs = <SongModel>[];
@@ -60,7 +61,7 @@ class SongsCubit extends Cubit<SongsState> {
 
       final deviceSongs = await _songsRepository.getSongsFromDevice();
 
-      if (Platform.isIOS) {
+      if (!kIsWeb && Platform.isIOS) {
         // iOS: combinar con canciones locales existentes
         final allSongs = <SongModel>[];
         allSongs.addAll(deviceSongs);
@@ -90,7 +91,7 @@ class SongsCubit extends Cubit<SongsState> {
 
   Future<void> loadLocalSongs() async {
     // Solo iOS soporta canciones locales de carpetas específicas
-    if (Platform.isAndroid || _getLocalSongsUseCase == null) {
+    if (kIsWeb || Platform.isAndroid || _getLocalSongsUseCase == null) {
       return; // Android no tiene canciones locales separadas
     }
 
@@ -123,7 +124,7 @@ class SongsCubit extends Cubit<SongsState> {
   void filterSongs(String query) {
     if (query.isEmpty) {
       // Mostrar todas las canciones según la plataforma
-      if (Platform.isIOS) {
+      if (!kIsWeb && Platform.isIOS) {
         final allSongs = <SongModel>[];
         allSongs.addAll(state.deviceSongs);
         allSongs.addAll(state.localSongs);
@@ -146,7 +147,7 @@ class SongsCubit extends Cubit<SongsState> {
 
   void showOnlyLocalSongs() {
     // Solo iOS tiene canciones locales
-    if (Platform.isIOS) {
+    if (!kIsWeb && Platform.isIOS) {
       emit(state.copyWith(songs: state.localSongs));
     }
   }
@@ -156,7 +157,7 @@ class SongsCubit extends Cubit<SongsState> {
   }
 
   void showAllSongs() {
-    if (Platform.isIOS) {
+    if (!kIsWeb && Platform.isIOS) {
       // iOS: combinar canciones del dispositivo + locales
       final allSongs = <SongModel>[];
       allSongs.addAll(state.deviceSongs);
