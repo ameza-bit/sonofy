@@ -15,6 +15,7 @@ class EqualizerOption extends StatelessWidget {
       title: context.tr('options.equalizer'),
       onTap: () {
         context.pop();
+        // TODO(Armando): Implement audio equalizer with frequency bands and presets
         Toast.show(context.tr('common.feature_coming_soon'));
       },
     );

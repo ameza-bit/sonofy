@@ -15,6 +15,7 @@ class OrderOption extends StatelessWidget {
       title: context.tr('options.order_by'),
       onTap: () {
         context.pop();
+        // TODO(Armando): Implement song sorting options (by title, artist, album, date)
         Toast.show(context.tr('common.feature_coming_soon'));
       },
     );

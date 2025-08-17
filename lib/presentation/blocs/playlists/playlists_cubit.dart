@@ -154,4 +154,18 @@ class PlaylistsCubit extends Cubit<PlaylistsState> {
   void clearError() {
     emit(state.copyWith(clearError: true));
   }
+
+  // TODO(Armando): Implement reorder songs functionality
+  // Future<void> reorderSongsInPlaylist(String playlistId, List<String> newOrder) async {
+  //   try {
+  //     emit(state.copyWith(clearError: true));
+  //     final updatedPlaylist = await _reorderSongsUseCase(playlistId, newOrder);
+  //     final updatedPlaylists = state.playlists
+  //         .map((p) => p.id == playlistId ? updatedPlaylist : p)
+  //         .toList();
+  //     emit(state.copyWith(playlists: updatedPlaylists));
+  //   } catch (e) {
+  //     emit(state.copyWith(error: e.toString()));
+  //   }
+  // }
 }

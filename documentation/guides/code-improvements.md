@@ -182,17 +182,68 @@ builder: (context, state) {
 - **Mayor estabilidad**: Tipos de datos consistentes
 - **Mejor UX**: Funcionalidades completas y feedback adecuado
 
+## 🎯 TODOs para Integraciones Futuras
+
+### PlayerRepository (Audio Integration)
+**Archivo**: `lib/domain/repositories/player_repository.dart`
+```dart
+// TODO: Add playback speed control methods
+// Future<bool> setPlaybackSpeed(double speed);
+// double getPlaybackSpeed();
+
+// TODO: Add equalizer control methods  
+// Future<bool> setEqualizerBand(int bandIndex, double gain);
+// Future<List<double>> getEqualizerBands();
+// Future<bool> setEqualizerPreset(String presetName);
+```
+
+### SongsRepository (Sorting Integration)
+**Archivo**: `lib/domain/repositories/songs_repository.dart`
+```dart
+// TODO: Add song sorting methods
+// Future<List<SongModel>> getSongsSortedBy(SortBy sortBy, SortOrder order);
+// enum SortBy { title, artist, album, dateAdded, duration }
+// enum SortOrder { ascending, descending }
+```
+
+### BLoC State Management
+**Archivos**: 
+- `lib/presentation/blocs/playlists/playlists_cubit.dart`
+- `lib/presentation/blocs/songs/songs_cubit.dart`
+
+```dart
+// TODO: Implement reorder songs functionality
+// TODO: Implement song sorting functionality
+```
+
+### UI Options Integration
+**Archivos**:
+- `lib/presentation/widgets/options/speed_option.dart`
+- `lib/presentation/widgets/options/equalizer_option.dart`
+- `lib/presentation/widgets/options/order_option.dart`
+- `lib/presentation/widgets/options/reorder_option.dart`
+
+```dart
+// TODO: Integrate with audio player to actually change playback speed
+// TODO: Implement audio equalizer with frequency bands and presets
+// TODO: Implement song sorting options (by title, artist, album, date)
+// TODO: Implement drag-and-drop reordering for playlist songs
+```
+
 ## 🎯 Próximos Pasos
 
-### Funcionalidades Preparadas
-Las siguientes opciones están preparadas para futuras implementaciones:
-- **Equalizer**: Sistema de ecualizador de audio
-- **Order By**: Ordenamiento avanzado de canciones
-- **Reorder**: Reordenamiento de playlists
+### Funcionalidades Preparadas (9 TODOs identificados)
+Las siguientes integraciones están identificadas y preparadas:
 
-### Integración de Audio
-- Conectar SpeedOption con reproductor real
-- Implementar control de velocidad en AudioPlayers
+1. **Control de Velocidad**: Integración con AudioPlayers
+2. **Ecualizador**: Sistema de bandas de frecuencia y presets
+3. **Ordenamiento**: Criterios múltiples (título, artista, álbum, fecha)
+4. **Reordenamiento**: Drag-and-drop para playlists
+5. **Métodos de Player**: Velocidad y ecualizador en repositorio
+6. **Métodos de Songs**: Ordenamiento en repositorio  
+7. **BLoC Playlists**: Lógica de reordenamiento
+8. **BLoC Songs**: Lógica de ordenamiento
+9. **UI Drag-and-Drop**: Componentes de reordenamiento
 
 ### Optimizaciones Adicionales
 - Lazy loading para listas grandes
@@ -201,11 +252,17 @@ Las siguientes opciones están preparadas para futuras implementaciones:
 
 ## 📈 Métricas de Calidad
 
-- **Análisis estático**: 0 errores, 0 advertencias
+- **Análisis estático**: 0 errores, 9 advertencias TODO (identificadas para desarrollo)
 - **Compatibilidad**: Web + Mobile completa
 - **Cobertura de traducciones**: 100% español/inglés
-- **TODOs eliminados**: 6/6 (100%)
+- **TODOs obsoletos eliminados**: 6/6 (100%)
+- **TODOs de integración agregados**: 9 (para desarrollo futuro)
 - **Tests**: Preparado para testing completo
+
+### Estado de TODOs
+- ✅ **TODOs obsoletos eliminados**: 6 (RemovePlaylist, Share, Speed, etc.)
+- 🔄 **TODOs de integración identificados**: 9 (Player, Equalizer, Sorting, etc.)
+- 📋 **Documentación completa**: Todos los TODOs documentados con contexto
 
 ---
 

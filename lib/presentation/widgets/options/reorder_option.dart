@@ -15,6 +15,7 @@ class ReorderOption extends StatelessWidget {
       title: context.tr('options.reorder'),
       onTap: () {
         context.pop();
+        // TODO(Armando): Implement drag-and-drop reordering for playlist songs
         Toast.show(context.tr('common.feature_coming_soon'));
       },
     );

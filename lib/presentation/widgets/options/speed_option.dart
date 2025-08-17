@@ -45,30 +45,38 @@ class SpeedSelectorForm extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const speedOptions = [0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0];
-    
+
     return Expanded(
       child: ListView.builder(
         itemCount: speedOptions.length,
         itemBuilder: (context, index) {
           final speed = speedOptions[index];
           final isNormalSpeed = speed == 1.0;
-          
+
           return ListTile(
             title: Text(
-              isNormalSpeed 
-                ? context.tr('player.speed_normal', namedArgs: {'speed': '${speed}x'})
-                : '${speed}x',
+              isNormalSpeed
+                  ? context.tr(
+                      'player.speed_normal',
+                      namedArgs: {'speed': '${speed}x'},
+                    )
+                  : '${speed}x',
               style: TextStyle(
                 fontWeight: isNormalSpeed ? FontWeight.bold : FontWeight.normal,
               ),
             ),
-            trailing: isNormalSpeed 
+            trailing: isNormalSpeed
                 ? const Icon(FontAwesomeIcons.lightCheck)
                 : null,
             onTap: () {
               context.pop();
-              // Note: This would require audio player integration
-              Toast.show(context.tr('player.speed_changed', namedArgs: {'speed': '${speed}x'}));
+              // TODO(Armando): Integrate with audio player to actually change playback speed
+              Toast.show(
+                context.tr(
+                  'player.speed_changed',
+                  namedArgs: {'speed': '${speed}x'},
+                ),
+              );
             },
           );
         },
