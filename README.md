@@ -12,6 +12,8 @@
 - 📚 **Biblioteca Musical**: Escaneo automático y gestión inteligente de canciones
 - 🔒 **Seguridad**: Preparado para autenticación biométrica
 - ⏰ **Temporizador de Sueño**: Control automático de apagado con opciones avanzadas
+- 📋 **🆕 Gestión de Playlists**: Crear, editar, eliminar y gestionar listas de reproducción personalizadas
+- 🎶 **🆕 Integración de Canciones**: Agregar/quitar canciones de playlists desde cualquier pantalla
 - 🍎 **🆕 iPod Library Nativa**: Soporte completo para URLs iPod library en iOS
 - 🔄 **🆕 Reproductor Dual**: Sistema inteligente AudioPlayers + MPMusicPlayerController
 - 🔒 **🆕 Protección DRM**: Verificación automática de archivos protegidos
@@ -86,14 +88,23 @@ Pantalla de carga inicial con branding de la aplicación.
 
 ### 📚 Library Screen (`/library`)
 - Lista completa de canciones del dispositivo
+- Sección de playlists personalizadas
 - Reproductor mini siempre visible
 - Navegación intuitiva y rápida
+- Acceso directo a funciones de playlist
 
 ### 🎵 Player Screen (`/library/player`)
 - Reproductor de pantalla completa
 - Visualización de carátulas y metadata
 - Controles completos de reproducción
 - Acceso a modales de letras, playlist y temporizador
+- Opciones para agregar canciones a playlists
+
+### 📋 Playlist Screen (`/library/playlist/:id`)
+- Visualización de canciones en playlist específica
+- Gestión completa de contenido (agregar/quitar canciones)
+- Opciones de edición (renombrar, eliminar playlist)
+- Integración con reproductor de audio
 
 ### ⚙️ Settings Screen (`/settings`)
 - Configuración de apariencia y temas
@@ -143,6 +154,14 @@ Sonofy incluye un sistema de temas dinámico y personalizable:
 - Visualización de carátulas y metadata
 - Soporte para múltiples formatos de audio
 
+### **🆕 Sistema de Playlists**
+- **Creación de Playlists**: Crear listas personalizadas con nombres personalizados
+- **Gestión de Contenido**: Agregar/quitar canciones desde player, biblioteca o playlist
+- **Edición Completa**: Renombrar y eliminar playlists existentes
+- **Persistencia Local**: Almacenamiento usando SharedPreferences
+- **Interfaz Unificada**: Modales consistentes con adaptación al teclado
+- **Navegación Intuitiva**: Acceso desde Library Screen y Player Screen
+
 ## 📚 Documentación Completa
 
 Para documentación técnica detallada, consulta la carpeta `documentation/`:
@@ -177,9 +196,16 @@ Este proyecto es privado y está destinado únicamente para fines educativos y d
 **Versión**: 3.0.0  
 **Plataforma**: Flutter (multiplataforma) con integración nativa iOS  
 **Estado**: En desarrollo activo  
-**Última actualización**: Agosto 2024 - iPod Library Integration
+**Última actualización**: Agosto 2024 - Playlist Management System
 
-### 🆕 Novedades v3.0.0
+### 🆕 Novedades v3.1.0
+- ✅ **Sistema completo de Playlists**: Crear, editar, eliminar y gestionar listas de reproducción
+- ✅ **Clean Architecture para Playlists**: Repositorios, casos de uso y BLoC pattern
+- ✅ **Modales unificados**: Sistema modalView() responsive al teclado
+- ✅ **Persistencia local**: Almacenamiento de playlists con SharedPreferences
+- ✅ **UI/UX mejorada**: Interfaz consistente y navegación intuitiva
+
+### Historial v3.0.0
 - ✅ Integración completa iPod Library (iOS)
 - ✅ Sistema dual de reproducción
 - ✅ 9 Method Channels implementados

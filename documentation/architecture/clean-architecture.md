@@ -14,9 +14,13 @@ Esta capa contiene toda la lógica relacionada con la interfaz de usuario:
 ```dart
 presentation/
 ├── blocs/           # Gestión de estado con BLoC
+│   └── playlists/   # 🆕 BLoC para gestión de playlists
 ├── screens/         # Pantallas principales
+│   └── playlist_screen.dart  # 🆕 Pantalla de playlist individual
 ├── widgets/         # Widgets reutilizables
+│   └── options/     # 🆕 Opciones de playlist (crear, editar, eliminar)
 └── views/           # Vistas específicas de configuraciones
+    └── modal_view.dart      # 🆕 Sistema unificado de modales
 ```
 
 **Responsabilidades**:
@@ -36,12 +40,22 @@ Contiene la lógica de negocio pura y las abstracciones:
 domain/
 ├── repositories/    # Interfaces de repositorios
 │   ├── player_repository.dart
+│   ├── playlist_repository.dart     # 🆕 Gestión de playlists
 │   ├── settings_repository.dart
 │   └── songs_repository.dart
 └── usecases/       # Casos de uso de negocio
     ├── get_local_songs_usecase.dart
     ├── get_songs_from_folder_usecase.dart
-    └── select_music_folder_usecase.dart
+    ├── select_music_folder_usecase.dart
+    └── playlists/   # 🆕 Casos de uso de playlists
+        ├── create_playlist_usecase.dart
+        ├── delete_playlist_usecase.dart
+        ├── get_all_playlists_usecase.dart
+        ├── get_playlist_by_id_usecase.dart
+        ├── update_playlist_usecase.dart
+        ├── add_song_to_playlist_usecase.dart
+        ├── remove_song_from_playlist_usecase.dart
+        └── reorder_songs_in_playlist_usecase.dart
 ```
 
 **Responsabilidades**:
@@ -60,8 +74,10 @@ Implementa las abstracciones definidas en la capa de dominio:
 ```dart
 data/
 ├── models/          # Modelos de datos
+│   └── playlist.dart              # 🆕 Modelo de playlist
 └── repositories/    # Implementaciones concretas
     ├── player_repository_impl.dart
+    ├── playlist_repository_impl.dart  # 🆕 Implementación con SharedPreferences
     ├── settings_repository_impl.dart
     └── songs_repository_impl.dart
 ```
@@ -203,6 +219,156 @@ class Mp3FileConverter {
     final durationMs = _estimateDurationFromFileSize(file.lengthSync());
     final artistName = _extractArtistFromFileName(file.path);
     // Crear SongModel con metadatos estimados
+  }
+}
+```
+
+## 📋 Ejemplo Práctico: Sistema de Playlists
+
+### 1. Flujo Completo de Creación de Playlist
+
+```dart
+// 1. Usuario crea playlist desde UI (Presentation)
+onPressed: () => modalView(
+  context,
+  title: context.tr('options.create_playlist'),
+  children: [CreatePlaylistForm()],
+)
+
+// 2. Form llama al Cubit (Presentation)
+onPressed: () => context.read<PlaylistsCubit>().createPlaylist(name.trim())
+
+// 3. Cubit coordina con Use Case (Domain)
+Future<void> createPlaylist(String name) async {
+  emit(state.copyWith(isCreating: true));
+  try {
+    final playlist = await _createPlaylistUseCase(name);
+    final updatedPlaylists = [...state.playlists, playlist];
+    emit(state.copyWith(
+      playlists: updatedPlaylists,
+      isCreating: false,
+    ));
+  } catch (e) {
+    emit(state.copyWith(
+      error: e.toString(),
+      isCreating: false,
+    ));
+  }
+}
+
+// 4. Use Case ejecuta lógica de negocio (Domain)
+class CreatePlaylistUseCase {
+  final PlaylistRepository _repository;
+  
+  Future<Playlist> call(String name) async {
+    return await _repository.createPlaylist(name);
+  }
+}
+
+// 5. Implementación persiste datos (Data)
+@override
+Future<Playlist> createPlaylist(String name) async {
+  final newPlaylist = Playlist(
+    id: DateTime.now().millisecondsSinceEpoch.toString(),
+    title: name,
+    songIds: [],
+    createdAt: DateTime.now(),
+  );
+  
+  final playlists = await getAllPlaylists();
+  playlists.add(newPlaylist);
+  
+  await _prefs.setString(_playlistsKey, jsonEncode(
+    playlists.map((p) => p.toJson()).toList(),
+  ));
+  
+  return newPlaylist;
+}
+```
+
+### 2. Persistencia con SharedPreferences
+
+```dart
+// PlaylistRepositoryImpl - Manejo de datos locales
+class PlaylistRepositoryImpl implements PlaylistRepository {
+  final SharedPreferences _prefs;
+  static const String _playlistsKey = 'user_playlists';
+
+  // Serialización/Deserialización JSON
+  @override
+  Future<List<Playlist>> getAllPlaylists() async {
+    final String? playlistsJson = _prefs.getString(_playlistsKey);
+    if (playlistsJson == null) return [];
+    
+    final List<dynamic> playlistsList = jsonDecode(playlistsJson);
+    return playlistsList.map((json) => Playlist.fromJson(json)).toList();
+  }
+
+  // Operaciones CRUD completas
+  @override
+  Future<Playlist> addSongToPlaylist(String playlistId, String songId) async {
+    final playlists = await getAllPlaylists();
+    final playlist = playlists.firstWhere((p) => p.id == playlistId);
+    
+    final updatedPlaylist = playlist.copyWith(
+      songIds: [...playlist.songIds, songId],
+    );
+    
+    final updatedPlaylists = playlists.map((p) => 
+      p.id == playlistId ? updatedPlaylist : p
+    ).toList();
+    
+    await _saveAllPlaylists(updatedPlaylists);
+    return updatedPlaylist;
+  }
+}
+```
+
+### 3. Gestión de Estado con BLoC
+
+```dart
+// PlaylistsState - Estado inmutable
+class PlaylistsState {
+  final List<Playlist> playlists;
+  final Playlist? selectedPlaylist;
+  final bool isLoading;
+  final bool isCreating;
+  final String? error;
+
+  // Getters computed
+  bool get hasPlaylists => playlists.isNotEmpty;
+  
+  // Copy with para actualizaciones inmutables
+  PlaylistsState copyWith({
+    List<Playlist>? playlists,
+    Playlist? selectedPlaylist,
+    bool? clearSelectedPlaylist,
+    bool? isLoading,
+    String? error,
+  }) => PlaylistsState(
+    playlists: playlists ?? this.playlists,
+    selectedPlaylist: (clearSelectedPlaylist ?? false) 
+        ? null 
+        : selectedPlaylist ?? this.selectedPlaylist,
+    // ...
+  );
+}
+
+// PlaylistsCubit - Gestión de estado
+class PlaylistsCubit extends Cubit<PlaylistsState> {
+  // Inyección de todos los use cases necesarios
+  final GetAllPlaylistsUseCase _getAllPlaylistsUseCase;
+  final CreatePlaylistUseCase _createPlaylistUseCase;
+  final DeletePlaylistUseCase _deletePlaylistUseCase;
+  final UpdatePlaylistUseCase _updatePlaylistUseCase;
+  final AddSongToPlaylistUseCase _addSongToPlaylistUseCase;
+  final RemoveSongFromPlaylistUseCase _removeSongFromPlaylistUseCase;
+
+  // Operaciones públicas que coordinan use cases
+  Future<void> loadPlaylists() async {
+    emit(state.copyWith(isLoading: true));
+    final playlists = await _getAllPlaylistsUseCase();
+    emit(state.copyWith(playlists: playlists, isLoading: false));
   }
 }
 ```
