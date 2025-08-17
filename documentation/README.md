@@ -41,6 +41,7 @@
 - 🎵 **NUEVO**: Reproductor dual (AudioPlayers + MPMusicPlayerController)
 - 🔒 **NUEVO**: Verificación automática de protección DRM
 - 📋 **NUEVO**: Sistema completo de gestión de playlists
+- 🔄 **NUEVO**: Sistema de ordenamiento personalizable (10 opciones)
 
 ### Gestión de Biblioteca Híbrida
 - 📁 **iOS**: Escaneo automático + selección manual de carpetas (FilePicker)
@@ -51,6 +52,7 @@
 - 🎯 Experiencia optimizada por plataforma
 - 🍎 **NUEVO**: Integración completa con biblioteca nativa de iOS
 - 🔄 **NUEVO**: Sistema dual de reproducción inteligente
+- 📊 **NUEVO**: Ordenamiento avanzado con persistencia automática
 
 ### Temporizador de Sueño
 - ⏰ Configuración de duración (1-180 minutos)
@@ -124,11 +126,27 @@ Para consultas técnicas o reportar problemas, por favor revisa la documentació
 
 ---
 
-**Versión de Documentación**: 3.1.0  
-**Última Actualización**: Agosto 2024 - Sistema de Playlists  
+**Versión de Documentación**: 3.2.0  
+**Última Actualización**: Agosto 2024 - Sistema de Ordenamiento  
 **Mantenedor**: Equipo de Desarrollo Sonofy
 
-## 🆕 Novedades v3.1.0 - Playlist Management System
+## 🆕 Novedades v3.2.0 - Sistema de Ordenamiento Avanzado
+
+### Ordenamiento Inteligente de Biblioteca
+- **📊 10 Opciones de Ordenamiento**: Título, Artista, Álbum, Fecha Agregado, Duración (A-Z/Z-A)
+- **💾 Persistencia Automática**: Configuración guardada con SharedPreferences
+- **🎨 UI Dropdown Integrada**: Selector elegante en el modal de opciones
+- **🔄 Aplicación Inmediata**: Cambios reflejados instantáneamente
+- **🌍 Totalmente Traducido**: Soporte completo en español e inglés
+- **🏗️ Arquitectura Robusta**: Enum OrderBy con lógica de ordenamiento integrada
+
+### Integración Completa con Estado
+- **⚙️ SettingsCubit**: Persistencia automática de preferencias
+- **🎵 SongsCubit**: Aplicación de ordenamiento en todos los métodos
+- **📱 OrderOption Widget**: Dropdown completamente funcional
+- **🔧 Clean Architecture**: Separación clara de responsabilidades
+
+## 🔄 Historial v3.1.0 - Playlist Management System
 
 ### Sistema Completo de Playlists
 - **📋 Gestión CRUD**: Crear, editar, eliminar y gestionar playlists

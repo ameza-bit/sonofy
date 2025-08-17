@@ -106,7 +106,19 @@
   "library": {
     "title": "Library",
     "playlists": "Playlists",
-    "empty": "No songs in your library"
+    "empty": "No songs in your library",
+    "order_by": {
+      "title_asc": "Title (A-Z)",
+      "title_desc": "Title (Z-A)",
+      "artist_asc": "Artist (A-Z)",
+      "artist_desc": "Artist (Z-A)",
+      "album_asc": "Album (A-Z)",
+      "album_desc": "Album (Z-A)",
+      "date_added_asc": "Date Added (Oldest)",
+      "date_added_desc": "Date Added (Newest)",
+      "duration_asc": "Duration (Shortest)",
+      "duration_desc": "Duration (Longest)"
+    }
   },
   "playlist": {
     "title": "Playlist",

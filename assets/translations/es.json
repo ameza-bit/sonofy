@@ -106,7 +106,19 @@
   "library": {
     "title": "Biblioteca",
     "playlists": "Listas de Reproducción",
-    "empty": "No hay canciones en tu biblioteca"
+    "empty": "No hay canciones en tu biblioteca",
+    "order_by": {
+      "title_asc": "Título (A-Z)",
+      "title_desc": "Título (Z-A)",
+      "artist_asc": "Artista (A-Z)",
+      "artist_desc": "Artista (Z-A)",
+      "album_asc": "Álbum (A-Z)",
+      "album_desc": "Álbum (Z-A)",
+      "date_added_asc": "Fecha agregado (Más antiguo)",
+      "date_added_desc": "Fecha agregado (Más reciente)",
+      "duration_asc": "Duración (Más corto)",
+      "duration_desc": "Duración (Más largo)"
+    }
   },
   "playlist": {
     "title": "Lista de Reproducción",
