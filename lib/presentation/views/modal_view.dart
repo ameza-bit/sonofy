@@ -19,61 +19,72 @@ void modalView(
   useSafeArea: true,
   isScrollControlled: true,
   backgroundColor: context.musicBackground,
-  constraints: BoxConstraints(
-    maxHeight: MediaQuery.of(context).size.height * maxHeight!,
-    maxWidth: MediaQuery.of(context).size.width,
-    minHeight: MediaQuery.of(context).size.height * 0.25,
-    minWidth: MediaQuery.of(context).size.width,
-  ),
   builder: (_) => BlocBuilder<SettingsCubit, SettingsState>(
     builder: (context, state) {
       final primaryColor = state.settings.primaryColor;
+      final screenHeight = MediaQuery.of(context).size.height;
+      final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
 
-      return Scaffold(
-        backgroundColor: Colors.transparent,
-        body: SafeArea(
-          child: Hero(
-            tag: 'delete_playlist_container',
-            child: SizedBox(
-              width: double.infinity,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 24.0,
-                  vertical: 16.0,
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  spacing: 24,
-                  children: [
-                    GestureDetector(
-                      onTap: () => context.pop(),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            title,
-                            textAlign: TextAlign.center,
-                            style: TextStyle(fontSize: context.scaleText(12)),
-                          ),
-                          Icon(
-                            FontAwesomeIcons.lightChevronDown,
-                            color: primaryColor,
-                            size: 12,
-                          ),
-                        ],
+      return AnimatedContainer(
+        duration: const Duration(milliseconds: 100),
+        constraints: BoxConstraints(
+          maxHeight: screenHeight * maxHeight!,
+          maxWidth: MediaQuery.of(context).size.width,
+          minHeight: screenHeight * 0.25,
+          minWidth: MediaQuery.of(context).size.width,
+        ),
+        margin: EdgeInsets.only(bottom: keyboardHeight),
+        decoration: BoxDecoration(
+          color: context.musicBackground,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        child: Scaffold(
+          backgroundColor: Colors.transparent,
+          resizeToAvoidBottomInset: false,
+          body: SafeArea(
+            child: Hero(
+              tag: 'modal_container',
+              child: SizedBox(
+                width: double.infinity,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24.0,
+                    vertical: 16.0,
+                  ),
+                  child: Column(
+                    children: [
+                      GestureDetector(
+                        onTap: () => context.pop(),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              title,
+                              textAlign: TextAlign.center,
+                              style: TextStyle(fontSize: context.scaleText(12)),
+                            ),
+                            Icon(
+                              FontAwesomeIcons.lightChevronDown,
+                              color: primaryColor,
+                              size: 12,
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                    ...children,
-                  ],
+                      const SizedBox(height: 24),
+                      Expanded(child: Column(children: children)),
+                      if (showPlayer)
+                        const SizedBox(height: 80), // Space for bottom player
+                    ],
+                  ),
                 ),
               ),
             ),
           ),
+          bottomSheet: showPlayer
+              ? BottomPlayer(onTap: () => context.pop())
+              : null,
         ),
-        resizeToAvoidBottomInset: showPlayer ? false : null,
-        bottomSheet: showPlayer
-            ? BottomPlayer(onTap: () => context.pop())
-            : null,
       );
     },
   ),
