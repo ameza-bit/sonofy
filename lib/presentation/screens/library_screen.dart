@@ -8,9 +8,9 @@ import 'package:sonofy/core/extensions/theme_extensions.dart';
 import 'package:sonofy/presentation/blocs/songs/songs_cubit.dart';
 import 'package:sonofy/presentation/blocs/songs/songs_state.dart';
 import 'package:sonofy/presentation/screens/player_screen.dart';
-import 'package:sonofy/presentation/screens/settings_screen.dart';
 import 'package:sonofy/presentation/widgets/common/font_awesome/font_awesome_flutter.dart';
 import 'package:sonofy/presentation/widgets/library/bottom_player.dart';
+import 'package:sonofy/presentation/widgets/library/library_modal.dart';
 import 'package:sonofy/presentation/widgets/library/playlist_card.dart';
 import 'package:sonofy/presentation/widgets/library/song_card.dart';
 // import 'package:sonofy/presentation/widgets/library/song_card.dart';
@@ -27,15 +27,22 @@ class LibraryScreen extends StatelessWidget {
         appBar: AppBar(
           automaticallyImplyLeading: false,
           actions: [
+            const SizedBox(width: 12),
             IconButton(
               icon: const Icon(FontAwesomeIcons.lightMagnifyingGlass),
               onPressed: () {},
             ),
+            const SizedBox(width: 12),
             const Spacer(),
+            const SizedBox(width: 12),
             IconButton(
-              icon: const Icon(FontAwesomeIcons.lightGear),
-              onPressed: () => context.pushNamed(SettingsScreen.routeName),
+              icon: const Icon(
+                FontAwesomeIcons.lightEllipsisStrokeVertical,
+                size: 20.0,
+              ),
+              onPressed: () => LibraryModal.show(context),
             ),
+            const SizedBox(width: 12),
           ],
         ),
         body: SafeArea(
@@ -96,7 +103,20 @@ class LibraryScreen extends StatelessWidget {
                             ),
                           ),
                         ),
-                        const SizedBox(height: 8.0),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                          child: Text(
+                            context.tr(
+                              'playlist.playlists_count',
+                              namedArgs: {'count': '${orderedSongs.length}'},
+                            ),
+                            style: TextStyle(
+                              fontSize: context.scaleText(12),
+                              color: context.musicLightGrey,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 12.0),
                         const SingleChildScrollView(
                           scrollDirection: Axis.horizontal,
                           child: Padding(
@@ -129,7 +149,20 @@ class LibraryScreen extends StatelessWidget {
                             ),
                           ),
                         ),
-                        const SizedBox(height: 8.0),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                          child: Text(
+                            context.tr(
+                              'playlist.songs_count',
+                              namedArgs: {'count': '${orderedSongs.length}'},
+                            ),
+                            style: TextStyle(
+                              fontSize: context.scaleText(12),
+                              color: context.musicLightGrey,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 12.0),
                       ],
                     );
                   } else if (index == orderedSongs.length + 1) {

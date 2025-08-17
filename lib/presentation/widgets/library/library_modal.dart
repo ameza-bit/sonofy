@@ -10,15 +10,12 @@ import 'package:sonofy/presentation/blocs/settings/settings_cubit.dart';
 import 'package:sonofy/presentation/blocs/settings/settings_state.dart';
 import 'package:sonofy/presentation/widgets/common/font_awesome/font_awesome_flutter.dart';
 import 'package:sonofy/presentation/widgets/common/section_card.dart';
-import 'package:sonofy/presentation/widgets/options/add_playlist_option.dart';
 import 'package:sonofy/presentation/widgets/options/equalizer_option.dart';
-import 'package:sonofy/presentation/widgets/options/remove_playlist_option.dart';
 import 'package:sonofy/presentation/widgets/options/settings_option.dart';
-import 'package:sonofy/presentation/widgets/options/share_option.dart';
 import 'package:sonofy/presentation/widgets/options/sleep_option.dart';
 
-class MusicModal extends StatelessWidget {
-  const MusicModal({super.key});
+class LibraryModal extends StatelessWidget {
+  const LibraryModal({super.key});
 
   static void show(BuildContext context) {
     showModalBottomSheet(
@@ -32,7 +29,7 @@ class MusicModal extends StatelessWidget {
         minHeight: MediaQuery.of(context).size.height * 0.25,
         minWidth: MediaQuery.of(context).size.width,
       ),
-      builder: (context) => const MusicModal(),
+      builder: (context) => const LibraryModal(),
     );
   }
 
@@ -82,10 +79,7 @@ class MusicModal extends StatelessWidget {
                             title: '',
                             children: [
                               SleepOption(),
-                              AddPlaylistOption(),
-                              RemovePlaylistOption(),
                               EqualizerOption(),
-                              ShareOption(),
                               SettingsOption(),
                             ],
                           );

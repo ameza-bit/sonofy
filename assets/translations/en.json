@@ -93,7 +93,8 @@
   "playlist": {
     "title": "Playlist",
     "empty": "No songs in this playlist",
-    "songs_count": "{count} songs"
+    "songs_count": "{count} songs",
+    "playlists_count": "{count} playlists"
   },
   "player": {
     "now_playing": "Now Playing",
