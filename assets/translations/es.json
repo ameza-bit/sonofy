@@ -99,6 +99,7 @@
     "now_playing": "Sonando",
     "lyrics": "Letras",
     "playlist": "Lista de Reproducción",
+    "options": "Opciones",
     "sleep": {
       "title": "Apagado automático",
       "wait_description": "Esperar a terminar la ultima canción",

@@ -9,6 +9,7 @@ import 'package:sonofy/presentation/blocs/player/player_cubit.dart';
 import 'package:sonofy/presentation/blocs/player/player_state.dart';
 import 'package:sonofy/presentation/widgets/common/font_awesome/font_awesome_flutter.dart';
 import 'package:sonofy/presentation/widgets/library/bottom_clipper_container.dart';
+import 'package:sonofy/presentation/widgets/player/music_modal.dart';
 import 'package:sonofy/presentation/widgets/player/player_control.dart';
 import 'package:sonofy/presentation/widgets/player/player_bottom_modals.dart';
 import 'package:sonofy/presentation/widgets/player/player_slider.dart';
@@ -48,10 +49,11 @@ class PlayerScreen extends StatelessWidget {
             ),
             actions: [
               IconButton(
-                icon: const Icon(FontAwesomeIcons.lightHeart, size: 20.0),
-                onPressed: () {
-                  // Show more options
-                },
+                icon: const Icon(
+                  FontAwesomeIcons.lightEllipsisStrokeVertical,
+                  size: 20.0,
+                ),
+                onPressed: () => MusicModal.show(context),
               ),
             ],
           ),
