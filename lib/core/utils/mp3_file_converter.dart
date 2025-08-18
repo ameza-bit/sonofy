@@ -1,27 +1,35 @@
 import 'dart:io';
+import 'package:audioplayers/audioplayers.dart';
 import 'package:on_audio_query_pluse/on_audio_query.dart';
 
 /// Utility class for converting MP3 files to SongModel objects
 class Mp3FileConverter {
   Mp3FileConverter._();
 
-  /// Converts a list of MP3 files to SongModel objects with estimated duration
-  static List<SongModel> convertFilesToSongModels(List<File> files) {
-    return files.map(_convertFileToSongModel).toList();
+  /// Converts a list of audio files to SongModel objects with actual duration
+  static Future<List<SongModel>> convertFilesToSongModels(
+    List<File> files,
+  ) async {
+    final List<SongModel> songModels = [];
+    for (final file in files) {
+      final songModel = await _convertFileToSongModel(file);
+      songModels.add(songModel);
+    }
+    return songModels;
   }
 
-  /// Converts a single MP3 file to SongModel with estimated duration
-  static SongModel _convertFileToSongModel(File file) {
+  /// Converts a single audio file to SongModel with actual duration
+  static Future<SongModel> _convertFileToSongModel(File file) async {
     final fileName = file.path.split('/').last;
     final title = fileName.split('.').first;
-    
+
     // Extract basic information from filename
     final String artistName = _extractArtistFromFileName(fileName);
     const String albumName = 'Local Files';
     final String songTitle = title;
-    
-    // Calculate estimated duration based on file size
-    final int durationMs = _estimateDurationFromFileSize(file.lengthSync());
+
+    // Get actual duration from file metadata
+    final int durationMs = await _getActualDurationFromFile(file);
 
     return SongModel({
       '_id': _createPersistentIdFromPath(file.path),
@@ -46,7 +54,7 @@ class Mp3FileConverter {
   /// Supports formats: "Artist - Song.mp3", "Artist_Song.mp3"
   static String _extractArtistFromFileName(String fileName) {
     final nameWithoutExt = fileName.split('.').first;
-    
+
     if (nameWithoutExt.contains(' - ')) {
       return nameWithoutExt.split(' - ').first.trim();
     } else if (nameWithoutExt.contains('_')) {
@@ -55,7 +63,7 @@ class Mp3FileConverter {
         return parts.first.trim();
       }
     }
-    
+
     return 'Unknown Artist';
   }
 
@@ -68,7 +76,28 @@ class Mp3FileConverter {
     return filePath.hashCode.abs() + localFileIdOffset;
   }
 
-  /// Estimates MP3 duration based on file size
+  /// Gets actual duration from audio file using AudioPlayer
+  /// Falls back to estimation if unable to read metadata
+  static Future<int> _getActualDurationFromFile(File file) async {
+    try {
+      final player = AudioPlayer();
+      await player.setSource(DeviceFileSource(file.path));
+
+      // Wait a moment for the audio to be loaded
+      await Future.delayed(const Duration(milliseconds: 500));
+
+      final duration = await player.getDuration();
+      await player.dispose();
+
+      return duration?.inMilliseconds ??
+          _estimateDurationFromFileSize(file.lengthSync());
+    } catch (e) {
+      // Fallback to file size estimation if unable to read metadata
+      return _estimateDurationFromFileSize(file.lengthSync());
+    }
+  }
+
+  /// Estimates audio duration based on file size (fallback method)
   /// Uses approximate calculation: MP3 at 128kbps ≈ 16KB/s
   /// This is a rough estimation and may vary based on actual bitrate
   static int _estimateDurationFromFileSize(int fileSizeBytes) {

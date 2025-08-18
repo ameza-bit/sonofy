@@ -27,7 +27,7 @@ class GetLocalSongsUseCase {
       final files = await _songsRepository.getSongsFromFolder(localPath);
 
       // Convert files to SongModel using utility
-      return Mp3FileConverter.convertFilesToSongModels(files);
+      return await Mp3FileConverter.convertFilesToSongModels(files);
     } catch (e) {
       return [];
     }
