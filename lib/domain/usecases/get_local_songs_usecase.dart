@@ -32,4 +32,29 @@ class GetLocalSongsUseCase {
       return [];
     }
   }
+
+  /// Stream version for progressive loading
+  Stream<SongModel> callStream() async* {
+    // Solo iOS soporta canciones locales de carpetas específicas
+    if (Platform.isAndroid) {
+      return; // Android no tiene canciones "locales" separadas
+    }
+
+    try {
+      final settings = _settingsRepository.getSettings();
+      final localPath = settings.localMusicPath;
+
+      if (localPath == null || localPath.isEmpty) {
+        return;
+      }
+
+      final files = await _songsRepository.getSongsFromFolder(localPath);
+
+      // Convert files to SongModel using Stream for progressive loading
+      yield* Mp3FileConverter.convertFilesToSongModelsStream(files);
+    } catch (e) {
+      // Stream ends on error
+      return;
+    }
+  }
 }

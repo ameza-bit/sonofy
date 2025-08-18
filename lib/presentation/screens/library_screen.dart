@@ -56,7 +56,7 @@ class LibraryScreen extends StatelessWidget {
                     SizedBox(height: AppSpacing.bottomSheetHeight),
                   ],
                 );
-              } else if (state.songs.isEmpty) {
+              } else if (state.songs.isEmpty && !state.isLoadingProgressive) {
                 return Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -86,7 +86,7 @@ class LibraryScreen extends StatelessWidget {
 
               final orderedSongs = state.songs;
               return ListView.builder(
-                itemCount: orderedSongs.length + 2,
+                itemCount: orderedSongs.length + 3, // +1 para header, +1 para progreso, +1 para espacio final
                 itemBuilder: (context, index) {
                   if (index == 0) {
                     // Título
@@ -103,19 +103,79 @@ class LibraryScreen extends StatelessWidget {
                         ),
                       ],
                     );
-                  } else if (index == orderedSongs.length + 1) {
+                  } else if (index == 1 && state.isLoadingProgressive) {
+                    // Indicador de progreso
+                    return Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 8.0),
+                      padding: const EdgeInsets.all(16.0),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).cardColor,
+                        borderRadius: BorderRadius.circular(12.0),
+                        border: Border.all(
+                          color: Theme.of(context).dividerColor.withValues(alpha: 0.1),
+                        ),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  value: state.progressPercent,
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Text(
+                                'Cargando canciones...',
+                                style: TextStyle(
+                                  fontSize: context.scaleText(14),
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                              const Spacer(),
+                              Text(
+                                '${state.loadedCount}/${state.totalCount}',
+                                style: TextStyle(
+                                  fontSize: context.scaleText(12),
+                                  color: Theme.of(context).textTheme.bodySmall?.color,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          LinearProgressIndicator(
+                            value: state.progressPercent,
+                            backgroundColor: Theme.of(context).dividerColor.withValues(alpha: 0.2),
+                            borderRadius: BorderRadius.circular(2),
+                          ),
+                        ],
+                      ),
+                    );
+                  } else if (index == orderedSongs.length + 2) {
                     // Espacio final
                     return const SizedBox(height: AppSpacing.bottomSheetHeight);
                   } else {
                     // Canción
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                      child: SongCard(
-                        playlist: orderedSongs,
-                        song: orderedSongs[index - 1],
-                        onTap: () => context.pushNamed(PlayerScreen.routeName),
-                      ),
-                    );
+                    final songIndex = state.isLoadingProgressive ? index - 2 : index - 1;
+                    if (songIndex >= 0 && songIndex < orderedSongs.length) {
+                      return AnimatedContainer(
+                        duration: const Duration(milliseconds: 300),
+                        curve: Curves.easeInOut,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                          child: SongCard(
+                            playlist: orderedSongs,
+                            song: orderedSongs[songIndex],
+                            onTap: () => context.pushNamed(PlayerScreen.routeName),
+                          ),
+                        ),
+                      );
+                    }
+                    return const SizedBox.shrink();
                   }
                 },
               );

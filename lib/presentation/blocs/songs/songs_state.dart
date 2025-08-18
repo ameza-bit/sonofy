@@ -6,6 +6,9 @@ class SongsState {
   final List<SongModel> deviceSongs;
   final bool isLoading;
   final bool isLoadingLocal;
+  final bool isLoadingProgressive;
+  final int loadedCount;
+  final int totalCount;
   final String? error;
 
   SongsState({
@@ -14,6 +17,9 @@ class SongsState {
     required this.deviceSongs,
     this.isLoading = false,
     this.isLoadingLocal = false,
+    this.isLoadingProgressive = false,
+    this.loadedCount = 0,
+    this.totalCount = 0,
     this.error,
   });
 
@@ -23,6 +29,9 @@ class SongsState {
       deviceSongs = [],
       isLoading = false,
       isLoadingLocal = false,
+      isLoadingProgressive = false,
+      loadedCount = 0,
+      totalCount = 0,
       error = null;
 
   SongsState copyWith({
@@ -31,6 +40,9 @@ class SongsState {
     List<SongModel>? deviceSongs,
     bool? isLoading,
     bool? isLoadingLocal,
+    bool? isLoadingProgressive,
+    int? loadedCount,
+    int? totalCount,
     String? error,
   }) {
     return SongsState(
@@ -39,6 +51,9 @@ class SongsState {
       deviceSongs: deviceSongs ?? this.deviceSongs,
       isLoading: isLoading ?? this.isLoading,
       isLoadingLocal: isLoadingLocal ?? this.isLoadingLocal,
+      isLoadingProgressive: isLoadingProgressive ?? this.isLoadingProgressive,
+      loadedCount: loadedCount ?? this.loadedCount,
+      totalCount: totalCount ?? this.totalCount,
       error: error ?? this.error,
     );
   }
@@ -49,6 +64,7 @@ class SongsState {
   int get totalSongs => songs.length;
   int get localSongsCount => localSongs.length;
   int get deviceSongsCount => deviceSongs.length;
+  double get progressPercent => totalCount > 0 ? loadedCount / totalCount : 0.0;
 
   List<SongModel> get orderedSongs {
     final combined = [...localSongs, ...deviceSongs];

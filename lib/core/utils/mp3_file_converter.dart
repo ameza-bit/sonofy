@@ -2,9 +2,12 @@ import 'dart:io';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:on_audio_query_pluse/on_audio_query.dart';
 
-/// Utility class for converting MP3 files to SongModel objects
+/// Utility class for converting audio files to SongModel objects
 class Mp3FileConverter {
   Mp3FileConverter._();
+
+  /// Cache for storing duration calculations to avoid re-reading
+  static final Map<String, int> _durationCache = {};
 
   /// Converts a list of audio files to SongModel objects with actual duration
   static Future<List<SongModel>> convertFilesToSongModels(
@@ -16,6 +19,26 @@ class Mp3FileConverter {
       songModels.add(songModel);
     }
     return songModels;
+  }
+
+  /// Converts audio files to SongModel objects with Stream for progressive loading
+  static Stream<SongModel> convertFilesToSongModelsStream(
+    List<File> files, {
+    int concurrency = 3,
+  }) async* {
+    // Process files in batches for better performance
+    for (int i = 0; i < files.length; i += concurrency) {
+      final batch = files.skip(i).take(concurrency).toList();
+      
+      // Process batch in parallel
+      final futures = batch.map(_convertFileToSongModel);
+      final results = await Future.wait(futures);
+      
+      // Yield each result as it becomes available
+      for (final songModel in results) {
+        yield songModel;
+      }
+    }
   }
 
   /// Converts a single audio file to SongModel with actual duration
@@ -79,9 +102,18 @@ class Mp3FileConverter {
   /// Gets actual duration from audio file using AudioPlayer
   /// Falls back to estimation if unable to read metadata
   static Future<int> _getActualDurationFromFile(File file) async {
+    final filePath = file.path;
+    final lastModified = file.lastModifiedSync().millisecondsSinceEpoch;
+    final cacheKey = '$filePath:$lastModified';
+
+    // Check cache first
+    if (_durationCache.containsKey(cacheKey)) {
+      return _durationCache[cacheKey]!;
+    }
+
     try {
       final player = AudioPlayer();
-      await player.setSource(DeviceFileSource(file.path));
+      await player.setSource(DeviceFileSource(filePath));
 
       // Wait a moment for the audio to be loaded
       await Future.delayed(const Duration(milliseconds: 500));
@@ -89,11 +121,18 @@ class Mp3FileConverter {
       final duration = await player.getDuration();
       await player.dispose();
 
-      return duration?.inMilliseconds ??
+      final durationMs = duration?.inMilliseconds ??
           _estimateDurationFromFileSize(file.lengthSync());
+
+      // Cache the result
+      _durationCache[cacheKey] = durationMs;
+      
+      return durationMs;
     } catch (e) {
       // Fallback to file size estimation if unable to read metadata
-      return _estimateDurationFromFileSize(file.lengthSync());
+      final durationMs = _estimateDurationFromFileSize(file.lengthSync());
+      _durationCache[cacheKey] = durationMs;
+      return durationMs;
     }
   }
 
