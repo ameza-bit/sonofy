@@ -8,6 +8,21 @@ import 'package:sonofy/domain/usecases/get_local_songs_usecase.dart';
 import 'package:sonofy/domain/repositories/songs_repository.dart';
 import 'package:sonofy/presentation/blocs/songs/songs_state.dart';
 
+/// Cubit para manejar estado y operaciones de biblioteca musical
+/// 
+/// Este cubit maneja:
+/// - Carga de canciones desde biblioteca musical nativa del dispositivo
+/// - Carga de canciones desde directorios locales (solo iOS)
+/// - Carga progresiva con actualizaciones de UI en tiempo real
+/// - Filtrado y ordenamiento de canciones
+/// - Diferencias de comportamiento específicas de plataforma
+/// 
+/// Características:
+/// - Carga de datos multi-fuente (dispositivo + locales)
+/// - Carga progresiva con soporte Stream
+/// - Seguimiento de progreso en tiempo real
+/// - Caché inteligente a través de servicios subyacentes
+/// - Ordenamiento automático basado en preferencias del usuario
 class SongsCubit extends Cubit<SongsState> {
   final SongsRepository _songsRepository;
   final GetLocalSongsUseCase? _getLocalSongsUseCase;
