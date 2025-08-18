@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:sonofy/core/extensions/color_extensions.dart';
 import 'package:sonofy/core/extensions/theme_extensions.dart';
 import 'package:sonofy/presentation/blocs/settings/settings_cubit.dart';
 import 'package:sonofy/presentation/blocs/settings/settings_state.dart';
@@ -18,7 +17,6 @@ void modalView(
   context: context,
   useSafeArea: true,
   isScrollControlled: true,
-  backgroundColor: context.musicBackground,
   builder: (_) => BlocBuilder<SettingsCubit, SettingsState>(
     builder: (context, state) {
       final primaryColor = state.settings.primaryColor;
@@ -35,7 +33,7 @@ void modalView(
         ),
         margin: EdgeInsets.only(bottom: keyboardHeight),
         decoration: BoxDecoration(
-          color: context.musicBackground,
+          color: Theme.of(context).scaffoldBackgroundColor,
           borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
         ),
         child: Scaffold(
