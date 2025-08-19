@@ -51,14 +51,14 @@ final class SongsRepositoryImpl implements SongsRepository {
           return [];
         }
 
-        final List<File> mp3Files = [];
+        final List<File> audioFiles = [];
         await for (final entity in directory.list(recursive: true)) {
-          if (entity is File && _isMp3File(entity.path)) {
-            mp3Files.add(entity);
+          if (entity is File && _isAudioFile(entity.path)) {
+            audioFiles.add(entity);
           }
         }
 
-        return mp3Files;
+        return audioFiles;
       } catch (e) {
         return [];
       }
@@ -67,8 +67,8 @@ final class SongsRepositoryImpl implements SongsRepository {
     return [];
   }
 
-  bool _isMp3File(String filePath) {
+  bool _isAudioFile(String filePath) {
     final extension = filePath.toLowerCase().split('.').last;
-    return extension == 'mp3';
+    return ['mp3', 'wav', 'aac', 'flac', 'ogg', 'm4a'].contains(extension);
   }
 }
