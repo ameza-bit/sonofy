@@ -81,10 +81,18 @@ class PlayerScreen extends StatelessWidget {
                   colorBlendMode: BlendMode.darken,
                 ),
               ),
-              Container(
-                width: double.infinity,
-                height: size.height * 0.6,
-                color: context.musicDeepBlack.withValues(alpha: 0.5),
+              GestureDetector(
+                onVerticalDragEnd: (details) {
+                  if (details.primaryVelocity != null &&
+                      details.primaryVelocity! > 0) {
+                    context.pop();
+                  }
+                },
+                child: Container(
+                  width: double.infinity,
+                  height: size.height * 0.6,
+                  color: context.musicDeepBlack.withValues(alpha: 0.5),
+                ),
               ),
               Column(
                 children: [
