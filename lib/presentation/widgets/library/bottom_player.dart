@@ -34,6 +34,13 @@ class BottomPlayer extends StatelessWidget {
 
             return GestureDetector(
               onTap: hasSelected ? onTap : null,
+              onVerticalDragEnd: (details) {
+                if (hasSelected &&
+                    details.primaryVelocity != null &&
+                    details.primaryVelocity! < 0) {
+                  onTap?.call();
+                }
+              },
               child: Hero(
                 tag: 'player_container',
                 child: Material(

@@ -9,7 +9,10 @@
 - 🎨 **Personalización Avanzada**: Temas claro/oscuro/automático con colores primarios personalizables
 - 📏 **Escalado de Fuente**: Múltiples niveles de tamaño de texto
 - 🌍 **Multiidioma**: Soporte para español e inglés con sistema extensible
-- 📚 **Biblioteca Musical**: Escaneo automático y gestión inteligente de canciones
+- 📚 **Biblioteca Musical**: Escaneo automático y gestión inteligente de canciones con soporte multi-formato
+- 🎵 **🆕 Soporte Audio Extendido**: MP3, FLAC, WAV, AAC, OGG, M4A con duración precisa
+- ⚡ **🆕 Carga Progresiva**: Stream de canciones con indicadores de progreso en tiempo real
+- 💾 **🆕 Caché Inteligente**: Sistema de almacenamiento de duraciones para mejor rendimiento
 - 🔒 **Seguridad**: Preparado para autenticación biométrica
 - ⏰ **Temporizador de Sueño**: Control automático de apagado con opciones avanzadas
 - 📋 **🆕 Gestión de Playlists**: Crear, editar, eliminar y gestionar listas de reproducción personalizadas
@@ -160,7 +163,11 @@ Sonofy incluye un sistema de temas dinámico y personalizable:
 - Escaneo automático de biblioteca
 - Manejo inteligente de permisos
 - Visualización de carátulas y metadata
-- Soporte para múltiples formatos de audio
+- **🆕 Soporte Multi-formato**: MP3, FLAC, WAV, AAC, OGG, M4A
+- **🆕 Duración Precisa**: Extracción real de metadatos usando AudioPlayer
+- **🆕 Carga Progresiva**: Stream con procesamiento en paralelo (3 archivos simultáneos)
+- **🆕 Caché Inteligente**: Almacenamiento de duraciones con detección de cambios
+- **🆕 UI Responsiva**: Indicadores de progreso con barras circulares y lineales
 
 ### **🆕 Sistema de Playlists**
 - **Creación de Playlists**: Crear listas personalizadas con nombres personalizados
@@ -218,9 +225,16 @@ Este proyecto es privado y está destinado únicamente para fines educativos y d
 **Versión**: 3.0.0  
 **Plataforma**: Flutter (multiplataforma) con integración nativa iOS  
 **Estado**: En desarrollo activo  
-**Última actualización**: Agosto 2024 - Playlist Management System
+**Última actualización**: Agosto 2024 - Multi-Format Audio Support & Progressive Loading
 
-### 🆕 Novedades v3.1.0
+### 🆕 Novedades v3.2.0
+- ✅ **Soporte Audio Extendido**: MP3, FLAC, WAV, AAC, OGG, M4A con duración precisa
+- ✅ **Carga Progresiva con Stream**: Procesamiento en paralelo con indicadores en tiempo real
+- ✅ **Caché Inteligente**: Sistema de almacenamiento de duraciones con detección de modificación
+- ✅ **UI Mejorada**: Barras de progreso circulares y lineales con contadores
+- ✅ **Documentación Completa**: Comentarios en español para todos los componentes nuevos
+
+### Novedades v3.1.0
 - ✅ **Sistema completo de Playlists**: Crear, editar, eliminar y gestionar listas de reproducción
 - ✅ **Clean Architecture para Playlists**: Repositorios, casos de uso y BLoC pattern
 - ✅ **Modales unificados**: Sistema modalView() responsive al teclado

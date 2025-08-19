@@ -8,6 +8,21 @@ import 'package:sonofy/domain/usecases/get_local_songs_usecase.dart';
 import 'package:sonofy/domain/repositories/songs_repository.dart';
 import 'package:sonofy/presentation/blocs/songs/songs_state.dart';
 
+/// Cubit para manejar estado y operaciones de biblioteca musical
+/// 
+/// Este cubit maneja:
+/// - Carga de canciones desde biblioteca musical nativa del dispositivo
+/// - Carga de canciones desde directorios locales (solo iOS)
+/// - Carga progresiva con actualizaciones de UI en tiempo real
+/// - Filtrado y ordenamiento de canciones
+/// - Diferencias de comportamiento específicas de plataforma
+/// 
+/// Características:
+/// - Carga de datos multi-fuente (dispositivo + locales)
+/// - Carga progresiva con soporte Stream
+/// - Seguimiento de progreso en tiempo real
+/// - Caché inteligente a través de servicios subyacentes
+/// - Ordenamiento automático basado en preferencias del usuario
 class SongsCubit extends Cubit<SongsState> {
   final SongsRepository _songsRepository;
   final GetLocalSongsUseCase? _getLocalSongsUseCase;
@@ -37,20 +52,17 @@ class SongsCubit extends Cubit<SongsState> {
       // Para iOS: combinar canciones del dispositivo + canciones locales
       // Para Android: solo canciones del dispositivo (incluye toda la música)
       if (!kIsWeb && Platform.isIOS && _getLocalSongsUseCase != null) {
-        final localSongs = await _getLocalSongsUseCase();
-
-        final allSongs = <SongModel>[];
-        allSongs.addAll(deviceSongs);
-        allSongs.addAll(localSongs);
-
+        // Cargar canciones del dispositivo primero
         emit(
           state.copyWith(
-            songs: _applySorting(allSongs),
+            songs: _applySorting(deviceSongs),
             deviceSongs: deviceSongs,
-            localSongs: localSongs,
             isLoading: false,
           ),
         );
+
+        // Luego cargar canciones locales progresivamente
+        await loadLocalSongsProgressive();
       } else {
         // Android: solo canciones del dispositivo
         emit(
@@ -110,7 +122,7 @@ class SongsCubit extends Cubit<SongsState> {
     try {
       emit(state.copyWith(isLoadingLocal: true));
 
-      final localSongs = await _getLocalSongsUseCase();
+      final localSongs = await _getLocalSongsUseCase.call();
 
       // Combinar con canciones del dispositivo existentes (solo iOS)
       final allSongs = <SongModel>[];
@@ -129,8 +141,79 @@ class SongsCubit extends Cubit<SongsState> {
     }
   }
 
+  Future<void> loadLocalSongsProgressive() async {
+    // Solo iOS soporta canciones locales de carpetas específicas
+    if (kIsWeb || Platform.isAndroid || _getLocalSongsUseCase == null) {
+      return; // Android no tiene canciones locales separadas
+    }
+
+    try {
+      // Primero obtenemos el total de archivos para mostrar progreso
+      final settings = _settingsRepository.getSettings();
+      final localPath = settings.localMusicPath;
+      if (localPath == null || localPath.isEmpty) {
+        return;
+      }
+
+      final files = await _songsRepository.getSongsFromFolder(localPath);
+      final totalFiles = files.length;
+
+      if (totalFiles == 0) {
+        emit(state.copyWith(
+          localSongs: [],
+          isLoadingProgressive: false,
+          loadedCount: 0,
+          totalCount: 0,
+        ));
+        return;
+      }
+
+      // Inicializar carga progresiva
+      emit(state.copyWith(
+        isLoadingProgressive: true,
+        loadedCount: 0,
+        totalCount: totalFiles,
+        localSongs: [], // Limpiar canciones locales anteriores
+      ));
+
+      final localSongs = <SongModel>[];
+      int loadedCount = 0;
+
+      // Usar Stream para carga progresiva
+      await for (final song in _getLocalSongsUseCase.callStream()) {
+        localSongs.add(song);
+        loadedCount++;
+
+        // Combinar con canciones del dispositivo
+        final allSongs = <SongModel>[];
+        allSongs.addAll(state.deviceSongs);
+        allSongs.addAll(localSongs);
+
+        emit(state.copyWith(
+          songs: _applySorting(allSongs),
+          localSongs: localSongs,
+          loadedCount: loadedCount,
+          isLoadingProgressive: loadedCount < totalFiles,
+        ));
+      }
+
+      // Finalizar carga
+      emit(state.copyWith(
+        isLoadingProgressive: false,
+        loadedCount: totalFiles,
+      ));
+    } catch (e) {
+      emit(state.copyWith(
+        error: e.toString(),
+        isLoadingProgressive: false,
+        loadedCount: 0,
+        totalCount: 0,
+      ));
+    }
+  }
+
   Future<void> refreshLocalSongs() async {
-    await loadLocalSongs();
+    await loadLocalSongsProgressive();
   }
 
   void filterSongs(String query, [OrderBy? orderBy]) {
