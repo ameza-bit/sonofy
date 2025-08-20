@@ -18,6 +18,7 @@ import 'package:sonofy/presentation/widgets/options/speed_option.dart';
 class OptionsModal {
   static void _show(BuildContext context, List<Widget> options) => modalView(
     context,
+    isScrollable: true,
     title: context.tr('options.title'),
     children: [SectionCard(title: '', children: options)],
   );
