@@ -9,14 +9,14 @@ import 'package:sonofy/domain/repositories/songs_repository.dart';
 import 'package:sonofy/presentation/blocs/songs/songs_state.dart';
 
 /// Cubit para manejar estado y operaciones de biblioteca musical
-/// 
+///
 /// Este cubit maneja:
 /// - Carga de canciones desde biblioteca musical nativa del dispositivo
 /// - Carga de canciones desde directorios locales (solo iOS)
 /// - Carga progresiva con actualizaciones de UI en tiempo real
 /// - Filtrado y ordenamiento de canciones
 /// - Diferencias de comportamiento específicas de plataforma
-/// 
+///
 /// Características:
 /// - Carga de datos multi-fuente (dispositivo + locales)
 /// - Carga progresiva con soporte Stream
@@ -159,22 +159,26 @@ class SongsCubit extends Cubit<SongsState> {
       final totalFiles = files.length;
 
       if (totalFiles == 0) {
-        emit(state.copyWith(
-          localSongs: [],
-          isLoadingProgressive: false,
-          loadedCount: 0,
-          totalCount: 0,
-        ));
+        emit(
+          state.copyWith(
+            localSongs: [],
+            isLoadingProgressive: false,
+            loadedCount: 0,
+            totalCount: 0,
+          ),
+        );
         return;
       }
 
       // Inicializar carga progresiva
-      emit(state.copyWith(
-        isLoadingProgressive: true,
-        loadedCount: 0,
-        totalCount: totalFiles,
-        localSongs: [], // Limpiar canciones locales anteriores
-      ));
+      emit(
+        state.copyWith(
+          isLoadingProgressive: true,
+          loadedCount: 0,
+          totalCount: totalFiles,
+          localSongs: [], // Limpiar canciones locales anteriores
+        ),
+      );
 
       final localSongs = <SongModel>[];
       int loadedCount = 0;
@@ -189,26 +193,29 @@ class SongsCubit extends Cubit<SongsState> {
         allSongs.addAll(state.deviceSongs);
         allSongs.addAll(localSongs);
 
-        emit(state.copyWith(
-          songs: _applySorting(allSongs),
-          localSongs: localSongs,
-          loadedCount: loadedCount,
-          isLoadingProgressive: loadedCount < totalFiles,
-        ));
+        emit(
+          state.copyWith(
+            songs: _applySorting(allSongs),
+            localSongs: localSongs,
+            loadedCount: loadedCount,
+            isLoadingProgressive: loadedCount < totalFiles,
+          ),
+        );
       }
 
       // Finalizar carga
-      emit(state.copyWith(
-        isLoadingProgressive: false,
-        loadedCount: totalFiles,
-      ));
+      emit(
+        state.copyWith(isLoadingProgressive: false, loadedCount: totalFiles),
+      );
     } catch (e) {
-      emit(state.copyWith(
-        error: e.toString(),
-        isLoadingProgressive: false,
-        loadedCount: 0,
-        totalCount: 0,
-      ));
+      emit(
+        state.copyWith(
+          error: e.toString(),
+          isLoadingProgressive: false,
+          loadedCount: 0,
+          totalCount: 0,
+        ),
+      );
     }
   }
 
@@ -219,22 +226,26 @@ class SongsCubit extends Cubit<SongsState> {
   void filterSongs(String query, [OrderBy? orderBy]) {
     List<SongModel> songsToFilter;
 
-    if (query.isEmpty) {
-      // Mostrar todas las canciones según la plataforma
-      if (!kIsWeb && Platform.isIOS) {
-        songsToFilter = <SongModel>[];
-        songsToFilter.addAll(state.deviceSongs);
-        songsToFilter.addAll(state.localSongs);
-      } else {
-        // Android: solo canciones del dispositivo
-        songsToFilter = state.deviceSongs;
-      }
+    // Obtener todas las canciones disponibles según la plataforma
+    List<SongModel> allAvailableSongs;
+    if (!kIsWeb && Platform.isIOS) {
+      allAvailableSongs = <SongModel>[];
+      allAvailableSongs.addAll(state.deviceSongs);
+      allAvailableSongs.addAll(state.localSongs);
     } else {
-      // Filtrar canciones
-      songsToFilter = state.songs.where((song) {
+      // Android: solo canciones del dispositivo
+      allAvailableSongs = state.deviceSongs;
+    }
+
+    if (query.isEmpty) {
+      // Mostrar todas las canciones
+      songsToFilter = allAvailableSongs;
+    } else {
+      // Filtrar desde todas las canciones disponibles
+      songsToFilter = allAvailableSongs.where((song) {
         return song.title.toLowerCase().contains(query.toLowerCase()) ||
-            song.artist!.toLowerCase().contains(query.toLowerCase()) ||
-            song.album!.toLowerCase().contains(query.toLowerCase());
+            (song.artist ?? '').toLowerCase().contains(query.toLowerCase()) ||
+            (song.album ?? '').toLowerCase().contains(query.toLowerCase());
       }).toList();
     }
 
