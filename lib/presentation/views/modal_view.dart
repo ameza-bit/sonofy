@@ -13,6 +13,7 @@ void modalView(
   required List<Widget> children,
   double? maxHeight = 0.65,
   bool showPlayer = false,
+  bool isScrollable = false,
 }) => showModalBottomSheet(
   context: context,
   useSafeArea: true,
@@ -22,6 +23,15 @@ void modalView(
       final primaryColor = state.settings.primaryColor;
       final screenHeight = MediaQuery.of(context).size.height;
       final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
+
+      Widget content = Column(
+        mainAxisSize: MainAxisSize.min,
+        children: children,
+      );
+
+      if (isScrollable) {
+        content = SingleChildScrollView(child: content);
+      }
 
       return AnimatedContainer(
         duration: const Duration(milliseconds: 100),
@@ -70,9 +80,8 @@ void modalView(
                         ),
                       ),
                       const SizedBox(height: 24),
-                      Expanded(child: Column(children: children)),
-                      if (showPlayer)
-                        const SizedBox(height: 80), // Space for bottom player
+                      Expanded(child: content),
+                      if (showPlayer) const SizedBox(height: 80),
                     ],
                   ),
                 ),
