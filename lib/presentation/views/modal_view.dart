@@ -24,15 +24,6 @@ void modalView(
       final screenHeight = MediaQuery.of(context).size.height;
       final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
 
-      Widget content = Column(
-        mainAxisSize: MainAxisSize.min,
-        children: children,
-      );
-
-      if (isScrollable) {
-        content = SingleChildScrollView(child: content);
-      }
-
       return AnimatedContainer(
         duration: const Duration(milliseconds: 100),
         constraints: BoxConstraints(
@@ -80,8 +71,17 @@ void modalView(
                         ),
                       ),
                       const SizedBox(height: 24),
-                      Expanded(child: content),
-                      if (showPlayer) const SizedBox(height: 80),
+                      Expanded(
+                        child: isScrollable
+                            ? SingleChildScrollView(
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: children,
+                                ),
+                              )
+                            : Column(children: children),
+                      ),
+                      if (showPlayer) const SizedBox(height: 50),
                     ],
                   ),
                 ),
