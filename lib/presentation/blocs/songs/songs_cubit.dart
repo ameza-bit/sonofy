@@ -294,4 +294,18 @@ class SongsCubit extends Cubit<SongsState> {
     final sortedSongs = orderBy.applySorting(state.songs);
     emit(state.copyWith(songs: sortedSongs));
   }
+
+  List<SongModel> getSongsByIds(List<String> songIds) {
+    List<SongModel> allSongs;
+
+    if (!kIsWeb && Platform.isIOS) {
+      allSongs = <SongModel>[];
+      allSongs.addAll(state.deviceSongs);
+      allSongs.addAll(state.localSongs);
+    } else {
+      allSongs = state.deviceSongs;
+    }
+
+    return allSongs.where((song) => songIds.contains(song.id.toString())).toList();
+  }
 }

@@ -22,16 +22,12 @@ class AddToPlaylistOption extends StatelessWidget {
       title: context.tr('options.add_playlist'),
       onTap: () {
         context.pop();
-        _showPlaylistSelector(context);
+        modalView(
+          context,
+          title: context.tr('options.add_playlist'),
+          children: [PlaylistSelectorForm(songId: song.id.toString())],
+        );
       },
-    );
-  }
-
-  void _showPlaylistSelector(BuildContext context) {
-    modalView(
-      context,
-      title: context.tr('options.add_playlist'),
-      children: [PlaylistSelectorForm(songId: song.id.toString())],
     );
   }
 }
@@ -68,14 +64,7 @@ class PlaylistSelectorForm extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             ...state.playlists.map((playlist) {
-              final isInPlaylist = playlist.containsSong(songId);
               return ListTile(
-                leading: Icon(
-                  isInPlaylist
-                      ? FontAwesomeIcons.solidCircleCheck
-                      : FontAwesomeIcons.lightCircle,
-                  color: isInPlaylist ? Colors.green : null,
-                ),
                 title: Text(playlist.title),
                 subtitle: Text(
                   context.tr(
@@ -83,9 +72,7 @@ class PlaylistSelectorForm extends StatelessWidget {
                     namedArgs: {'count': playlist.songIds.length.toString()},
                   ),
                 ),
-                onTap: isInPlaylist
-                    ? null
-                    : () => _addToPlaylist(context, playlist.id),
+                onTap: () => _addToPlaylist(context, playlist.id),
               );
             }),
             const SizedBox(height: 16),
@@ -111,7 +98,7 @@ class PlaylistSelectorForm extends StatelessWidget {
     final playlistsCubit = context.read<PlaylistsCubit>();
     playlistsCubit.addSongToPlaylist(playlistId, songId);
 
-    Navigator.of(context).pop();
+    context.pop();
 
     try {
       final playlist = playlistsCubit.state.getPlaylistById(playlistId);
