@@ -52,19 +52,19 @@ class SongInfoOption extends StatelessWidget {
               label: context.tr('song.duration'),
               value: DurationMinutes.format(song.duration ?? 0),
             ),
-            if ((song.genre?.isNotEmpty ?? false))
+            if (song.genre?.isNotEmpty ?? false)
               _InfoItem(
                 label: context.tr('song.genre'),
                 value: song.genre!,
               ),
-            if ((song.composer?.isNotEmpty ?? false))
+            if (song.composer?.isNotEmpty ?? false)
               _InfoItem(
                 label: context.tr('song.composer'),
                 value: song.composer!,
               ),
             _InfoItem(
               label: context.tr('song.file_size'),
-              value: _formatFileSize(song.size ?? 0),
+              value: _formatFileSize(song.size),
             ),
           ],
         ),

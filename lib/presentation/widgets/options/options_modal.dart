@@ -37,8 +37,6 @@ class OptionsModal {
     const SettingsOption(),
   ]);
 
-  static void song(BuildContext context) => _show(context, []);
-
   static void playlist(BuildContext context) => _show(context, [
     const SleepOption(),
     const ReorderOption(),
