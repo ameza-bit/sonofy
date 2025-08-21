@@ -14,6 +14,12 @@ import 'package:sonofy/presentation/widgets/options/settings_option.dart';
 import 'package:sonofy/presentation/widgets/options/share_option.dart';
 import 'package:sonofy/presentation/widgets/options/sleep_option.dart';
 import 'package:sonofy/presentation/widgets/options/speed_option.dart';
+import 'package:sonofy/presentation/widgets/options/play_song_option.dart';
+import 'package:sonofy/presentation/widgets/options/play_next_option.dart';
+import 'package:sonofy/presentation/widgets/options/add_to_queue_option.dart';
+import 'package:sonofy/presentation/widgets/options/remove_from_queue_option.dart';
+import 'package:sonofy/presentation/widgets/options/song_info_option.dart';
+import 'package:on_audio_query_pluse/on_audio_query.dart';
 
 class OptionsModal {
   static void _show(BuildContext context, List<Widget> options) => modalView(
@@ -30,6 +36,8 @@ class OptionsModal {
     const EqualizerOption(),
     const SettingsOption(),
   ]);
+
+  static void song(BuildContext context) => _show(context, []);
 
   static void playlist(BuildContext context) => _show(context, [
     const SleepOption(),
@@ -48,5 +56,16 @@ class OptionsModal {
     const ShareOption(),
     const EqualizerOption(),
     const SettingsOption(),
+  ]);
+
+  static void songContext(BuildContext context, SongModel song, List<SongModel> playlist) => _show(context, [
+    PlaySongOption(song: song, playlist: playlist),
+    PlayNextOption(song: song),
+    AddToQueueOption(song: song),
+    RemoveFromQueueOption(song: song),
+    const AddPlaylistOption(),
+    const RemovePlaylistOption(),
+    SongInfoOption(song: song),
+    const ShareOption(),
   ]);
 }

@@ -280,6 +280,60 @@ class PlayerCubit extends Cubit<PlayerState> {
     return _playerRepository.getPlaybackSpeed();
   }
 
+  void insertSongNext(SongModel song) {
+    if (state.playlist.isEmpty) return;
+    
+    final newPlaylist = List<SongModel>.from(state.playlist);
+    final insertIndex = state.currentIndex + 1;
+    
+    if (insertIndex < newPlaylist.length) {
+      newPlaylist.insert(insertIndex, song);
+    } else {
+      newPlaylist.add(song);
+    }
+    
+    emit(state.copyWith(playlist: newPlaylist));
+  }
+
+  void addToQueue(SongModel song) {
+    final newPlaylist = List<SongModel>.from(state.playlist)..add(song);
+    emit(state.copyWith(playlist: newPlaylist));
+  }
+
+  void removeFromQueue(SongModel song) {
+    if (state.playlist.isEmpty) return;
+    
+    final songIndex = state.playlist.indexWhere((s) => s.id == song.id);
+    if (songIndex == -1) return;
+    
+    final newPlaylist = List<SongModel>.from(state.playlist)..removeAt(songIndex);
+    
+    // Adjust current index if necessary
+    int newCurrentIndex = state.currentIndex;
+    if (songIndex < state.currentIndex) {
+      newCurrentIndex = state.currentIndex - 1;
+    } else if (songIndex == state.currentIndex) {
+      // If removing current song, pause playback
+      _playerRepository.pause();
+      if (newPlaylist.isNotEmpty) {
+        // Play next song or adjust index
+        if (newCurrentIndex >= newPlaylist.length) {
+          newCurrentIndex = 0;
+        }
+        final nextSong = newPlaylist[newCurrentIndex];
+        _playerRepository.play(nextSong.data);
+      } else {
+        newCurrentIndex = -1;
+      }
+    }
+    
+    emit(state.copyWith(
+      playlist: newPlaylist,
+      currentIndex: newCurrentIndex,
+      isPlaying: newPlaylist.isNotEmpty && songIndex == state.currentIndex,
+    ));
+  }
+
   void _savePlayerPreferences() {
     final preferences = PlayerPreferences(
       isShuffleEnabled: state.isShuffleEnabled,
