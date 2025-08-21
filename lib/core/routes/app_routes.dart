@@ -34,10 +34,12 @@ class AppRoutes {
             ).fadeTransition(),
             routes: [
               GoRoute(
-                path: PlaylistScreen.routeName,
+                path: '${PlaylistScreen.routeName}/:playlistId',
                 name: PlaylistScreen.routeName,
                 pageBuilder: (context, state) => PlayerSlideTransition(
-                  child: const PlaylistScreen(),
+                  child: PlaylistScreen(
+                    playlistId: state.pathParameters['playlistId'] ?? '',
+                  ),
                   key: state.pageKey,
                   name: state.name,
                   arguments: state.extra,

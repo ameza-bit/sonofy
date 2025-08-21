@@ -5,7 +5,6 @@ import 'package:go_router/go_router.dart';
 import 'package:sonofy/core/extensions/color_extensions.dart';
 import 'package:sonofy/core/extensions/theme_extensions.dart';
 import 'package:sonofy/data/models/playlist.dart';
-import 'package:sonofy/presentation/blocs/playlists/playlists_cubit.dart';
 import 'package:sonofy/presentation/blocs/songs/songs_cubit.dart';
 import 'package:sonofy/presentation/blocs/songs/songs_state.dart';
 import 'package:sonofy/presentation/screens/playlist_screen.dart';
@@ -23,10 +22,10 @@ class PlaylistCard extends StatelessWidget {
     final songsCubit = context.read<SongsCubit>();
 
     return InkWell(
-      onTap: () {
-        context.read<PlaylistsCubit>().selectPlaylist(playlist.id);
-        context.goNamed(PlaylistScreen.routeName);
-      },
+      onTap: () => context.goNamed(
+        PlaylistScreen.routeName,
+        pathParameters: {'playlistId': playlist.id},
+      ),
       child: Card(
         elevation: 2.0,
         margin: const EdgeInsets.symmetric(horizontal: 4.0),
