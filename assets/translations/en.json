@@ -101,7 +101,26 @@
     "player_speed": "Playback Speed",
     "equalizer": "Equalizer",
     "share": "Share",
-    "settings": "Settings"
+    "settings": "Settings",
+    "play_song": "Play",
+    "play_next": "Play next",
+    "add_to_queue": "Add to queue",
+    "remove_from_queue": "Remove from queue",
+    "song_info": "Song information",
+    "song_added_next": "Song added to play next",
+    "song_added_to_queue": "Song added to queue",
+    "song_not_in_queue": "Song is not in the current queue",
+    "song_removed_from_queue": "Song removed from queue"
+  },
+  "song": {
+    "details": "Song Details",
+    "title": "Title",
+    "artist": "Artist",
+    "album": "Album",
+    "duration": "Duration",
+    "genre": "Genre",
+    "composer": "Composer",
+    "file_size": "File Size"
   },
   "library": {
     "title": "Library",
@@ -130,7 +149,9 @@
     "no_playlists": "You don't have any playlists created",
     "song_added": "Song added to {playlist}",
     "created_and_song_added": "Playlist '{playlist}' created and song added",
+    "song_added_generic": "Song added to playlist",
     "song_removed": "Song removed from {playlist}",
+    "remove_song_confirmation": "Are you sure you want to remove this song from '{playlist}'?",
     "song_not_in_playlists": "This song is not in any playlist",
     "playlist_deleted": "Playlist deleted",
     "playlist_renamed": "Playlist renamed",

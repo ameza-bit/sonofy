@@ -62,7 +62,7 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
                   FontAwesomeIcons.lightEllipsisStrokeVertical,
                   size: 20.0,
                 ),
-                onPressed: () => OptionsModal.playlist(context),
+                onPressed: OptionsModal(context).playlist,
               ),
               const SizedBox(width: 12),
             ],
@@ -150,6 +150,11 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
                                 song: playlistSongs[index],
                                 onTap: () =>
                                     context.pushNamed(PlayerScreen.routeName),
+                                onLongPress: () =>
+                                    OptionsModal(context).songPlaylistContext(
+                                      playlistSongs[index],
+                                      playlistSongs,
+                                    ),
                               ),
                             );
                           }
