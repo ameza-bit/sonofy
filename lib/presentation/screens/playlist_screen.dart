@@ -46,7 +46,12 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
   Widget build(BuildContext context) {
     return BlocBuilder<PlaylistsCubit, PlaylistsState>(
       builder: (context, playlistsState) {
-        final selectedPlaylist = playlistsState.selectedPlaylist;
+        final selectedPlaylist = playlistsState.selectedPlaylist != null 
+            ? playlistsState.playlists.firstWhere(
+                (p) => p.id == playlistsState.selectedPlaylist!.id,
+                orElse: () => playlistsState.selectedPlaylist!,
+              )
+            : null;
 
         return Scaffold(
           appBar: AppBar(

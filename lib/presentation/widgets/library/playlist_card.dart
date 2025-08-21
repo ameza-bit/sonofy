@@ -7,6 +7,7 @@ import 'package:sonofy/core/extensions/theme_extensions.dart';
 import 'package:sonofy/data/models/playlist.dart';
 import 'package:sonofy/presentation/blocs/playlists/playlists_cubit.dart';
 import 'package:sonofy/presentation/blocs/songs/songs_cubit.dart';
+import 'package:sonofy/presentation/blocs/songs/songs_state.dart';
 import 'package:sonofy/presentation/screens/playlist_screen.dart';
 import 'package:sonofy/presentation/widgets/library/playlist_cover_grid.dart';
 
@@ -20,7 +21,6 @@ class PlaylistCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final songsCubit = context.read<SongsCubit>();
-    final songs = songsCubit.getSongsByIds(playlist.songIds);
 
     return InkWell(
       onTap: () {
@@ -35,10 +35,16 @@ class PlaylistCard extends StatelessWidget {
             SizedBox(
               width: cardWidth,
               height: cardWidth,
-              child: PlaylistCoverGrid(
-                songs,
-                width: cardWidth,
-                height: cardWidth,
+              child: BlocBuilder<SongsCubit, SongsState>(
+                builder: (context, songsState) {
+                  final songs = songsCubit.getSongsByIds(playlist.songIds);
+
+                  return PlaylistCoverGrid(
+                    songs,
+                    width: cardWidth,
+                    height: cardWidth,
+                  );
+                },
               ),
             ),
             const SizedBox(height: 8.0),
