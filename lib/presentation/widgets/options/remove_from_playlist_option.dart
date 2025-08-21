@@ -73,7 +73,7 @@ class PlaylistRemovalForm extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: playlistsWithSong.map((playlist) {
             return ListTile(
-              leading: Icon(
+              leading: const Icon(
                 FontAwesomeIcons.lightCircleMinus,
                 color: Colors.red,
               ),

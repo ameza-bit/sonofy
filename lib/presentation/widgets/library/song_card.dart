@@ -10,19 +10,20 @@ import 'package:sonofy/presentation/blocs/player/player_state.dart';
 import 'package:sonofy/presentation/blocs/settings/settings_cubit.dart';
 import 'package:sonofy/presentation/blocs/settings/settings_state.dart';
 import 'package:sonofy/presentation/widgets/common/font_awesome/font_awesome_flutter.dart';
-import 'package:sonofy/presentation/widgets/options/options_modal.dart';
 
 class SongCard extends StatelessWidget {
   const SongCard({
     required this.playlist,
     required this.song,
     required this.onTap,
+    required this.onLongPress,
     super.key,
   });
 
   final List<SongModel> playlist;
   final SongModel song;
   final VoidCallback onTap;
+  final VoidCallback onLongPress;
 
   @override
   Widget build(BuildContext context) {
@@ -35,7 +36,7 @@ class SongCard extends StatelessWidget {
             context.read<PlayerCubit>().setPlayingSong(playlist, song);
             onTap();
           },
-          onLongPress: () => OptionsModal.songContext(context, song, playlist),
+          onLongPress: onLongPress,
           child: Card(
             margin: const EdgeInsets.symmetric(vertical: 4.0),
             child: Padding(

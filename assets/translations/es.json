@@ -104,13 +104,13 @@
     "settings": "Configuración",
     "play_song": "Reproducir",
     "play_next": "Reproducir a continuación",
-    "add_to_queue": "Agregar a la lista",
-    "remove_from_queue": "Quitar de la lista",
+    "add_to_queue": "Agregar a la cola",
+    "remove_from_queue": "Quitar de la cola",
     "song_info": "Información de la canción",
     "song_added_next": "Canción agregada para reproducir a continuación",
-    "song_added_to_queue": "Canción agregada a la lista",
-    "song_not_in_queue": "La canción no está en la lista actual",
-    "song_removed_from_queue": "Canción eliminada de la lista"
+    "song_added_to_queue": "Canción agregada a la cola",
+    "song_not_in_queue": "La canción no está en la cola actual",
+    "song_removed_from_queue": "Canción eliminada de la cola"
   },
   "song": {
     "details": "Detalles de la Canción",

@@ -75,7 +75,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
                     FontAwesomeIcons.lightEllipsisStrokeVertical,
                     size: 20.0,
                   ),
-                  onPressed: () => OptionsModal.library(context),
+                  onPressed: OptionsModal(context).library,
                 ),
               ] else ...[
                 IconButton(
@@ -121,7 +121,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
                     FontAwesomeIcons.lightEllipsisStrokeVertical,
                     size: 20.0,
                   ),
-                  onPressed: () => OptionsModal.library(context),
+                  onPressed: OptionsModal(context).library,
                 ),
               ],
               const SizedBox(width: 12),
@@ -275,6 +275,10 @@ class _LibraryScreenState extends State<LibraryScreen> {
                               song: orderedSongs[songIndex],
                               onTap: () =>
                                   context.pushNamed(PlayerScreen.routeName),
+                              onLongPress: () => OptionsModal(context).songLibraryContext(
+                                orderedSongs[songIndex],
+                                orderedSongs,
+                              ),
                             ),
                           ),
                         );

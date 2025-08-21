@@ -7,6 +7,7 @@ import 'package:sonofy/presentation/blocs/player/player_cubit.dart';
 import 'package:sonofy/presentation/blocs/player/player_state.dart';
 import 'package:sonofy/presentation/views/modal_view.dart';
 import 'package:sonofy/presentation/widgets/library/song_card.dart';
+import 'package:sonofy/presentation/widgets/options/options_modal.dart';
 
 class PlaylistModal extends StatelessWidget {
   const PlaylistModal({super.key});
@@ -38,6 +39,11 @@ class PlaylistModal extends StatelessWidget {
                   state.playlist[(index + state.currentIndex) %
                       state.playlist.length],
               onTap: () => context.pop(),
+              onLongPress: () => OptionsModal(context).songPlayerListContext(
+                state.playlist[(index + state.currentIndex) %
+                    state.playlist.length],
+                state.playlist,
+              ),
             );
           },
         ),
