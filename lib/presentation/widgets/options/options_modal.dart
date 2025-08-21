@@ -19,6 +19,8 @@ import 'package:sonofy/presentation/widgets/options/play_next_option.dart';
 import 'package:sonofy/presentation/widgets/options/add_to_queue_option.dart';
 import 'package:sonofy/presentation/widgets/options/remove_from_queue_option.dart';
 import 'package:sonofy/presentation/widgets/options/song_info_option.dart';
+import 'package:sonofy/presentation/widgets/options/add_to_playlist_option.dart';
+import 'package:sonofy/presentation/widgets/options/remove_from_playlist_option.dart';
 import 'package:on_audio_query_pluse/on_audio_query.dart';
 
 class OptionsModal {
@@ -61,8 +63,8 @@ class OptionsModal {
     PlayNextOption(song: song),
     AddToQueueOption(song: song),
     RemoveFromQueueOption(song: song),
-    const AddPlaylistOption(),
-    const RemovePlaylistOption(),
+    AddToPlaylistOption(song: song),
+    RemoveFromPlaylistOption(song: song),
     SongInfoOption(song: song),
     const ShareOption(),
   ]);
