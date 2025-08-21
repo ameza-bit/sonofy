@@ -8,6 +8,7 @@ import 'package:sonofy/presentation/blocs/playlists/playlists_cubit.dart';
 import 'package:sonofy/presentation/blocs/playlists/playlists_state.dart';
 import 'package:sonofy/presentation/blocs/songs/songs_cubit.dart';
 import 'package:sonofy/presentation/blocs/songs/songs_state.dart';
+import 'package:sonofy/presentation/screens/library_screen.dart';
 import 'package:sonofy/presentation/screens/player_screen.dart';
 import 'package:sonofy/presentation/widgets/common/font_awesome/font_awesome_flutter.dart';
 import 'package:sonofy/presentation/widgets/library/bottom_player.dart';
@@ -36,7 +37,7 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
       if (playlistsState.selectedPlaylist == null &&
           playlistsState.hasPlaylists) {
         // En este caso, volvemos a Library Screen ya que no sabemos cuál playlist mostrar
-        context.go('/library');
+        context.goNamed(LibraryScreen.routeName);
       }
     });
   }
