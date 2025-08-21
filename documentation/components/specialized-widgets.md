@@ -354,182 +354,180 @@ class PlayerLyrics extends StatelessWidget {
 ### SongCard
 
 #### Propósito
-Tarjeta individual para mostrar información de una canción en la biblioteca.
+Componente unificado para mostrar canciones con soporte para interacciones contextuales. Rediseñado completamente para el nuevo sistema de modales contextuales.
 
 #### Ubicación
 `lib/presentation/widgets/library/song_card.dart`
 
-#### Características
-- **Información completa**: Carátula, título, artista, duración
-- **Interacción**: Tap para reproducir, indicador de canción actual
-- **Estados visuales**: Resaltado cuando está reproduciéndose
-- **Optimización**: Lazy loading de carátulas
+#### Características Principales
+- **Interacciones Contextuales**: Long press con opciones específicas según contexto
+- **Callbacks Externos**: Manejo de tap y long press desde el componente padre
+- **Botón de Play**: Botón circular con gradiente para reproducción directa
+- **Estados Visuales**: Indicadores claros de reproducción y estado
+- **Información Completa**: Título, artista, duración formateada
 
-#### Implementación
+#### Nueva Implementación
 ```dart
 class SongCard extends StatelessWidget {
-  final List<SongModel> playlist;
-  final SongModel song;
-
   const SongCard({
-    super.key,
     required this.playlist,
     required this.song,
+    required this.onTap,
+    required this.onLongPress,  // ✨ Nuevo: Callback contextual
+    super.key,
   });
+
+  final List<SongModel> playlist;
+  final SongModel song;
+  final VoidCallback onTap;
+  final VoidCallback onLongPress;  // ✨ Manejo externo
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<PlayerCubit, PlayerState>(
-      builder: (context, playerState) {
-        final isCurrentSong = playerState.currentSong?.id == song.id;
-        
-        return Card(
-          margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 0),
-          elevation: isCurrentSong ? 4 : 1,
-          color: isCurrentSong 
-              ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.1)
-              : null,
-          child: ListTile(
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 16, 
-              vertical: 8,
+    return BlocBuilder<SettingsCubit, SettingsState>(
+      builder: (context, state) {
+        final primaryColor = state.settings.primaryColor;
+
+        return InkWell(
+          onTap: () {
+            context.read<PlayerCubit>().setPlayingSong(playlist, song);
+            onTap(); // ✨ Callback externo
+          },
+          onLongPress: onLongPress, // ✨ Callback contextual
+          child: Card(
+            margin: const EdgeInsets.symmetric(vertical: 4.0),
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Row(
+                spacing: 12,
+                children: [
+                  // ✨ Botón de play circular con gradiente
+                  BlocBuilder<PlayerCubit, PlayerState>(
+                    builder: (context, state) {
+                      final isPlaying = state.isPlaying && 
+                                       state.currentSong?.id == song.id;
+                      return CircularGradientButton(
+                        size: 48,
+                        elevation: 1,
+                        primaryColor: isPlaying ? primaryColor : context.musicWhite,
+                        onPressed: () {
+                          if (state.currentSong?.id == song.id) {
+                            context.read<PlayerCubit>().togglePlayPause();
+                          } else {
+                            context.read<PlayerCubit>().setPlayingSong(playlist, song);
+                          }
+                        },
+                        child: Icon(
+                          isPlaying ? FontAwesomeIcons.solidPause : FontAwesomeIcons.solidPlay,
+                          color: isPlaying ? context.musicWhite : primaryColor,
+                          size: 20,
+                        ),
+                      );
+                    },
+                  ),
+                  
+                  // Información de la canción
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      spacing: 4,
+                      children: [
+                        Text(
+                          song.title,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: context.scaleText(16),
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text(
+                          song.artist ?? song.composer ?? 'Desconocido',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: context.scaleText(12),
+                            color: context.musicLightGrey,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  
+                  // Duración
+                  Text(
+                    DurationMinutes.format(song.duration ?? 0),
+                    style: TextStyle(
+                      fontSize: context.scaleText(12),
+                      color: context.musicLightGrey,
+                    ),
+                  ),
+                ],
+              ),
             ),
-            leading: _buildArtwork(context, isCurrentSong),
-            title: _buildTitle(context, isCurrentSong),
-            subtitle: _buildSubtitle(context, isCurrentSong),
-            trailing: _buildTrailing(context, isCurrentSong),
-            onTap: () => _onSongTap(context),
           ),
         );
       },
     );
   }
-
-  Widget _buildArtwork(BuildContext context, bool isCurrentSong) {
-    return Container(
-      width: 56,
-      height: 56,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(8),
-        border: isCurrentSong 
-            ? Border.all(
-                color: Theme.of(context).colorScheme.primary,
-                width: 2,
-              )
-            : null,
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(6),
-        child: QueryArtworkWidget(
-          id: song.id,
-          type: ArtworkType.AUDIO,
-          artworkWidth: 56,
-          artworkHeight: 56,
-          artworkFit: BoxFit.cover,
-          nullArtworkWidget: Container(
-            color: Colors.grey.shade300,
-            child: Icon(
-              Icons.music_note,
-              color: Colors.grey.shade600,
-              size: 24,
-            ),
-          ),
-          errorBuilder: (context, exception, stackTrace) {
-            return Container(
-              color: Colors.grey.shade300,
-              child: Icon(
-                Icons.music_note,
-                color: Colors.grey.shade600,
-                size: 24,
-              ),
-            );
-          },
-        ),
-      ),
-    );
-  }
-
-  Widget _buildTitle(BuildContext context, bool isCurrentSong) {
-    return Text(
-      song.title.isNotEmpty ? song.title : 'Canción Sin Título',
-      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-        fontWeight: isCurrentSong ? FontWeight.bold : FontWeight.normal,
-        color: isCurrentSong 
-            ? Theme.of(context).colorScheme.primary
-            : null,
-      ),
-      maxLines: 1,
-      overflow: TextOverflow.ellipsis,
-    );
-  }
-
-  Widget _buildSubtitle(BuildContext context, bool isCurrentSong) {
-    final artistName = song.artist ?? song.composer ?? 'Artista Desconocido';
-    final duration = Duration(milliseconds: song.duration);
-    final durationText = _formatDuration(duration);
-    
-    return Text(
-      '$artistName • $durationText',
-      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-        color: isCurrentSong 
-            ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.8)
-            : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
-      ),
-      maxLines: 1,
-      overflow: TextOverflow.ellipsis,
-    );
-  }
-
-  Widget _buildTrailing(BuildContext context, bool isCurrentSong) {
-    if (isCurrentSong) {
-      return BlocBuilder<PlayerCubit, PlayerState>(
-        buildWhen: (previous, current) => 
-            previous.isPlaying != current.isPlaying,
-        builder: (context, state) {
-          return Container(
-            width: 24,
-            height: 24,
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.primary,
-              shape: BoxShape.circle,
-            ),
-            child: Icon(
-              state.isPlaying ? Icons.pause : Icons.play_arrow,
-              color: Colors.white,
-              size: 16,
-            ),
-          );
-        },
-      );
-    }
-    
-    return IconButton(
-      icon: Icon(
-        Icons.more_vert,
-        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
-      ),
-      onPressed: () => _showSongOptions(context),
-    );
-  }
-
-  void _onSongTap(BuildContext context) {
-    context.read<PlayerCubit>().setPlayingSong(playlist, song);
-    context.pushNamed(PlayerScreen.routeName);
-  }
-
-  void _showSongOptions(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      builder: (context) => SongOptionsModal(song: song),
-    );
-  }
-
-  String _formatDuration(Duration duration) {
-    final minutes = duration.inMinutes;
-    final seconds = duration.inSeconds % 60;
-    return '${minutes}:${seconds.toString().padLeft(2, '0')}';
-  }
 }
+```
+
+#### Uso Contextual de SongCard
+
+La nueva arquitectura de `SongCard` permite diferentes comportamientos según el contexto:
+
+```dart
+// ✅ En LibraryScreen
+SongCard(
+  playlist: orderedSongs,
+  song: song,
+  onTap: () => context.pushNamed(PlayerScreen.routeName),
+  onLongPress: () => OptionsModal(context).songLibraryContext(song, orderedSongs),
+);
+
+// ✅ En PlaylistScreen  
+SongCard(
+  playlist: playlistSongs,
+  song: song,
+  onTap: () => context.pushNamed(PlayerScreen.routeName),
+  onLongPress: () => OptionsModal(context).songPlaylistContext(song, playlistSongs),
+);
+
+// ✅ En PlaylistModal (Cola de reproducción)
+SongCard(
+  playlist: state.playlist,
+  song: currentSong,
+  onTap: () => context.pop(),
+  onLongPress: () => OptionsModal(context).songPlayerListContext(currentSong, state.playlist),
+);
+```
+
+#### Interacciones Soportadas
+
+| Acción | Comportamiento |
+|--------|----------------|
+| **Tap en card** | Reproduce canción + ejecuta callback `onTap` |
+| **Long press** | Ejecuta callback `onLongPress` (modal contextual) |
+| **Tap en play button** | Si es canción actual: toggle play/pause, sino: reproduce |
+
+#### Migración desde Versión Anterior
+
+**❌ Antes (acoplado)**
+```dart
+// SongCard manejaba internamente las opciones
+SongCard(playlist: songs, song: song) // Sin callbacks
+```
+
+**✅ Después (desacoplado)**
+```dart  
+// SongCard recibe callbacks externos para flexibilidad
+SongCard(
+  playlist: songs,
+  song: song,
+  onTap: () => navigateToPlayer(),
+  onLongPress: () => showContextualOptions(),
+)
 ```
 
 ### BottomPlayer

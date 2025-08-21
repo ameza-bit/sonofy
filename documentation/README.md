@@ -23,11 +23,25 @@
   - [Integración iPod Library](./guides/ipod-library-integration.md)
   - [**🆕 Sistema de Playlists**](./guides/playlist-system-guide.md)
   - [**🆕 Control de Velocidad de Reproducción**](./guides/playback-speed-system.md)
+  - [**✨ Internacionalización y Traducciones**](./guides/internationalization-guide.md)
 - [Componentes](./components/)
   - [Widgets Comunes](./components/common-widgets.md)
   - [Pantallas](./components/screens.md)
   - [Sistema de Temas](./components/theming-system.md)
-  - [**🆕 Sistema de Modales**](./components/modal-system.md)
+  - [**✨ Sistema de Modales Contextuales**](./components/modal-system.md)
+
+## ✨ Actualizaciones Recientes
+
+### Sistema de Modales Contextuales (2024)
+- **Opciones inteligentes**: Solo muestra acciones relevantes según el contexto
+- **Nuevas opciones de cola**: "Reproducir a continuación", "Agregar a la cola", "Quitar de la cola"  
+- **Gestión avanzada de playlist**: Opciones contextuales específicas para cada situación
+- **UX mejorada**: Elimina confusión mostrando solo opciones aplicables
+
+### Componentes Rediseñados
+- **SongCard renovado**: Callbacks externos para flexibilidad contextual
+- **PlayerCubit extendido**: Nuevos métodos para gestión de cola
+- **19 nuevas traducciones**: Soporte completo en español e inglés
 
 ## 🚀 Características Principales
 
