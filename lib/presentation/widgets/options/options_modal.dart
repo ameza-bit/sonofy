@@ -13,7 +13,6 @@ import 'package:sonofy/presentation/widgets/options/remove_playlist_option.dart'
 import 'package:sonofy/presentation/widgets/options/rename_playlist_option.dart';
 import 'package:sonofy/presentation/widgets/options/reorder_option.dart';
 import 'package:sonofy/presentation/widgets/options/settings_option.dart';
-import 'package:sonofy/presentation/widgets/options/share_option.dart';
 import 'package:sonofy/presentation/widgets/options/sleep_option.dart';
 import 'package:sonofy/presentation/widgets/options/speed_option.dart';
 import 'package:sonofy/presentation/widgets/options/play_song_option.dart';
@@ -69,7 +68,6 @@ class OptionsModal {
       if (_isPlayingFromPlaylist(playerState, songsState))
         const RemovePlaylistOption(),
       const SpeedOption(),
-      const ShareOption(),
       const EqualizerOption(),
       const SettingsOption(),
     ];
@@ -91,106 +89,46 @@ class OptionsModal {
     return playlistLength < totalSongsLength;
   }
 
-  // void songContext(
-  //   BuildContext context,
-  //   SongModel song,
-  //   List<SongModel> playlist, {
-  //   ModalContext modalContext = ModalContext.library,
-  // }) {
-  //   final playerState = context.read<PlayerCubit>().state;
-  //   final options = <Widget>[
-  //     PlaySongOption(song: song, playlist: playlist),
-
-  //     // PlayNextOption y AddToQueueOption solo si hay reproducción activa
-  //     if (playerState.hasSelectedSong && playerState.isPlaying) ...[
-  //       PlayNextOption(song: song),
-  //       AddToQueueOption(song: song),
-  //     ],
-
-  //     // RemoveFromQueueOption solo desde PlaylistModal
-  //     if (modalContext == ModalContext.playlistModal)
-  //       RemoveFromQueueOption(song: song),
-
-  //     AddToPlaylistOption(song: song),
-
-  //     // RemoveFromPlaylistOption solo desde vistas de playlists
-  //     if (modalContext == ModalContext.playlistScreen)
-  //       RemoveFromPlaylistOption(song: song),
-
-  //     SongInfoOption(song: song),
-  //     const ShareOption(),
-  //   ];
-  //   _show(context, options);
-  // }
-
-  void songLibraryContext(
-    SongModel song,
-    List<SongModel> playlist,
-  ) {
+  void songLibraryContext(SongModel song, List<SongModel> playlist) {
     final playerState = context.read<PlayerCubit>().state;
     final options = <Widget>[
       PlaySongOption(song: song, playlist: playlist),
-
-      // PlayNextOption y AddToQueueOption solo si hay reproducción activa
       if (playerState.hasSelectedSong) ...[
         PlayNextOption(song: song),
         AddToQueueOption(song: song),
       ],
-
       AddToPlaylistOption(song: song),
-
       SongInfoOption(song: song),
-      const ShareOption(),
     ];
     _show(options);
   }
 
-  void songPlaylistContext(
-    SongModel song,
-    List<SongModel> playlist,
-  ) {
+  void songPlaylistContext(SongModel song, List<SongModel> playlist) {
     final playerState = context.read<PlayerCubit>().state;
     final options = <Widget>[
       PlaySongOption(song: song, playlist: playlist),
-
-      // PlayNextOption y AddToQueueOption solo si hay reproducción activa
       if (playerState.hasSelectedSong) ...[
         PlayNextOption(song: song),
         AddToQueueOption(song: song),
       ],
-
       AddToPlaylistOption(song: song),
-
-      // RemoveFromPlaylistOption solo desde vistas de playlists
       RemoveFromPlaylistOption(song: song),
-
       SongInfoOption(song: song),
-      const ShareOption(),
     ];
     _show(options);
   }
 
-  void songPlayerListContext(
-    SongModel song,
-    List<SongModel> playlist,
-  ) {
+  void songPlayerListContext(SongModel song, List<SongModel> playlist) {
     final playerState = context.read<PlayerCubit>().state;
     final options = <Widget>[
       PlaySongOption(song: song, playlist: playlist),
-
-      // PlayNextOption y AddToQueueOption solo si hay reproducción activa
       if (playerState.hasSelectedSong) ...[
         PlayNextOption(song: song),
         AddToQueueOption(song: song),
       ],
-
-      // RemoveFromQueueOption solo desde PlaylistModal
       RemoveFromQueueOption(song: song),
-
       AddToPlaylistOption(song: song),
-
       SongInfoOption(song: song),
-      const ShareOption(),
     ];
     _show(options);
   }
