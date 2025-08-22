@@ -11,16 +11,19 @@ import 'package:sonofy/presentation/blocs/songs/songs_cubit.dart';
 
 class PlaylistInfoOption extends StatelessWidget {
   final Playlist playlist;
-  
+
   const PlaylistInfoOption({required this.playlist, super.key});
 
   void _showPlaylistInfo(BuildContext context) {
     final songsCubit = context.read<SongsCubit>();
     final songs = songsCubit.getSongsByIds(playlist.songIds);
-    final totalDuration = songs.fold<int>(0, (sum, song) => sum + (song.duration ?? 0));
+    final totalDuration = songs.fold<int>(
+      0,
+      (sum, song) => sum + (song.duration ?? 0),
+    );
     final hours = totalDuration ~/ 3600000;
     final minutes = (totalDuration % 3600000) ~/ 60000;
-    
+
     String durationText;
     if (hours > 0) {
       durationText = '${hours}h ${minutes}m';
@@ -38,23 +41,25 @@ class PlaylistInfoOption extends StatelessWidget {
           children: [
             ListTile(
               leading: const Icon(FontAwesomeIcons.lightMusic),
-              title: Text(context.tr('playlist.name')),
-              subtitle: Text(playlist.title),
+              title: Text(playlist.title),
+              subtitle: Text(context.tr('playlist.name')),
             ),
             ListTile(
               leading: const Icon(FontAwesomeIcons.lightListMusic),
-              title: Text(context.tr('playlist.songs_count')),
-              subtitle: Text('${playlist.songCount} ${context.tr('playlist.songs')}'),
+              title: Text(
+                '${playlist.songCount} ${context.tr('playlist.songs')}',
+              ),
+              subtitle: Text(context.tr('playlist.songs')),
             ),
             ListTile(
               leading: const Icon(FontAwesomeIcons.lightClock),
-              title: Text(context.tr('playlist.duration')),
-              subtitle: Text(durationText),
+              title: Text(durationText),
+              subtitle: Text(context.tr('playlist.duration')),
             ),
             ListTile(
               leading: const Icon(FontAwesomeIcons.lightCalendar),
-              title: Text(context.tr('playlist.created')),
-              subtitle: Text(playlist.createdAt.toString().split(' ')[0]),
+              title: Text(playlist.createdAt.toString().split(' ')[0]),
+              subtitle: Text(context.tr('playlist.created')),
             ),
           ],
         ),
