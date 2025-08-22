@@ -107,6 +107,8 @@
     "add_to_queue": "Add to queue",
     "remove_from_queue": "Remove from queue",
     "song_info": "Song information",
+    "play_playlist": "Play Playlist",
+    "playlist_info": "Playlist Information",
     "song_added_next": "Song added to play next",
     "song_added_to_queue": "Song added to queue",
     "song_not_in_queue": "Song is not in the current queue",
@@ -141,6 +143,10 @@
   },
   "playlist": {
     "title": "Playlist",
+    "name": "Name",
+    "songs": "songs",
+    "duration": "Duration",
+    "created": "Created",
     "empty": "No songs in this playlist",
     "songs_count": "{count} songs",
     "playlists_count": "{count} playlists",
@@ -156,7 +162,7 @@
     "playlist_deleted": "Playlist deleted",
     "playlist_renamed": "Playlist renamed",
     "no_playlist_selected": "No playlist selected",
-    "delete_confirmation": "Are you sure you want to delete the playlist '{playlist}'?"
+    "delete_confirmation": "Are you sure you want to delete the playlist '{name}'?"
   },
   "player": {
     "now_playing": "Now Playing",
