@@ -4,7 +4,8 @@ import 'package:sonofy/core/services/preferences.dart';
 enum RepeatMode { none, one, all }
 
 class PlayerState {
-  final List<SongModel> playlist;
+  final List<SongModel> _playlist;
+  final List<SongModel> _shufflePlaylist;
   final int currentIndex;
   final bool isPlaying;
   final bool isShuffleEnabled;
@@ -16,7 +17,7 @@ class PlayerState {
   final Duration? sleepTimerRemaining;
 
   PlayerState({
-    required this.playlist,
+    required List<SongModel> playlist,
     required this.currentIndex,
     required this.isPlaying,
     required this.isShuffleEnabled,
@@ -24,12 +25,15 @@ class PlayerState {
     required this.isSleepTimerActive,
     required this.waitForSongToFinish,
     required this.playbackSpeed,
+    List<SongModel>? shufflePlaylist,
     this.sleepTimerDuration,
     this.sleepTimerRemaining,
-  });
+  }) : _playlist = playlist,
+       _shufflePlaylist = shufflePlaylist ?? _generateShufflePlaylist(playlist);
 
   PlayerState.initial()
-    : playlist = [],
+    : _playlist = [],
+      _shufflePlaylist = [],
       currentIndex = -1,
       isPlaying = false,
       isShuffleEnabled = Preferences.playerPreferences.isShuffleEnabled,
@@ -49,11 +53,12 @@ class PlayerState {
     bool? isSleepTimerActive,
     bool? waitForSongToFinish,
     double? playbackSpeed,
+    List<SongModel>? shufflePlaylist,
     Duration? sleepTimerDuration,
     Duration? sleepTimerRemaining,
   }) {
     return PlayerState(
-      playlist: playlist ?? this.playlist,
+      playlist: playlist ?? _playlist,
       currentIndex: currentIndex ?? this.currentIndex,
       isPlaying: isPlaying ?? this.isPlaying,
       isShuffleEnabled: isShuffleEnabled ?? this.isShuffleEnabled,
@@ -61,15 +66,28 @@ class PlayerState {
       isSleepTimerActive: isSleepTimerActive ?? this.isSleepTimerActive,
       waitForSongToFinish: waitForSongToFinish ?? this.waitForSongToFinish,
       playbackSpeed: playbackSpeed ?? this.playbackSpeed,
+      shufflePlaylist: shufflePlaylist ?? _shufflePlaylist,
       sleepTimerDuration: sleepTimerDuration ?? this.sleepTimerDuration,
       sleepTimerRemaining: sleepTimerRemaining ?? this.sleepTimerRemaining,
     );
   }
 
   bool get hasSelectedSong =>
-      playlist.isNotEmpty &&
-      currentIndex < playlist.length &&
+      activePlaylist.isNotEmpty &&
+      currentIndex < activePlaylist.length &&
       currentIndex >= 0;
 
-  SongModel? get currentSong => hasSelectedSong ? playlist[currentIndex] : null;
+  SongModel? get currentSong => hasSelectedSong ? activePlaylist[currentIndex] : null;
+
+  List<SongModel> get playlist => _playlist;
+  
+  List<SongModel> get activePlaylist {
+    return isShuffleEnabled ? _shufflePlaylist : _playlist;
+  }
+
+  static List<SongModel> _generateShufflePlaylist(List<SongModel> playlist) {
+    final shuffled = List.of(playlist);
+    shuffled.shuffle();
+    return shuffled;
+  }
 }

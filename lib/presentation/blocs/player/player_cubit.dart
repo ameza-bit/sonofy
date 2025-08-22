@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:math';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:on_audio_query_pluse/on_audio_query.dart';
 import 'package:sonofy/core/services/preferences.dart';
@@ -29,17 +28,23 @@ class PlayerCubit extends Cubit<PlayerState> {
   Future<void> setPlayingSong(List<SongModel> playlist, SongModel song) async {
     final index = playlist.indexWhere((s) => s.id == song.id);
     final bool isPlaying = await _playerRepository.play(song.data);
+
+    // Generar nueva lista shuffle
+    final shufflePlaylist = _generateShufflePlaylist(playlist);
+    final shuffleIndex = shufflePlaylist.indexWhere((s) => s.id == song.id);
+
     emit(
       state.copyWith(
         playlist: playlist,
-        currentIndex: index,
+        shufflePlaylist: shufflePlaylist,
+        currentIndex: state.isShuffleEnabled ? shuffleIndex : index,
         isPlaying: isPlaying,
       ),
     );
   }
 
   Future<void> nextSong() async {
-    if (state.playlist.isEmpty) return;
+    if (state.activePlaylist.isEmpty) return;
 
     int nextIndex;
     if (state.repeatMode == RepeatMode.one) {
@@ -49,13 +54,13 @@ class PlayerCubit extends Cubit<PlayerState> {
     }
 
     final bool isPlaying = await _playerRepository.play(
-      state.playlist[nextIndex].data,
+      state.activePlaylist[nextIndex].data,
     );
     emit(state.copyWith(currentIndex: nextIndex, isPlaying: isPlaying));
   }
 
   Future<void> previousSong() async {
-    if (state.playlist.isEmpty) return;
+    if (state.activePlaylist.isEmpty) return;
 
     int previousIndex;
     if (state.repeatMode == RepeatMode.one) {
@@ -65,7 +70,7 @@ class PlayerCubit extends Cubit<PlayerState> {
     }
 
     final bool isPlaying = await _playerRepository.play(
-      state.playlist[previousIndex].data,
+      state.activePlaylist[previousIndex].data,
     );
     emit(state.copyWith(currentIndex: previousIndex, isPlaying: isPlaying));
   }
@@ -114,7 +119,7 @@ class PlayerCubit extends Cubit<PlayerState> {
               await nextSong();
             } else if (state.repeatMode == RepeatMode.none) {
               // Solo avanzar si NO es la última canción
-              if (state.currentIndex < state.playlist.length - 1) {
+              if (state.currentIndex < state.activePlaylist.length - 1) {
                 await nextSong();
               } else {
                 // Es la última canción: volver al inicio pero sin reproducir
@@ -148,7 +153,44 @@ class PlayerCubit extends Cubit<PlayerState> {
 
   void toggleShuffle() {
     final newShuffleState = !state.isShuffleEnabled;
-    emit(state.copyWith(isShuffleEnabled: newShuffleState));
+
+    if (newShuffleState) {
+      // Activando shuffle: generar nueva lista shuffle y encontrar índice actual
+      final currentSong = state.currentSong;
+      if (currentSong != null) {
+        final newShufflePlaylist = _generateShufflePlaylist(state.playlist);
+        final newCurrentIndex = newShufflePlaylist.indexWhere(
+          (s) => s.id == currentSong.id,
+        );
+
+        emit(
+          state.copyWith(
+            isShuffleEnabled: newShuffleState,
+            shufflePlaylist: newShufflePlaylist,
+            currentIndex: newCurrentIndex,
+          ),
+        );
+      } else {
+        emit(state.copyWith(isShuffleEnabled: newShuffleState));
+      }
+    } else {
+      // Desactivando shuffle: encontrar índice en playlist original
+      final currentSong = state.currentSong;
+      if (currentSong != null) {
+        final newCurrentIndex = state.playlist.indexWhere(
+          (s) => s.id == currentSong.id,
+        );
+        emit(
+          state.copyWith(
+            isShuffleEnabled: newShuffleState,
+            currentIndex: newCurrentIndex,
+          ),
+        );
+      } else {
+        emit(state.copyWith(isShuffleEnabled: newShuffleState));
+      }
+    }
+
     _savePlayerPreferences();
   }
 
@@ -170,42 +212,28 @@ class PlayerCubit extends Cubit<PlayerState> {
   }
 
   int _getNextIndex() {
-    if (state.isShuffleEnabled) {
-      if (state.playlist.length <= 1) return state.currentIndex;
-      final random = Random();
-      int nextIndex;
-      do {
-        nextIndex = random.nextInt(state.playlist.length);
-      } while (nextIndex == state.currentIndex);
-      return nextIndex;
+    final activePlaylist = state.activePlaylist;
+    if (activePlaylist.length <= 1) return state.currentIndex;
+
+    if (state.currentIndex < activePlaylist.length - 1) {
+      return state.currentIndex + 1;
     } else {
-      if (state.currentIndex < state.playlist.length - 1) {
-        return state.currentIndex + 1;
-      } else {
-        // Para RepeatMode.none, permitir wrap-around en navegación manual
-        // El auto-advance ya está manejado en _startPositionUpdates
-        return 0;
-      }
+      // Para RepeatMode.none, permitir wrap-around en navegación manual
+      // El auto-advance ya está manejado en _startPositionUpdates
+      return 0;
     }
   }
 
   int _getPreviousIndex() {
-    if (state.isShuffleEnabled) {
-      if (state.playlist.length <= 1) return state.currentIndex;
-      final random = Random();
-      int previousIndex;
-      do {
-        previousIndex = random.nextInt(state.playlist.length);
-      } while (previousIndex == state.currentIndex);
-      return previousIndex;
+    final activePlaylist = state.activePlaylist;
+    if (activePlaylist.length <= 1) return state.currentIndex;
+
+    if (state.currentIndex > 0) {
+      return state.currentIndex - 1;
     } else {
-      if (state.currentIndex > 0) {
-        return state.currentIndex - 1;
-      } else {
-        // Para RepeatMode.none, permitir wrap-around en navegación manual
-        // El auto-advance ya está manejado en _startPositionUpdates
-        return state.playlist.length - 1;
-      }
+      // Para RepeatMode.none, permitir wrap-around en navegación manual
+      // El auto-advance ya está manejado en _startPositionUpdates
+      return activePlaylist.length - 1;
     }
   }
 
@@ -348,6 +376,12 @@ class PlayerCubit extends Cubit<PlayerState> {
         isPlaying: newPlaylist.isNotEmpty && songIndex == state.currentIndex,
       ),
     );
+  }
+
+  List<SongModel> _generateShufflePlaylist(List<SongModel> playlist) {
+    final shuffled = List.of(playlist);
+    shuffled.shuffle();
+    return shuffled;
   }
 
   void _savePlayerPreferences() {
