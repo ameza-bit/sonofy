@@ -35,8 +35,11 @@ class PlayerCubit extends Cubit<PlayerState> {
 
     // Generar nueva lista shuffle
     final shufflePlaylist =
-        shuffledPlaylist ?? _generateShufflePlaylist(playlist);
-    final shuffleIndex = shufflePlaylist.indexWhere((s) => s.id == song.id);
+        shuffledPlaylist ?? _generateShufflePlaylist(playlist, song);
+    // Si se generó una nueva lista shuffle, la canción será el índice 0
+    final shuffleIndex = shuffledPlaylist != null
+        ? shufflePlaylist.indexWhere((s) => s.id == song.id)
+        : 0;
 
     emit(
       state.copyWith(
@@ -163,10 +166,12 @@ class PlayerCubit extends Cubit<PlayerState> {
       // Activando shuffle: generar nueva lista shuffle y encontrar índice actual
       final currentSong = state.currentSong;
       if (currentSong != null) {
-        final newShufflePlaylist = _generateShufflePlaylist(state.playlist);
-        final newCurrentIndex = newShufflePlaylist.indexWhere(
-          (s) => s.id == currentSong.id,
+        final newShufflePlaylist = _generateShufflePlaylist(
+          state.playlist,
+          currentSong,
         );
+        // La canción actual siempre será el índice 0 en la nueva lista shuffle
+        const newCurrentIndex = 0;
 
         emit(
           state.copyWith(
@@ -383,9 +388,25 @@ class PlayerCubit extends Cubit<PlayerState> {
     );
   }
 
-  List<SongModel> _generateShufflePlaylist(List<SongModel> playlist) {
+  List<SongModel> _generateShufflePlaylist(
+    List<SongModel> playlist, [
+    SongModel? currentSong,
+  ]) {
+    if (playlist.isEmpty) return [];
+
     final shuffled = List.of(playlist);
     shuffled.shuffle();
+
+    // Si hay una canción actual, asegurarse de que sea la primera
+    if (currentSong != null) {
+      final currentIndex = shuffled.indexWhere((s) => s.id == currentSong.id);
+      if (currentIndex != -1) {
+        // Mover la canción actual al inicio
+        final current = shuffled.removeAt(currentIndex);
+        shuffled.insert(0, current);
+      }
+    }
+
     return shuffled;
   }
 

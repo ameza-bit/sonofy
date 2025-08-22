@@ -89,6 +89,7 @@ class PlayerState {
   }
 
   static List<SongModel> _generateShufflePlaylist(List<SongModel> playlist) {
+    if (playlist.isEmpty) return [];
     final shuffled = List.of(playlist);
     shuffled.shuffle();
     return shuffled;
