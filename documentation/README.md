@@ -15,6 +15,7 @@
   - [Use Cases](./api/usecases.md)
   - [Estados y Cubits](./api/state-management.md)
   - [Modelos de Datos](./api/data-models.md)
+  - [**🔀 API del Sistema de Reproducción**](./api/player-api.md)
 - [Guías](./guides/)
   - [Configuración de Desarrollo](./guides/development-setup.md)
   - [Guía de Contribución](./guides/contributing.md)
@@ -23,12 +24,14 @@
   - [Integración iPod Library](./guides/ipod-library-integration.md)
   - [**🆕 Sistema de Playlists**](./guides/playlist-system-guide.md)
   - [**🆕 Control de Velocidad de Reproducción**](./guides/playback-speed-system.md)
+  - [**🔀 Sistema de Shuffle Inteligente**](./guides/shuffle-system-guide.md)
   - [**✨ Internacionalización y Traducciones**](./guides/internationalization-guide.md)
 - [Componentes](./components/)
   - [Widgets Comunes](./components/common-widgets.md)
   - [Pantallas](./components/screens.md)
   - [Sistema de Temas](./components/theming-system.md)
   - [**✨ Sistema de Modales Contextuales**](./components/modal-system.md)
+  - [**🔀 Sistema de Reproducción Completo**](./components/player-system.md)
 
 ## ✨ Actualizaciones Recientes
 
@@ -50,8 +53,8 @@
 - ⏭️ Navegación entre canciones (anterior/siguiente)
 - 📊 Slider de progreso con control manual
 - 🖼️ Visualización de carátulas de álbum
-- 🔀 Modo aleatorio (shuffle) inteligente
-- 🔁 Modos de repetición (uno, todos, ninguno)
+- 🔀 **NUEVO**: Modo aleatorio (shuffle) inteligente con canción actual al inicio
+- 🔁 **MEJORADO**: Modos de repetición con auto-advance inteligente (uno, todos, ninguno)
 - 🍎 **NUEVO**: Soporte nativo para URLs iPod Library (iOS)
 - 🎵 **NUEVO**: Reproductor dual (AudioPlayers + MPMusicPlayerController)
 - 🔒 **NUEVO**: Verificación automática de protección DRM
@@ -143,11 +146,36 @@ Para consultas técnicas o reportar problemas, por favor revisa la documentació
 
 ---
 
-**Versión de Documentación**: 3.3.0  
-**Última Actualización**: Agosto 2024 - Control de Velocidad Nativo  
+**Versión de Documentación**: 3.4.0  
+**Última Actualización**: Agosto 2024 - Sistema de Shuffle Inteligente  
 **Mantenedor**: Equipo de Desarrollo Sonofy
 
-## 🆕 Novedades v3.3.0 - Control de Velocidad de Reproducción Nativo
+## 🆕 Novedades v3.4.0 - Sistema de Shuffle Inteligente
+
+### Shuffle Revolucionario
+- **🎯 Canción Actual al Inicio**: Al activar shuffle, la canción reproduciéndose se coloca como primera
+- **🔄 Doble Lista Inteligente**: Sistema de playlist original + shuffle separadas
+- **💾 Preservación de Secuencia**: PlaylistModal preserva orden shuffle existente
+- **🎮 Navegación Consistente**: Auto-advance vs navegación manual diferenciados
+- **⚡ RepeatMode Mejorado**: Lógica corregida para cada modo de repetición
+
+### Auto-advance Inteligente por Modo
+- **🚫 RepeatMode.none**: Se detiene al final, vuelve al inicio pausado
+- **🔂 RepeatMode.one**: Repite canción actual indefinidamente
+- **🔁 RepeatMode.all**: Continúa infinitamente en loop
+
+### PlaylistModal Adaptativo
+- **📋 Vista por Modo**: Muestra canciones según RepeatMode activo
+- **🎯 Auto-scroll**: Reposicionamiento automático a canción actual
+- **🔀 Orden Inteligente**: Respeta shuffle y muestra secuencia real de reproducción
+
+### Arquitectura Robusta
+- **🏗️ PlayerState Dual**: Maneja playlist original y shuffle separadamente
+- **🔄 PlayerCubit Avanzado**: Métodos especializados para cada contexto
+- **📱 UI Synchronizada**: Todos los componentes reflejan estado real
+- **🧪 Documentación Completa**: Guías técnicas y API reference
+
+## 🔄 Historial v3.3.0 - Control de Velocidad de Reproducción Nativo
 
 ### Sistema de Velocidad Multiplataforma
 - **🚀 7 Velocidades Disponibles**: 0.5x, 0.75x, 1.0x, 1.25x, 1.5x, 1.75x, 2.0x

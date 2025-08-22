@@ -11,11 +11,13 @@ class PlaySongOption extends StatelessWidget {
   const PlaySongOption({
     required this.song,
     required this.playlist,
+    this.shufflePlaylist,
     super.key,
   });
 
   final SongModel song;
   final List<SongModel> playlist;
+  final List<SongModel>? shufflePlaylist;
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +26,11 @@ class PlaySongOption extends StatelessWidget {
       title: context.tr('options.play_song'),
       onTap: () {
         context.pop();
-        context.read<PlayerCubit>().setPlayingSong(playlist, song);
+        context.read<PlayerCubit>().setPlayingSong(
+          playlist,
+          song,
+          shufflePlaylist,
+        );
       },
     );
   }

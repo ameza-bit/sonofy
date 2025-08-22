@@ -94,10 +94,18 @@ class OptionsModal {
     _show(options);
   }
 
-  void songPlayerListContext(SongModel song, List<SongModel> playlist) {
+  void songPlayerListContext(
+    SongModel song,
+    List<SongModel> playlist,
+    List<SongModel> shufflePlaylist,
+  ) {
     final playerState = context.read<PlayerCubit>().state;
     final options = <Widget>[
-      PlaySongOption(song: song, playlist: playlist),
+      PlaySongOption(
+        song: song,
+        playlist: playlist,
+        shufflePlaylist: shufflePlaylist,
+      ),
       if (playerState.hasSelectedSong) ...[
         PlayNextOption(song: song),
         AddToQueueOption(song: song),
