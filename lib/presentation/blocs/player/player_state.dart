@@ -77,10 +77,13 @@ class PlayerState {
       currentIndex < activePlaylist.length &&
       currentIndex >= 0;
 
-  SongModel? get currentSong => hasSelectedSong ? activePlaylist[currentIndex] : null;
+  SongModel? get currentSong =>
+      hasSelectedSong ? activePlaylist[currentIndex] : null;
 
   List<SongModel> get playlist => _playlist;
-  
+
+  List<SongModel> get shufflePlaylist => _shufflePlaylist;
+
   List<SongModel> get activePlaylist {
     return isShuffleEnabled ? _shufflePlaylist : _playlist;
   }

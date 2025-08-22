@@ -10,7 +10,7 @@ import 'package:sonofy/data/models/playlist.dart';
 
 class PlayPlaylistOption extends StatelessWidget {
   final Playlist playlist;
-  
+
   const PlayPlaylistOption({required this.playlist, super.key});
 
   @override
@@ -22,9 +22,9 @@ class PlayPlaylistOption extends StatelessWidget {
         context.pop();
         final songsCubit = context.read<SongsCubit>();
         final songs = songsCubit.getSongsByIds(playlist.songIds);
-        
+
         if (songs.isNotEmpty) {
-          context.read<PlayerCubit>().setPlayingSong(songs, songs.first);
+          context.read<PlayerCubit>().setPlayingSong(songs, songs.first, null);
         }
       },
     );

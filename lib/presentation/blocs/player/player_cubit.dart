@@ -25,12 +25,17 @@ class PlayerCubit extends Cubit<PlayerState> {
     _playerRepository.setPlaybackSpeed(savedSpeed);
   }
 
-  Future<void> setPlayingSong(List<SongModel> playlist, SongModel song) async {
+  Future<void> setPlayingSong(
+    List<SongModel> playlist,
+    SongModel song,
+    List<SongModel>? shuffledPlaylist,
+  ) async {
     final index = playlist.indexWhere((s) => s.id == song.id);
     final bool isPlaying = await _playerRepository.play(song.data);
 
     // Generar nueva lista shuffle
-    final shufflePlaylist = _generateShufflePlaylist(playlist);
+    final shufflePlaylist =
+        shuffledPlaylist ?? _generateShufflePlaylist(playlist);
     final shuffleIndex = shufflePlaylist.indexWhere((s) => s.id == song.id);
 
     emit(

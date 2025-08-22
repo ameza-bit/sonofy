@@ -94,12 +94,15 @@ class _PlaylistModalState extends State<PlaylistModal> {
               final song = displayedSongs[index];
 
               return SongCard(
-                playlist: state.activePlaylist,
+                playlist: state.playlist,
+                shuffledPlaylist: state.shufflePlaylist,
                 song: song,
                 onTap: () => context.pop(),
-                onLongPress: () => OptionsModal(
-                  context,
-                ).songPlayerListContext(song, state.activePlaylist),
+                onLongPress: () => OptionsModal(context).songPlayerListContext(
+                  song,
+                  state.playlist,
+                  state.shufflePlaylist,
+                ),
               );
             },
           );
