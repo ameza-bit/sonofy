@@ -42,7 +42,10 @@
     "invalid_url": "URL inválida",
     "invalid_image_url": "La URL debe ser una imagen válida (.jpg, .png, .gif, etc.)",
     "url_might_not_be_image": "Esta URL podría no ser una imagen. Inténtalo de todas formas si estás seguro.",
-    "cors_warning": "Esta URL podría tener problemas de CORS. Usaremos un proxy para cargarla."
+    "cors_warning": "Esta URL podría tener problemas de CORS. Usaremos un proxy para cargarla.",
+    "discard": "Descartar",
+    "discard_changes": "Descartar cambios",
+    "error_occurred": "Ha ocurrido un error"
   },
   "errors": {
     "something_went_wrong": "¡Ups! Algo salió mal",
@@ -189,5 +192,10 @@
       "waiting_for_song_end": "Esperando que Termine la Canción",
       "will_pause_after_song": "La música se pausará cuando termine la canción actual"
     }
+  },
+  "reorder": {
+    "title": "Reordenar Canciones",
+    "discard_changes_message": "¿Estás seguro de que quieres descartar los cambios realizados?",
+    "songs_count": "{count} canciones"
   }
 }
