@@ -118,11 +118,9 @@ class PlayerCubit extends Cubit<PlayerState> {
                 await nextSong();
               } else {
                 // Es la última canción: volver al inicio pero sin reproducir
-                await _playerRepository.pause();
-                emit(state.copyWith(
-                  currentIndex: 0,
-                  isPlaying: false,
-                ));
+                await nextSong();
+                final bool isPlaying = await _playerRepository.pause();
+                emit(state.copyWith(isPlaying: isPlaying));
               }
             }
           }
