@@ -13,11 +13,8 @@ import 'package:sonofy/presentation/widgets/common/font_awesome/font_awesome_flu
 
 class ReorderPlaylistScreen extends StatefulWidget {
   static const String routeName = 'reorder-playlist';
-  
-  const ReorderPlaylistScreen({
-    required this.playlistId,
-    super.key,
-  });
+
+  const ReorderPlaylistScreen({required this.playlistId, super.key});
 
   final String playlistId;
 
@@ -39,23 +36,25 @@ class _ReorderPlaylistScreenState extends State<ReorderPlaylistScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final playlistsState = context.read<PlaylistsCubit>().state;
       final songsState = context.read<SongsCubit>().state;
-      
+
       final playlist = playlistsState.getPlaylistById(widget.playlistId);
       if (playlist != null) {
         final songs = songsState.songs.where((song) {
           final songIdAsString = song.id.toString();
           return playlist.songIds.contains(songIdAsString);
         }).toList();
-        
+
         // Ordenar las canciones según el orden en la playlist
         final orderedList = <SongModel>[];
         for (final songId in playlist.songIds) {
-          final song = songs.where((s) => s.id.toString() == songId).firstOrNull;
+          final song = songs
+              .where((s) => s.id.toString() == songId)
+              .firstOrNull;
           if (song != null) {
             orderedList.add(song);
           }
         }
-        
+
         setState(() {
           orderedSongs = orderedList;
         });
@@ -76,15 +75,15 @@ class _ReorderPlaylistScreenState extends State<ReorderPlaylistScreen> {
 
   Future<void> _saveChanges() async {
     if (!hasChanges) return;
-    
+
     final newOrder = orderedSongs.map((song) => song.id.toString()).toList();
-    
+
     try {
       await context.read<PlaylistsCubit>().reorderSongsInPlaylist(
         widget.playlistId,
         newOrder,
       );
-      
+
       if (mounted) {
         context.pop();
       }
@@ -134,7 +133,7 @@ class _ReorderPlaylistScreenState extends State<ReorderPlaylistScreen> {
     return BlocBuilder<PlaylistsCubit, PlaylistsState>(
       builder: (context, playlistsState) {
         final playlist = playlistsState.getPlaylistById(widget.playlistId);
-        
+
         return Scaffold(
           appBar: AppBar(
             title: Text(
@@ -190,9 +189,12 @@ class _ReorderPlaylistScreenState extends State<ReorderPlaylistScreen> {
                           ),
                         ),
                         Text(
-                          context.tr('reorder.songs_count', namedArgs: {
-                            'count': orderedSongs.length.toString(),
-                          }),
+                          context.tr(
+                            'reorder.songs_count',
+                            namedArgs: {
+                              'count': orderedSongs.length.toString(),
+                            },
+                          ),
                           style: TextStyle(
                             fontSize: context.scaleText(14),
                             color: context.musicLightGrey,
@@ -227,9 +229,10 @@ class _ReorderPlaylistScreenState extends State<ReorderPlaylistScreen> {
                           padding: const EdgeInsets.all(16.0),
                           itemCount: orderedSongs.length,
                           onReorder: _onReorder,
+                          buildDefaultDragHandles: false,
                           itemBuilder: (context, index) {
                             final song = orderedSongs[index];
-                            
+
                             return Card(
                               key: ValueKey(song.id),
                               margin: const EdgeInsets.symmetric(vertical: 4.0),
@@ -238,14 +241,21 @@ class _ReorderPlaylistScreenState extends State<ReorderPlaylistScreen> {
                                 child: Row(
                                   spacing: 12,
                                   children: [
-                                    Icon(
-                                      FontAwesomeIcons.lightGripVertical,
-                                      color: context.musicLightGrey,
-                                      size: 16,
+                                    ReorderableDragStartListener(
+                                      index: index,
+                                      child: Container(
+                                        padding: const EdgeInsets.all(4.0),
+                                        child: Icon(
+                                          FontAwesomeIcons.lightGripVertical,
+                                          color: Theme.of(context).primaryColor,
+                                          size: 18,
+                                        ),
+                                      ),
                                     ),
                                     Expanded(
                                       child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         spacing: 4,
                                         children: [
                                           Text(
@@ -258,7 +268,9 @@ class _ReorderPlaylistScreenState extends State<ReorderPlaylistScreen> {
                                             ),
                                           ),
                                           Text(
-                                            song.artist ?? song.composer ?? 'Desconocido',
+                                            song.artist ??
+                                                song.composer ??
+                                                'Desconocido',
                                             maxLines: 1,
                                             overflow: TextOverflow.ellipsis,
                                             style: TextStyle(
@@ -270,7 +282,9 @@ class _ReorderPlaylistScreenState extends State<ReorderPlaylistScreen> {
                                       ),
                                     ),
                                     Text(
-                                      DurationMinutes.format(song.duration ?? 0),
+                                      DurationMinutes.format(
+                                        song.duration ?? 0,
+                                      ),
                                       style: TextStyle(
                                         fontSize: context.scaleText(12),
                                         color: context.musicLightGrey,
