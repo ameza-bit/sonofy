@@ -4,6 +4,7 @@ import 'package:sonofy/domain/usecases/create_playlist_usecase.dart';
 import 'package:sonofy/domain/usecases/delete_playlist_usecase.dart';
 import 'package:sonofy/domain/usecases/get_all_playlists_usecase.dart';
 import 'package:sonofy/domain/usecases/remove_song_from_playlist_usecase.dart';
+import 'package:sonofy/domain/usecases/reorder_songs_in_playlist_usecase.dart';
 import 'package:sonofy/domain/usecases/update_playlist_usecase.dart';
 import 'package:sonofy/presentation/blocs/playlists/playlists_state.dart';
 
@@ -14,6 +15,7 @@ class PlaylistsCubit extends Cubit<PlaylistsState> {
   final UpdatePlaylistUseCase _updatePlaylistUseCase;
   final AddSongToPlaylistUseCase _addSongToPlaylistUseCase;
   final RemoveSongFromPlaylistUseCase _removeSongFromPlaylistUseCase;
+  final ReorderSongsInPlaylistUseCase _reorderSongsInPlaylistUseCase;
 
   PlaylistsCubit(
     this._getAllPlaylistsUseCase,
@@ -22,6 +24,7 @@ class PlaylistsCubit extends Cubit<PlaylistsState> {
     this._updatePlaylistUseCase,
     this._addSongToPlaylistUseCase,
     this._removeSongFromPlaylistUseCase,
+    this._reorderSongsInPlaylistUseCase,
   ) : super(PlaylistsState.initial()) {
     loadPlaylists();
   }
@@ -155,17 +158,29 @@ class PlaylistsCubit extends Cubit<PlaylistsState> {
     emit(state.copyWith(clearError: true));
   }
 
-  // TODO(Armando): Implement reorder songs functionality
-  // Future<void> reorderSongsInPlaylist(String playlistId, List<String> newOrder) async {
-  //   try {
-  //     emit(state.copyWith(clearError: true));
-  //     final updatedPlaylist = await _reorderSongsUseCase(playlistId, newOrder);
-  //     final updatedPlaylists = state.playlists
-  //         .map((p) => p.id == playlistId ? updatedPlaylist : p)
-  //         .toList();
-  //     emit(state.copyWith(playlists: updatedPlaylists));
-  //   } catch (e) {
-  //     emit(state.copyWith(error: e.toString()));
-  //   }
-  // }
+  Future<void> reorderSongsInPlaylist(String playlistId, List<String> newOrder) async {
+    try {
+      emit(state.copyWith(clearError: true));
+      
+      final updatedPlaylist = await _reorderSongsInPlaylistUseCase(playlistId, newOrder);
+      
+      final updatedPlaylists = state.playlists
+          .map((p) => p.id == playlistId ? updatedPlaylist : p)
+          .toList();
+      
+      // Si la playlist actualizada es la seleccionada, actualizar también selectedPlaylist
+      final updatedSelectedPlaylist = state.selectedPlaylist?.id == playlistId
+          ? updatedPlaylist
+          : state.selectedPlaylist;
+      
+      emit(
+        state.copyWith(
+          playlists: updatedPlaylists,
+          selectedPlaylist: updatedSelectedPlaylist,
+        ),
+      );
+    } catch (e) {
+      emit(state.copyWith(error: e.toString()));
+    }
+  }
 }

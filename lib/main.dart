@@ -22,6 +22,7 @@ import 'package:sonofy/domain/usecases/get_all_playlists_usecase.dart';
 import 'package:sonofy/domain/usecases/get_local_songs_usecase.dart';
 import 'package:sonofy/domain/usecases/get_songs_from_folder_usecase.dart';
 import 'package:sonofy/domain/usecases/remove_song_from_playlist_usecase.dart';
+import 'package:sonofy/domain/usecases/reorder_songs_in_playlist_usecase.dart';
 import 'package:sonofy/domain/usecases/select_music_folder_usecase.dart';
 import 'package:sonofy/domain/usecases/update_playlist_usecase.dart';
 import 'package:sonofy/presentation/blocs/player/player_cubit.dart';
@@ -73,6 +74,8 @@ Future<void> main() async {
       AddSongToPlaylistUseCase(playlistRepository);
   final RemoveSongFromPlaylistUseCase removeSongFromPlaylistUseCase =
       RemoveSongFromPlaylistUseCase(playlistRepository);
+  final ReorderSongsInPlaylistUseCase reorderSongsInPlaylistUseCase =
+      ReorderSongsInPlaylistUseCase(playlistRepository);
 
   runApp(
     MultiBlocProvider(
@@ -103,6 +106,7 @@ Future<void> main() async {
             updatePlaylistUseCase,
             addSongToPlaylistUseCase,
             removeSongFromPlaylistUseCase,
+            reorderSongsInPlaylistUseCase,
           ),
         ),
       ],

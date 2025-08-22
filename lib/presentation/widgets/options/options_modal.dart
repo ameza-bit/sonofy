@@ -12,6 +12,10 @@ import 'package:sonofy/presentation/widgets/options/reorder_option.dart';
 import 'package:sonofy/presentation/widgets/options/settings_option.dart';
 import 'package:sonofy/presentation/widgets/options/sleep_option.dart';
 import 'package:sonofy/presentation/widgets/options/speed_option.dart';
+import 'package:sonofy/presentation/widgets/options/play_playlist_option.dart';
+import 'package:sonofy/presentation/widgets/options/playlist_info_option.dart';
+import 'package:sonofy/presentation/widgets/options/rename_playlist_card_option.dart';
+import 'package:sonofy/presentation/widgets/options/delete_playlist_card_option.dart';
 import 'package:sonofy/presentation/widgets/options/play_song_option.dart';
 import 'package:sonofy/presentation/widgets/options/play_next_option.dart';
 import 'package:sonofy/presentation/widgets/options/add_to_queue_option.dart';
@@ -22,6 +26,7 @@ import 'package:sonofy/presentation/widgets/options/remove_from_playlist_option.
 import 'package:on_audio_query_pluse/on_audio_query.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sonofy/presentation/blocs/player/player_cubit.dart';
+import 'package:sonofy/data/models/playlist.dart';
 
 class OptionsModal {
   BuildContext context;
@@ -103,4 +108,11 @@ class OptionsModal {
     ];
     _show(options);
   }
+
+  void playlistCard(Playlist playlist) => _show([
+    PlayPlaylistOption(playlist: playlist),
+    RenamePlaylistCardOption(playlist: playlist),
+    PlaylistInfoOption(playlist: playlist),
+    DeletePlaylistCardOption(playlist: playlist),
+  ]);
 }

@@ -6,6 +6,7 @@ import 'package:sonofy/main.dart';
 import 'package:sonofy/presentation/screens/library_screen.dart';
 import 'package:sonofy/presentation/screens/player_screen.dart';
 import 'package:sonofy/presentation/screens/playlist_screen.dart';
+import 'package:sonofy/presentation/screens/reorder_playlist_screen.dart';
 import 'package:sonofy/presentation/screens/settings_screen.dart';
 import 'package:sonofy/presentation/screens/splash_screen.dart';
 
@@ -44,6 +45,19 @@ class AppRoutes {
                   name: state.name,
                   arguments: state.extra,
                 ),
+                routes: [
+                  GoRoute(
+                    path: ReorderPlaylistScreen.routeName,
+                    name: ReorderPlaylistScreen.routeName,
+                    pageBuilder: (context, state) => PageTransition(
+                      context: context,
+                      state: state,
+                      page: ReorderPlaylistScreen(
+                        playlistId: state.pathParameters['playlistId'] ?? '',
+                      ),
+                    ).fadeTransition(),
+                  ),
+                ],
               ),
               GoRoute(
                 path: PlayerScreen.routeName,

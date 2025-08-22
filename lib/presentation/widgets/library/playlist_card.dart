@@ -9,6 +9,7 @@ import 'package:sonofy/presentation/blocs/songs/songs_cubit.dart';
 import 'package:sonofy/presentation/blocs/songs/songs_state.dart';
 import 'package:sonofy/presentation/screens/playlist_screen.dart';
 import 'package:sonofy/presentation/widgets/library/playlist_cover_grid.dart';
+import 'package:sonofy/presentation/widgets/options/options_modal.dart';
 
 class PlaylistCard extends StatelessWidget {
   final Playlist playlist;
@@ -26,6 +27,7 @@ class PlaylistCard extends StatelessWidget {
         PlaylistScreen.routeName,
         pathParameters: {'playlistId': playlist.id},
       ),
+      onLongPress: () => OptionsModal(context).playlistCard(playlist),
       child: Card(
         elevation: 2.0,
         margin: const EdgeInsets.symmetric(horizontal: 4.0),

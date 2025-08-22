@@ -2,6 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:on_audio_query_pluse/on_audio_query.dart';
 import 'package:sonofy/core/constants/app_constants.dart';
 import 'package:sonofy/core/extensions/theme_extensions.dart';
 import 'package:sonofy/presentation/blocs/playlists/playlists_cubit.dart';
@@ -98,14 +99,16 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
                         );
                       }
 
-                      // Filtrar canciones que están en la playlist
-                      // Convertir song.id (int) a String para comparar con songIds almacenados
-                      final playlistSongs = songsState.songs.where((song) {
-                        final songIdAsString = song.id.toString();
-                        return selectedPlaylist.songIds.contains(
-                          songIdAsString,
-                        );
-                      }).toList();
+                      // Ordenar canciones según el orden en la playlist
+                      final playlistSongs = <SongModel>[];
+                      for (final songId in selectedPlaylist.songIds) {
+                        final song = songsState.songs
+                            .where((s) => s.id.toString() == songId)
+                            .firstOrNull;
+                        if (song != null) {
+                          playlistSongs.add(song);
+                        }
+                      }
 
                       if (playlistSongs.isEmpty) {
                         return Column(
