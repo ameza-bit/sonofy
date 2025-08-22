@@ -110,9 +110,20 @@ class PlayerCubit extends Cubit<PlayerState> {
           if (isNearEnd && state.hasSelectedSong) {
             if (state.repeatMode == RepeatMode.one) {
               await _playerRepository.seek(Duration.zero);
-            } else if (state.repeatMode == RepeatMode.all ||
-                state.playlist.length > 1) {
+            } else if (state.repeatMode == RepeatMode.all) {
               await nextSong();
+            } else if (state.repeatMode == RepeatMode.none) {
+              // Solo avanzar si NO es la última canción
+              if (state.currentIndex < state.playlist.length - 1) {
+                await nextSong();
+              } else {
+                // Es la última canción: volver al inicio pero sin reproducir
+                await _playerRepository.pause();
+                emit(state.copyWith(
+                  currentIndex: 0,
+                  isPlaying: false,
+                ));
+              }
             }
           }
         }
@@ -173,6 +184,8 @@ class PlayerCubit extends Cubit<PlayerState> {
       if (state.currentIndex < state.playlist.length - 1) {
         return state.currentIndex + 1;
       } else {
+        // Para RepeatMode.none, permitir wrap-around en navegación manual
+        // El auto-advance ya está manejado en _startPositionUpdates
         return 0;
       }
     }
@@ -191,6 +204,8 @@ class PlayerCubit extends Cubit<PlayerState> {
       if (state.currentIndex > 0) {
         return state.currentIndex - 1;
       } else {
+        // Para RepeatMode.none, permitir wrap-around en navegación manual
+        // El auto-advance ya está manejado en _startPositionUpdates
         return state.playlist.length - 1;
       }
     }
@@ -282,16 +297,16 @@ class PlayerCubit extends Cubit<PlayerState> {
 
   void insertSongNext(SongModel song) {
     if (state.playlist.isEmpty) return;
-    
+
     final newPlaylist = List<SongModel>.from(state.playlist);
     final insertIndex = state.currentIndex + 1;
-    
+
     if (insertIndex < newPlaylist.length) {
       newPlaylist.insert(insertIndex, song);
     } else {
       newPlaylist.add(song);
     }
-    
+
     emit(state.copyWith(playlist: newPlaylist));
   }
 
@@ -302,12 +317,13 @@ class PlayerCubit extends Cubit<PlayerState> {
 
   void removeFromQueue(SongModel song) {
     if (state.playlist.isEmpty) return;
-    
+
     final songIndex = state.playlist.indexWhere((s) => s.id == song.id);
     if (songIndex == -1) return;
-    
-    final newPlaylist = List<SongModel>.from(state.playlist)..removeAt(songIndex);
-    
+
+    final newPlaylist = List<SongModel>.from(state.playlist)
+      ..removeAt(songIndex);
+
     // Adjust current index if necessary
     int newCurrentIndex = state.currentIndex;
     if (songIndex < state.currentIndex) {
@@ -326,12 +342,14 @@ class PlayerCubit extends Cubit<PlayerState> {
         newCurrentIndex = -1;
       }
     }
-    
-    emit(state.copyWith(
-      playlist: newPlaylist,
-      currentIndex: newCurrentIndex,
-      isPlaying: newPlaylist.isNotEmpty && songIndex == state.currentIndex,
-    ));
+
+    emit(
+      state.copyWith(
+        playlist: newPlaylist,
+        currentIndex: newCurrentIndex,
+        isPlaying: newPlaylist.isNotEmpty && songIndex == state.currentIndex,
+      ),
+    );
   }
 
   void _savePlayerPreferences() {
