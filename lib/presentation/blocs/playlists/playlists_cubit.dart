@@ -158,21 +158,27 @@ class PlaylistsCubit extends Cubit<PlaylistsState> {
     emit(state.copyWith(clearError: true));
   }
 
-  Future<void> reorderSongsInPlaylist(String playlistId, List<String> newOrder) async {
+  Future<void> reorderSongsInPlaylist(
+    String playlistId,
+    List<String> newOrder,
+  ) async {
     try {
       emit(state.copyWith(clearError: true));
-      
-      final updatedPlaylist = await _reorderSongsInPlaylistUseCase(playlistId, newOrder);
-      
+
+      final updatedPlaylist = await _reorderSongsInPlaylistUseCase(
+        playlistId,
+        newOrder,
+      );
+
       final updatedPlaylists = state.playlists
           .map((p) => p.id == playlistId ? updatedPlaylist : p)
           .toList();
-      
+
       // Si la playlist actualizada es la seleccionada, actualizar también selectedPlaylist
       final updatedSelectedPlaylist = state.selectedPlaylist?.id == playlistId
           ? updatedPlaylist
           : state.selectedPlaylist;
-      
+
       emit(
         state.copyWith(
           playlists: updatedPlaylists,
@@ -181,6 +187,18 @@ class PlaylistsCubit extends Cubit<PlaylistsState> {
       );
     } catch (e) {
       emit(state.copyWith(error: e.toString()));
+    }
+  }
+
+  void filterPlaylists(String query) {
+    if (query.isEmpty) {
+      emit(state.copyWith(clearFilteredPlaylists: true));
+    } else {
+      final filteredPlaylists = state.playlists.where((playlist) {
+        return playlist.title.toLowerCase().contains(query.toLowerCase());
+      }).toList();
+
+      emit(state.copyWith(filteredPlaylists: filteredPlaylists));
     }
   }
 }

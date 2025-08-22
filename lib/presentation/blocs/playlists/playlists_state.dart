@@ -2,6 +2,7 @@ import 'package:sonofy/data/models/playlist.dart';
 
 class PlaylistsState {
   final List<Playlist> playlists;
+  final List<Playlist>? filteredPlaylists;
   final Playlist? selectedPlaylist;
   final bool isLoading;
   final bool isCreating;
@@ -10,6 +11,7 @@ class PlaylistsState {
 
   PlaylistsState({
     required this.playlists,
+    this.filteredPlaylists,
     this.selectedPlaylist,
     this.isLoading = false,
     this.isCreating = false,
@@ -18,15 +20,18 @@ class PlaylistsState {
   });
 
   PlaylistsState.initial()
-      : playlists = [],
-        selectedPlaylist = null,
-        isLoading = false,
-        isCreating = false,
-        isDeleting = false,
-        error = null;
+    : playlists = [],
+      filteredPlaylists = null,
+      selectedPlaylist = null,
+      isLoading = false,
+      isCreating = false,
+      isDeleting = false,
+      error = null;
 
   PlaylistsState copyWith({
     List<Playlist>? playlists,
+    List<Playlist>? filteredPlaylists,
+    bool? clearFilteredPlaylists,
     Playlist? selectedPlaylist,
     bool? clearSelectedPlaylist,
     bool? isLoading,
@@ -37,8 +42,11 @@ class PlaylistsState {
   }) {
     return PlaylistsState(
       playlists: playlists ?? this.playlists,
+      filteredPlaylists: (clearFilteredPlaylists ?? false)
+          ? null
+          : filteredPlaylists ?? this.filteredPlaylists,
       selectedPlaylist: (clearSelectedPlaylist ?? false)
-          ? null 
+          ? null
           : selectedPlaylist ?? this.selectedPlaylist,
       isLoading: isLoading ?? this.isLoading,
       isCreating: isCreating ?? this.isCreating,
@@ -47,8 +55,9 @@ class PlaylistsState {
     );
   }
 
-  bool get hasPlaylists => playlists.isNotEmpty;
-  int get playlistCount => playlists.length;
+  List<Playlist> get displayedPlaylists => filteredPlaylists ?? playlists;
+  bool get hasPlaylists => displayedPlaylists.isNotEmpty;
+  int get playlistCount => displayedPlaylists.length;
   bool get hasError => error != null;
 
   Playlist? getPlaylistById(String id) {

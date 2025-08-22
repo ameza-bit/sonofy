@@ -6,6 +6,7 @@ import 'package:sonofy/core/constants/app_constants.dart';
 import 'package:sonofy/core/extensions/theme_extensions.dart';
 import 'package:sonofy/presentation/blocs/songs/songs_cubit.dart';
 import 'package:sonofy/presentation/blocs/songs/songs_state.dart';
+import 'package:sonofy/presentation/blocs/playlists/playlists_cubit.dart';
 import 'package:sonofy/presentation/screens/player_screen.dart';
 import 'package:sonofy/presentation/widgets/common/font_awesome/font_awesome_flutter.dart';
 import 'package:sonofy/presentation/widgets/library/bottom_player.dart';
@@ -37,6 +38,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
       if (!_searchFocusNode.hasFocus && _searchController.text.isEmpty) {
         setState(() => _isSearchActive = false);
         context.read<SongsCubit>().filterSongs('');
+        context.read<PlaylistsCubit>().filterPlaylists('');
       }
     });
   }
@@ -89,7 +91,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
                     autofocus: true,
                     style: const TextStyle(fontSize: 16),
                     decoration: InputDecoration(
-                      hintText: 'Buscar canciones, artistas, álbumes...',
+                      hintText: 'Buscar canciones, playlists, artistas...',
                       hintStyle: TextStyle(
                         color: Theme.of(context).hintColor,
                         fontSize: 14,
@@ -100,8 +102,10 @@ class _LibraryScreenState extends State<LibraryScreen> {
                         vertical: 12,
                       ),
                     ),
-                    onChanged: (query) =>
-                        context.read<SongsCubit>().filterSongs(query),
+                    onChanged: (query) {
+                      context.read<SongsCubit>().filterSongs(query);
+                      context.read<PlaylistsCubit>().filterPlaylists(query);
+                    },
                   ),
                 ),
                 IconButton(
@@ -113,6 +117,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
                       _isSearchActive = false;
                     });
                     context.read<SongsCubit>().filterSongs('');
+                    context.read<PlaylistsCubit>().filterPlaylists('');
                   },
                 ),
                 const SizedBox(width: 12),
@@ -275,10 +280,11 @@ class _LibraryScreenState extends State<LibraryScreen> {
                               song: orderedSongs[songIndex],
                               onTap: () =>
                                   context.pushNamed(PlayerScreen.routeName),
-                              onLongPress: () => OptionsModal(context).songLibraryContext(
-                                orderedSongs[songIndex],
-                                orderedSongs,
-                              ),
+                              onLongPress: () =>
+                                  OptionsModal(context).songLibraryContext(
+                                    orderedSongs[songIndex],
+                                    orderedSongs,
+                                  ),
                             ),
                           ),
                         );

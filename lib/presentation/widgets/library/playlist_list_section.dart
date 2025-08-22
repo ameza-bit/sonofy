@@ -33,7 +33,7 @@ class PlaylistListSection extends StatelessWidget {
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 24.0),
                 child: Row(
-                  children: playlistsState.playlists
+                  children: playlistsState.displayedPlaylists
                       .map((playlist) => PlaylistCard(playlist: playlist))
                       .toList(),
                 ),
