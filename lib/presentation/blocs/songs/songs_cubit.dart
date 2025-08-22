@@ -306,6 +306,13 @@ class SongsCubit extends Cubit<SongsState> {
       allSongs = state.deviceSongs;
     }
 
-    return allSongs.where((song) => songIds.contains(song.id.toString())).toList();
+    final orderedSongs = <SongModel>[];
+    for (final songId in songIds) {
+      final song = allSongs.where((s) => s.id.toString() == songId).firstOrNull;
+      if (song != null) {
+        orderedSongs.add(song);
+      }
+    }
+    return orderedSongs;
   }
 }

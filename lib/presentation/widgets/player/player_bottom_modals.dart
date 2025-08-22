@@ -1,4 +1,5 @@
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sonofy/core/extensions/theme_extensions.dart';
@@ -60,10 +61,11 @@ class PlayerBottomModals extends StatelessWidget {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      bottomButton(
-                        label: context.tr('player.lyrics'),
-                        onTap: () => LyricsModal.show(context),
-                      ),
+                      if (kDebugMode)
+                        bottomButton(
+                          label: context.tr('player.lyrics'),
+                          onTap: () => LyricsModal.show(context),
+                        ),
                       bottomButton(
                         label: context.tr('player.playlist'),
                         onTap: () => PlaylistModal.show(context),
