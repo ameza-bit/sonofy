@@ -7,6 +7,16 @@ import 'package:sonofy/domain/repositories/player_repository.dart';
 import 'package:sonofy/domain/repositories/settings_repository.dart';
 import 'package:sonofy/presentation/blocs/player/player_state.dart';
 
+/// Cubit que maneja el estado del reproductor de música.
+/// 
+/// Gestiona la reproducción de canciones, playlists, modos de repetición,
+/// shuffle, velocidad de reproducción y temporizador de sueño.
+/// 
+/// Características principales:
+/// - Reproducción con shuffle inteligente (canción actual siempre primera)
+/// - Tres modos de repetición: none, one, all
+/// - Navegación preservando listas shuffle existentes
+/// - Auto-advance con lógica diferenciada por modo de repetición
 class PlayerCubit extends Cubit<PlayerState> {
   final PlayerRepository _playerRepository;
   final SettingsRepository _settingsRepository;
@@ -25,6 +35,14 @@ class PlayerCubit extends Cubit<PlayerState> {
     _playerRepository.setPlaybackSpeed(savedSpeed);
   }
 
+  /// Establece una nueva canción y playlist para reproducir.
+  /// 
+  /// Regenera una nueva lista shuffle (a menos que se proporcione una existente)
+  /// con la canción seleccionada como primera en la secuencia aleatoria.
+  /// 
+  /// [playlist] - Lista original de canciones
+  /// [song] - Canción a reproducir
+  /// [shuffledPlaylist] - Lista shuffle existente (opcional, para preservar secuencia)
   Future<void> setPlayingSong(
     List<SongModel> playlist,
     SongModel song,
@@ -51,6 +69,11 @@ class PlayerCubit extends Cubit<PlayerState> {
     );
   }
 
+  /// Avanza a la siguiente canción en la lista activa.
+  /// 
+  /// Comportamiento según modo de repetición:
+  /// - RepeatMode.one: Repite la canción actual
+  /// - RepeatMode.all/none: Avanza según lógica de navegación
   Future<void> nextSong() async {
     if (state.activePlaylist.isEmpty) return;
 
@@ -67,6 +90,11 @@ class PlayerCubit extends Cubit<PlayerState> {
     emit(state.copyWith(currentIndex: nextIndex, isPlaying: isPlaying));
   }
 
+  /// Retrocede a la canción anterior en la lista activa.
+  /// 
+  /// Comportamiento según modo de repetición:
+  /// - RepeatMode.one: Repite la canción actual
+  /// - RepeatMode.all/none: Retrocede según lógica de navegación
   Future<void> previousSong() async {
     if (state.activePlaylist.isEmpty) return;
 
@@ -159,6 +187,15 @@ class PlayerCubit extends Cubit<PlayerState> {
     emit(state.copyWith(isPlaying: isPlaying));
   }
 
+  /// Alterna entre modo shuffle activado/desactivado.
+  /// 
+  /// Al activar shuffle:
+  /// - Genera nueva lista aleatoria con canción actual como primera
+  /// - Establece currentIndex = 0 (canción actual al inicio)
+  /// 
+  /// Al desactivar shuffle:
+  /// - Vuelve a usar playlist original
+  /// - Recalcula currentIndex según posición en lista original
   void toggleShuffle() {
     final newShuffleState = !state.isShuffleEnabled;
 
@@ -204,6 +241,12 @@ class PlayerCubit extends Cubit<PlayerState> {
     _savePlayerPreferences();
   }
 
+  /// Alterna entre los modos de repetición en ciclo: none → one → all → none.
+  /// 
+  /// Modos de repetición:
+  /// - RepeatMode.none: Reproduce secuencialmente, se detiene al final
+  /// - RepeatMode.one: Repite la canción actual indefinidamente  
+  /// - RepeatMode.all: Repite toda la playlist indefinidamente
   void toggleRepeat() {
     RepeatMode newMode;
     switch (state.repeatMode) {
@@ -221,6 +264,10 @@ class PlayerCubit extends Cubit<PlayerState> {
     _savePlayerPreferences();
   }
 
+  /// Calcula el índice de la siguiente canción en la lista activa.
+  /// 
+  /// Permite wrap-around para navegación manual (diferente del auto-advance).
+  /// El auto-advance tiene su propia lógica en _startPositionUpdates.
   int _getNextIndex() {
     final activePlaylist = state.activePlaylist;
     if (activePlaylist.length <= 1) return state.currentIndex;
@@ -234,6 +281,10 @@ class PlayerCubit extends Cubit<PlayerState> {
     }
   }
 
+  /// Calcula el índice de la canción anterior en la lista activa.
+  /// 
+  /// Permite wrap-around para navegación manual (diferente del auto-advance).
+  /// El auto-advance tiene su propia lógica en _startPositionUpdates.
   int _getPreviousIndex() {
     final activePlaylist = state.activePlaylist;
     if (activePlaylist.length <= 1) return state.currentIndex;
@@ -388,6 +439,16 @@ class PlayerCubit extends Cubit<PlayerState> {
     );
   }
 
+  /// Genera una nueva lista shuffle aleatoria.
+  /// 
+  /// Si se proporciona [currentSong], la coloca como primera en la lista
+  /// para mantener continuidad en la reproducción. El resto de canciones
+  /// se mezclan aleatoriamente.
+  /// 
+  /// [playlist] - Lista original de canciones
+  /// [currentSong] - Canción que debe ser primera (opcional)
+  /// 
+  /// Returns: Lista mezclada con canción actual al inicio (si se proporciona)
   List<SongModel> _generateShufflePlaylist(
     List<SongModel> playlist, [
     SongModel? currentSong,

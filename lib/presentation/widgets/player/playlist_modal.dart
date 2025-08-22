@@ -10,9 +10,17 @@ import 'package:sonofy/presentation/views/modal_view.dart';
 import 'package:sonofy/presentation/widgets/library/song_card.dart';
 import 'package:sonofy/presentation/widgets/options/options_modal.dart';
 
+/// Modal que muestra la cola de reproducción actual.
+/// 
+/// Funcionalidades:
+/// - Muestra canciones según modo de repetición y estado de shuffle
+/// - Auto-scroll a canción actual cuando cambie
+/// - Preserva lista shuffle al seleccionar canciones
+/// - Orden adaptativo según RepeatMode
 class PlaylistModal extends StatefulWidget {
   const PlaylistModal({super.key});
 
+  /// Muestra el modal de playlist.
   static void show(BuildContext context) {
     modalView(
       context,
@@ -51,6 +59,12 @@ class _PlaylistModalState extends State<PlaylistModal> {
     }
   }
 
+  /// Obtiene las canciones a mostrar según el modo de repetición.
+  /// 
+  /// Lógica por RepeatMode:
+  /// - RepeatMode.one: Solo la canción actual
+  /// - RepeatMode.none: Desde canción actual hasta el final
+  /// - RepeatMode.all: Toda la playlist con canción actual al inicio
   List<SongModel> _getDisplayedSongs(PlayerState state) {
     final activePlaylist = state.activePlaylist;
     if (activePlaylist.isEmpty) return [];
