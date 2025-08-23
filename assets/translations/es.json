@@ -156,6 +156,7 @@
     "enter_name": "Ingresa el nombre de la lista de reproducción",
     "created_successfully": "Lista de reproducción creada exitosamente",
     "no_playlists": "No tienes listas de reproducción creadas",
+    "song_in_all_playlists": "Esta canción ya está en todas tus playlists",
     "song_added": "Canción agregada a {playlist}",
     "created_and_song_added": "Lista de reproducción '{playlist}' creada y canción agregada",
     "song_added_generic": "Canción agregada a la lista de reproducción",

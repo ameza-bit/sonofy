@@ -156,6 +156,7 @@
     "enter_name": "Enter playlist name",
     "created_successfully": "Playlist created successfully",
     "no_playlists": "You don't have any playlists created",
+    "song_in_all_playlists": "This song is already in all your playlists",
     "song_added": "Song added to {playlist}",
     "created_and_song_added": "Playlist '{playlist}' created and song added",
     "song_added_generic": "Song added to playlist",
