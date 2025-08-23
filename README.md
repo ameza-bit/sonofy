@@ -1,249 +1,484 @@
-# 🎵 Sonofy
+# 🎵 Sonofy - Reproductor Musical Avanzado
 
-**Sonofy** es un moderno e intuitivo reproductor de audio desarrollado en Flutter que permite a los usuarios disfrutar de su biblioteca musical local con una experiencia de usuario elegante y funcional.
+**Sonofy** es un sofisticado reproductor de audio desarrollado en Flutter que combina **Clean Architecture**, **reproducción híbrida cross-platform**, y **funcionalidades avanzadas** para crear una experiencia musical de clase mundial.
 
-## 📱 Características Principales
-
-- 🎮 **Reproducción Completa**: Controles avanzados de play/pause, anterior/siguiente, repetir y aleatorio
-- 📊 **Control de Progreso**: Slider interactivo con información temporal en tiempo real
-- 🎨 **Personalización Avanzada**: Temas claro/oscuro/automático con colores primarios personalizables
-- 📏 **Escalado de Fuente**: Múltiples niveles de tamaño de texto
-- 🌍 **Multiidioma**: Soporte para español e inglés con sistema extensible
-- 📚 **Biblioteca Musical**: Escaneo automático y gestión inteligente de canciones con soporte multi-formato
-- 🎵 **🆕 Soporte Audio Extendido**: MP3, FLAC, WAV, AAC, OGG, M4A con duración precisa
-- ⚡ **🆕 Carga Progresiva**: Stream de canciones con indicadores de progreso en tiempo real
-- 💾 **🆕 Caché Inteligente**: Sistema de almacenamiento de duraciones para mejor rendimiento
-- 🔒 **Seguridad**: Preparado para autenticación biométrica
-- ⏰ **Temporizador de Sueño**: Control automático de apagado con opciones avanzadas
-- 📋 **🆕 Gestión de Playlists**: Crear, editar, eliminar y gestionar listas de reproducción personalizadas
-- 🎶 **🆕 Integración de Canciones**: Agregar/quitar canciones de playlists desde cualquier pantalla
-- 🔄 **🆕 Compartir Canciones**: Copiar información de canciones al portapapeles  
-- ⚡ **🆕 Control de Velocidad**: Ajustar la velocidad de reproducción (0.5x - 2.0x)
-- ✨ **🆕 Opciones Mejoradas**: Sistema de modales unificado con mejores transiciones
-- 🍎 **🆕 iPod Library Nativa**: Soporte completo para URLs iPod library en iOS
-- 🔄 **🆕 Reproductor Dual**: Sistema inteligente AudioPlayers + MPMusicPlayerController
-- 🔒 **🆕 Protección DRM**: Verificación automática de archivos protegidos
-
-## 🛠️ Tecnologías Utilizadas
-
-| Tecnología | Versión | Propósito |
-|-----------|---------|-----------|
-| **Flutter** | SDK ^3.8.1 | Framework de desarrollo |
-| **flutter_bloc** | ^9.1.1 | Gestión de estado |
-| **go_router** | ^16.1.0 | Navegación declarativa |
-| **audioplayers** | ^6.5.0 | Reproducción de audio |
-| **on_audio_query_pluse** | ^2.9.4 | Metadata musical |
-| **easy_localization** | ^3.0.8 | Internacionalización |
-| **shared_preferences** | ^2.5.3 | Persistencia local |
-
-## 🏗️ Arquitectura
-
-Sonofy implementa **Clean Architecture** con separación clara de responsabilidades:
-
-```
-lib/
-├── core/          # Utilidades, temas, rutas y servicios compartidos
-├── data/          # Implementaciones de repositorios y modelos
-├── domain/        # Interfaces de repositorios y lógica de negocio
-└── presentation/  # UI, widgets, BLoCs y pantallas
-```
-
-### Capas Principales
-
-- **Presentation**: Manejo de UI y gestión de estado con BLoC
-- **Domain**: Contratos e interfaces de repositorios
-- **Data**: Implementaciones concretas y persistencia
-- **Core**: Servicios compartidos y configuraciones
-
-## 🚀 Instalación y Configuración
-
-### Prerrequisitos
-
-- Flutter SDK ^3.8.1
-- Dart SDK incluido en Flutter
-- Android Studio / VS Code
-- Dispositivo/emulador Android o iOS
-
-### Pasos de Instalación
-
-1. **Clonar el repositorio**
-```bash
-git clone <repository-url>
-cd sonofy
-```
-
-2. **Instalar dependencias**
-```bash
-flutter pub get
-```
-
-3. **Generar iconos de aplicación**
-```bash
-flutter pub run flutter_launcher_icons:main
-```
-
-4. **Ejecutar la aplicación**
-```bash
-flutter run
-```
-
-## 📱 Pantallas Principales
-
-### 🎬 Splash Screen
-Pantalla de carga inicial con branding de la aplicación.
-
-### 📚 Library Screen (`/library`)
-- Lista completa de canciones del dispositivo
-- Sección de playlists personalizadas
-- Reproductor mini siempre visible
-- Navegación intuitiva y rápida
-- Acceso directo a funciones de playlist
-
-### 🎵 Player Screen (`/library/player`)
-- Reproductor de pantalla completa
-- Visualización de carátulas y metadata
-- Controles completos de reproducción
-- Acceso a modales de letras, playlist y temporizador
-- Opciones para agregar/quitar canciones de playlists
-- **🆕 Compartir canciones**: Copiar información al portapapeles
-- **🆕 Control de velocidad**: Ajustar velocidad de reproducción
-- **🆕 Modales unificados**: Sistema consistente de modalView()
-
-### 📋 Playlist Screen (`/library/playlist/:id`)
-- Visualización de canciones en playlist específica
-- Gestión completa de contenido (agregar/quitar canciones)
-- Opciones de edición (renombrar, eliminar playlist)  
-- Integración con reproductor de audio
-- **🆕 Persistencia mejorada**: IDs consistentes para canciones locales iOS
-- **🆕 Filtrado optimizado**: Comparación eficiente de tipos de ID
-
-### ⚙️ Settings Screen (`/settings`)
-- Configuración de apariencia y temas
-- Personalización de colores y fuentes
-- Configuración de idioma y seguridad
-
-## 🎨 Sistema de Temas
-
-Sonofy incluye un sistema de temas dinámico y personalizable:
-
-- **Temas Base**: Claro, oscuro y automático
-- **Colores Personalizables**: Color primario configurable con generación automática de paleta
-- **Tipografía**: Fuente SF UI Display con escalado ajustable
-- **Iconografía**: Font Awesome completo con múltiples pesos
-
-## 🌍 Internacionalización
-
-### Idiomas Soportados
-- 🇪🇸 **Español** (por defecto)
-- 🇺🇸 **Inglés**
-
-### Archivos de Traducciones
-- `assets/translations/es.json` - Traducciones en español
-- `assets/translations/en.json` - Traducciones en inglés
-
-## 🔧 Funcionalidades Destacadas
-
-### Reproductor de Audio
-- Control completo de reproducción (play/pause/stop)
-- Navegación por playlist (anterior/siguiente)
-- Modos de repetición (uno, todos, ninguno)
-- Modo aleatorio inteligente
-- Visualización de progreso con control manual
-- **🆕 Soporte iPod Library**: Reproducción nativa de biblioteca iOS
-- **🆕 Verificación DRM**: Protección automática contra archivos protegidos
-- **🆕 Method Channels**: 9 métodos nativos iOS implementados
-
-### Temporizador de Sueño
-- Configuración de duración (1-180 minutos)
-- Opción de esperar el final de la canción
-- Estados visuales claros del temporizador
-- Pausado automático inteligente
-
-### Gestión Musical
-- Escaneo automático de biblioteca
-- Manejo inteligente de permisos
-- Visualización de carátulas y metadata
-- **🆕 Soporte Multi-formato**: MP3, FLAC, WAV, AAC, OGG, M4A
-- **🆕 Duración Precisa**: Extracción real de metadatos usando AudioPlayer
-- **🆕 Carga Progresiva**: Stream con procesamiento en paralelo (3 archivos simultáneos)
-- **🆕 Caché Inteligente**: Almacenamiento de duraciones con detección de cambios
-- **🆕 UI Responsiva**: Indicadores de progreso con barras circulares y lineales
-
-### **🆕 Sistema de Playlists**
-- **Creación de Playlists**: Crear listas personalizadas con nombres personalizados
-- **Gestión de Contenido**: Agregar/quitar canciones desde player, biblioteca o playlist
-- **Edición Completa**: Renombrar y eliminar playlists existentes
-- **Persistencia Local**: Almacenamiento usando SharedPreferences
-- **Interfaz Unificada**: Modales consistentes con adaptación al teclado
-- **Navegación Intuitiva**: Acceso desde Library Screen y Player Screen
-
-### **✨ Mejoras de Código Recientes**
-- **Eliminación de TODOs**: Implementación completa de funcionalidades pendientes
-- **Refactorización**: Código más limpio, organizado y mantenible
-- **Optimización**: Métodos extraídos para mejor reutilización
-- **Consistencia**: Indentación y patrones de código unificados
-- **Compatibilidad Web**: Verificaciones `!kIsWeb` para Platform.isIOS
-- **Tipos Mejorados**: Manejo consistente de IDs (int vs String)
-
-### **🔧 Funcionalidades Implementadas**
-- **RemovePlaylistOption**: Quitar canciones de playlists existentes
-- **ShareOption**: Compartir información de canciones 
-- **SpeedOption**: Control de velocidad de reproducción
-- **Opciones Simplificadas**: Placeholders informativos para funciones futuras
-
-## 📚 Documentación Completa
-
-Para documentación técnica detallada, consulta la carpeta `documentation/`:
-
-- [**Arquitectura**](documentation/architecture/) - Patrones de diseño y estructura
-- [**API y Código**](documentation/api/) - Documentación de repositorios y estados
-- [**Componentes**](documentation/components/) - Widgets y sistema de temas
-- [**Guías**](documentation/guides/) - Setup, contribución y deployment
-
-## 🤝 Contribución
-
-Este proyecto sigue estándares de código limpio y arquitectura escalable. Para contribuir:
-
-1. Fork el repositorio
-2. Crea una rama para tu feature (`git checkout -b feature/nueva-funcionalidad`)
-3. Commit tus cambios (`git commit -am 'Agregar nueva funcionalidad'`)
-4. Push a la rama (`git push origin feature/nueva-funcionalidad`)
-5. Crea un Pull Request
-
-### Convenciones de Código
-- **Nomenclatura**: camelCase para variables, PascalCase para clases
-- **Documentación**: Comentarios en español para funciones importantes
-- **Linting**: Usar `flutter analyze` antes de commit
-- **Testing**: Tests unitarios para lógica de negocio
-
-## 📄 Licencia
-
-Este proyecto es privado y está destinado únicamente para fines educativos y demostrativos.
+![Flutter](https://img.shields.io/badge/Flutter-3.8.1+-blue.svg?logo=flutter)
+![Platform](https://img.shields.io/badge/Platform-iOS%20%7C%20Android-lightgrey.svg)
+![Architecture](https://img.shields.io/badge/Architecture-Clean%20%7C%20BLoC-green.svg)
+![License](https://img.shields.io/badge/License-Educational-orange.svg)
 
 ---
 
-**Versión**: 3.0.0  
-**Plataforma**: Flutter (multiplataforma) con integración nativa iOS  
-**Estado**: En desarrollo activo  
-**Última actualización**: Agosto 2024 - Multi-Format Audio Support & Progressive Loading
+## 🌟 Características Destacadas
 
-### 🆕 Novedades v3.2.0
-- ✅ **Soporte Audio Extendido**: MP3, FLAC, WAV, AAC, OGG, M4A con duración precisa
-- ✅ **Carga Progresiva con Stream**: Procesamiento en paralelo con indicadores en tiempo real
-- ✅ **Caché Inteligente**: Sistema de almacenamiento de duraciones con detección de modificación
-- ✅ **UI Mejorada**: Barras de progreso circulares y lineales con contadores
-- ✅ **Documentación Completa**: Comentarios en español para todos los componentes nuevos
+### 🎧 **Reproductor Híbrido Avanzado**
+- **Dual Playlist Management**: Sistema inteligente con playlist original + shuffle separadas
+- **Reproducción Nativa iOS**: Integración con iPod Library usando MPMusicPlayerController  
+- **Fallback Cross-Platform**: AudioPlayer como respaldo universal
+- **Sleep Timer Condicional**: Modo fijo vs "esperar al final de canción"
+- **Control de Velocidad**: Ajuste preciso 0.5x - 2.0x sincronizado cross-platform
 
-### Novedades v3.1.0
-- ✅ **Sistema completo de Playlists**: Crear, editar, eliminar y gestionar listas de reproducción
-- ✅ **Clean Architecture para Playlists**: Repositorios, casos de uso y BLoC pattern
-- ✅ **Modales unificados**: Sistema modalView() responsive al teclado
-- ✅ **Persistencia local**: Almacenamiento de playlists con SharedPreferences
-- ✅ **UI/UX mejorada**: Interfaz consistente y navegación intuitiva
+### 📚 **Biblioteca Musical Inteligente**
+- **Carga Progresiva con Streams**: Feedback visual en tiempo real durante importación
+- **Soporte Multi-Formato**: MP3, FLAC, WAV, AAC, OGG, M4A con metadatos reales
+- **Sistema de Caché Avanzado**: Persistencia inteligente de duraciones extraídas
+- **Diferenciación por Plataforma**: iOS (carpetas + dispositivo) vs Android (automático)
+- **Búsqueda Interactiva**: Filtrado en tiempo real sin delay
 
-### Historial v3.0.0
-- ✅ Integración completa iPod Library (iOS)
-- ✅ Sistema dual de reproducción
-- ✅ 9 Method Channels implementados
-- ✅ Verificación DRM automática
-- ✅ Compatibilidad total Android/iOS
+### 🎨 **Sistema de Temas Dinámico**
+- **16 Colores Primarios**: Paleta musical especializada con generación automática de variantes
+- **Responsive Design**: Adaptación móvil/tablet/desktop con breakpoints inteligentes
+- **SF UI Display Typography**: Sistema tipográfico profesional con escalado configurable
+- **FontAwesome Completo**: 7 familias de iconos sin restricciones de aspecto
+
+### 📋 **Gestión Avanzada de Playlists**
+- **CRUD Completo**: Crear, editar, eliminar con validación y recovery
+- **Persistencia Robusta**: JSON + SharedPreferences con sistema de backup
+- **Reordenamiento Drag & Drop**: Interfaz especializada para reorganización
+- **Sistema Contextual**: Opciones diferenciadas según contexto de uso
+
+---
+
+## 🏗️ Arquitectura de Clase Mundial
+
+Sonofy implementa una **Clean Architecture** avanzada optimizada para aplicaciones musicales:
+
+```mermaid
+graph TD
+    A[Presentation Layer] -->|BLoC Pattern| B[Domain Layer]  
+    C[Data Layer] -->|Repositories| B
+    D[Core Layer] -->|Extensions & Utils| A
+    D -->|Services & Themes| C
+    
+    A -->|4 Specialized Cubits| E[Player, Songs, Playlists, Settings]
+    B -->|10 Use Cases| F[Pure Business Logic]
+    C -->|Platform Specific| G[iOS: iPod + Local | Android: Query Only]
+```
+
+### 📁 Estructura Modular
+
+```
+lib/
+├── core/           # 🔧 Infraestructura especializada (35 archivos)
+│   ├── constants/  # Breakpoints responsive y espaciado escalonado
+│   ├── enums/      # Enums con lógica de negocio (Language, OrderBy)
+│   ├── extensions/ # 4 extensiones contextuales reactivas
+│   ├── routes/     # GoRouter con transiciones especializadas
+│   ├── services/   # Servicios singleton con limpieza inteligente  
+│   ├── themes/     # 6 temas especializados + gradientes dinámicos
+│   ├── transitions/# Transiciones cinematográficas personalizadas
+│   └── utils/      # 12 utilidades avanzadas cross-platform
+├── data/           # 💾 Implementaciones con integraciones nativas
+│   ├── models/     # Modelos ricos con lógica de negocio integrada
+│   └── repositories/ # 4 repos con comportamiento diferenciado por plataforma
+├── domain/         # 🎯 Lógica de negocio pura (contratos estables)
+│   ├── repositories/ # Interfaces abstractas sin dependencias
+│   └── usecases/   # 10 casos de uso especializados
+└── presentation/   # 🎨 UI reactiva con componentes especializados
+    ├── blocs/      # 4 Cubits con estados inmutables complejos
+    ├── screens/    # 6 pantallas con navegación avanzada
+    ├── views/      # Vistas modulares para configuraciones
+    └── widgets/    # 4 categorías de widgets especializados
+        ├── common/     # 7 componentes base reutilizables
+        ├── library/    # 8 widgets específicos biblioteca musical
+        ├── options/    # 21 opciones contextuales inteligentes
+        └── player/     # 6 controles avanzados reproducción
+```
+
+---
+
+## 🚀 Tecnologías y Dependencias
+
+| Categoría | Tecnología | Versión | Propósito Especializado |
+|-----------|------------|---------|------------------------|
+| **Framework** | Flutter SDK | ^3.8.1 | Desarrollo multiplataforma |
+| **State Management** | flutter_bloc | ^9.1.1 | Gestión reactiva con Cubit pattern |
+| **Navigation** | go_router | ^16.1.0 | Navegación declarativa con rutas tipadas |
+| **Audio Core** | audioplayers | ^6.5.0 | Reproductor universal cross-platform |
+| **Music Library** | on_audio_query_pluse | ^2.9.4 | Metadata y consultas musicales |
+| **Internationalization** | easy_localization | ^3.0.8 | Sistema de traducciones dinámico |  
+| **Persistence** | shared_preferences | ^2.5.3 | Almacenamiento local con migraciones |
+| **File Management** | file_picker | ^10.3.1 | Selección de archivos/carpetas (iOS) |
+
+### 🔧 Integraciones Nativas
+
+- **iOS Method Channels**: 9 métodos nativos para iPod Library integration
+- **Platform Detection**: 6 plataformas soportadas con fallbacks
+- **Permission Management**: Automático con retry logic
+- **DRM Protection**: Detección y validación de contenido protegido
+
+---
+
+## 📱 Sistema de Pantallas Avanzado
+
+### 🚀 **SplashScreen** - Onboarding Inteligente
+- **Inicialización Paralela**: Servicios críticos cargados simultáneamente
+- **Recovery Automático**: Manejo graceful de fallos de inicialización  
+- **Estados Visuales**: Progress indicators con animaciones fluidas
+
+### 📚 **LibraryScreen** - Biblioteca Inteligente
+- **Búsqueda Interactiva**: TextField expandible con filtrado en tiempo real
+- **Carga Progresiva Visual**: Indicadores de progreso durante importación
+- **Estados Diferenciados**: Loading, empty, error, progressive loading
+- **Bottom Player Persistente**: Control musical siempre accesible
+
+### 🎵 **PlayerScreen** - Experiencia Inmersiva  
+- **UI Inmersiva**: AppBar transparente con artwork de fondo
+- **Hero Animations**: Transiciones fluidas desde mini player
+- **Controles Avanzados**: Sleep timer, velocidad, queue management
+- **Modales Contextuales**: Sistema unificado para opciones especializadas
+
+### 📋 **PlaylistScreen** - Gestión Completa
+- **Header Dinámico**: Cover grid adaptativo según número de canciones
+- **Gestión Contextual**: Opciones específicas por contexto de playlist
+- **Estados de Error**: Manejo graceful de playlists inexistentes
+
+### 🔄 **ReorderPlaylistScreen** - Drag & Drop Optimizado
+- **ReorderableListView**: Interfaz nativa optimizada para reorganización  
+- **Feedback Visual**: Indicadores de estado durante arrastre
+- **Persistencia Automática**: Guardado inmediato de cambios
+
+### ⚙️ **SettingsScreen** - Configuraciones Modulares
+- **Secciones Especializadas**: Componentes modulares por tipo de configuración
+- **Preview en Tiempo Real**: Cambios visuales instantáneos
+- **Configuración por Plataforma**: Opciones específicas iOS/Android
+
+---
+
+## 🎨 Sistema de Widgets Especializado
+
+### 🔧 **Common Widgets** - Componentes Base
+- **CustomTextField**: Validación integrada con estados visuales avanzados
+- **PrimaryButton/SecondaryButton**: Jerarquía visual con factory patterns
+- **FontAwesome System**: Iconografía rica sin limitaciones de aspect ratio
+- **SectionCard/SectionItem**: Organización consistente de contenido
+
+### 🎵 **Library Widgets** - Componentes Musicales  
+- **BottomPlayer**: Multi-BlocBuilder con progress streams en tiempo real
+- **PlaylistCoverGrid**: Algoritmo recursivo para mostrar hasta 4 portadas
+- **SongCard**: Estado visual inteligente para canción actualmente reproduciéndose
+
+### 🎛️ **Options System** - Menús Contextuales Inteligentes
+- **OptionsModal**: Strategy pattern con 4 contextos diferenciados
+- **AddToPlaylistOption**: Lógica compleja con filtrado y estados UX
+- **21 Opciones Especializadas**: Cada una con comportamiento específico
+
+### 🎧 **Player Widgets** - Controles Avanzados
+- **PlayerControl**: Iconografía dinámica según modos de repetición
+- **PlayerSlider**: Interactividad fluida con drag state
+- **PlaylistModal**: Visualización condicional según RepeatMode
+- **SleepModal**: Estados múltiples con countdown en tiempo real
+
+---
+
+## 🎯 Funcionalidades Innovadoras
+
+### 🧠 **Sistema de Shuffle Inteligente**
+```dart
+List<SongModel> _generateShufflePlaylist(List<SongModel> playlist, [SongModel? currentSong]) {
+  final shuffled = List.of(playlist);
+  shuffled.shuffle();
+  
+  // Canción actual siempre primera para continuidad
+  if (currentSong != null) {
+    final currentIndex = shuffled.indexWhere((s) => s.id == currentSong.id);
+    if (currentIndex != -1) {
+      final current = shuffled.removeAt(currentIndex);
+      shuffled.insert(0, current);
+    }
+  }
+  return shuffled;
+}
+```
+
+### ⏰ **Sleep Timer Condicional**  
+- **Timer Fijo**: Countdown estándar con pausa inmediata
+- **Modo Espera**: Espera al final de canción actual antes de pausar
+- **Estados Visuales**: Diferenciación clara entre modos activo/esperando
+
+### 📱 **Reproducción Híbrida iOS**
+```dart
+@override
+Future<bool> play(String url) async {
+  if (IpodLibraryConverter.isIpodLibraryUrl(url) && Platform.isIOS) {
+    final isDrmProtected = await IpodLibraryConverter.isDrmProtected(url);
+    if (isDrmProtected) return false;
+
+    final success = await IpodLibraryConverter.playWithNativeMusicPlayer(url);
+    if (success) _usingNativePlayer = true;
+    return success;
+  } else {
+    // Fallback to AudioPlayer
+    await player.play(DeviceFileSource(url));
+    return isPlaying();
+  }
+}
+```
+
+### 🔄 **Carga Progresiva con Streams**
+```dart  
+await for (final song in _getLocalSongsUseCase.callStream()) {
+  localSongs.add(song);
+  loadedCount++;
+  
+  emit(state.copyWith(
+    songs: _applySorting(allSongs),  
+    localSongs: localSongs,
+    loadedCount: loadedCount,
+    isLoadingProgressive: loadedCount < totalFiles,
+  ));
+}
+```
+
+---
+
+## 🚀 Instalación y Configuración
+
+### 📋 Prerrequisitos
+- **Flutter SDK**: ^3.8.1
+- **Dart SDK**: Incluido en Flutter  
+- **Android Studio / VS Code**: IDE con plugins Flutter
+- **Dispositivo/Emulador**: iOS 12+ / Android API 21+
+
+### ⚡ Instalación Rápida
+
+```bash
+# 1. Clonar repositorio
+git clone https://github.com/your-repo/sonofy.git
+cd sonofy
+
+# 2. Instalar dependencias  
+flutter pub get
+
+# 3. Generar iconos de lanzamiento
+flutter pub run flutter_launcher_icons:main
+
+# 4. Ejecutar aplicación
+flutter run
+
+# 5. [Opcional] Análisis de código
+flutter analyze
+
+# 6. [Opcional] Tests unitarios  
+flutter test
+```
+
+### 🔧 Configuración por Plataforma
+
+#### iOS Setup
+```xml
+<!-- ios/Runner/Info.plist -->
+<key>NSMediaLibraryUsageDescription</key>
+<string>Sonofy necesita acceso a tu biblioteca musical para reproducir canciones</string>
+```
+
+#### Android Setup
+```xml
+<!-- android/app/src/main/AndroidManifest.xml -->
+<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+```
+
+---
+
+## 🧪 Testing y Calidad
+
+### 🔍 Análisis Estático
+```bash
+# Linting con reglas estrictas
+flutter analyze
+
+# Formateo de código  
+dart format .
+
+# Verificar dependencias
+flutter pub deps
+```
+
+### 🧪 Testing Strategy
+- **Unit Tests**: Lógica de negocio en Domain layer
+- **Widget Tests**: Componentes UI aislados  
+- **Integration Tests**: Flujos completos end-to-end
+- **BLoC Tests**: Estados y transiciones de Cubits
+
+```dart
+// Ejemplo de test para PlayerCubit
+blocTest<PlayerCubit, PlayerState>(
+  'emits [playing] when setPlayingSong is called',
+  build: () => PlayerCubit(mockPlayerRepository),
+  act: (cubit) => cubit.setPlayingSong([mockSong], mockSong),
+  expect: () => [
+    PlayerState(playlist: [mockSong], currentIndex: 0, isPlaying: true),
+  ],
+);
+```
+
+---
+
+## 🌍 Internacionalización
+
+### 🗣️ Idiomas Soportados
+- 🇪🇸 **Español**: Idioma por defecto con terminología musical especializada  
+- 🇺🇸 **Inglés**: Traducciones completas con contexto musical
+
+### 📝 Sistema de Traducciones
+```json
+// assets/translations/es.json
+{
+  "player": {
+    "play": "Reproducir",
+    "pause": "Pausar", 
+    "next_song": "Siguiente canción",
+    "sleep_timer": "Temporizador de sueño"
+  },
+  "playlists": {
+    "create": "Crear playlist",
+    "add_song": "Agregar canción",
+    "remove_song": "Quitar canción"
+  }
+}
+```
+
+### 🔧 Uso en Código
+```dart
+// Traducciones contextuales
+Text(context.tr('player.shuffle_enabled'))
+
+// Traducciones con parámetros  
+Text(context.tr('playlist.song_count', args: [playlist.songCount.toString()]))
+```
+
+---
+
+## 📚 Documentación Técnica Completa
+
+La documentación está organizada en módulos especializados:
+
+### 🏗️ [**Arquitectura**](documentation/architecture/)
+- [Clean Architecture Implementada](documentation/architecture/clean-architecture.md)
+- [Patrones de Diseño Aplicados](documentation/architecture/design-patterns.md)  
+- [Estructura del Proyecto](documentation/architecture/project-structure.md)
+
+### 🔧 [**APIs y Servicios**](documentation/api/)
+- [Repositorios y Contratos](documentation/api/repositories.md)
+- [Casos de Uso Especializados](documentation/api/usecases.md)
+- [Gestión de Estado BLoC](documentation/api/state-management.md)
+- [Modelos de Datos](documentation/api/data-models.md)
+
+### 🎨 [**Componentes UI**](documentation/components/)
+- [Sistema Completo de Widgets](documentation/components/comprehensive-widgets-system.md)
+- [Pantallas Principales](documentation/components/screens-complete.md)  
+- [Sistema de Temas](documentation/components/theming-system.md)
+- [Modales y Opciones](documentation/components/modal-system.md)
+
+### 📖 [**Guías de Desarrollo**](documentation/guides/)
+- [Setup y Configuración](documentation/guides/development-setup.md)
+- [Contribución al Proyecto](documentation/guides/contributing.md)
+- [Guía de Características](documentation/guides/features-overview.md)
+- [Internacionalización](documentation/guides/internationalization-guide.md)
+
+---
+
+## 🤝 Contribución
+
+### 🎯 Convenciones de Desarrollo
+
+#### Estructura de Commits
+```
+feat: agregar sistema de ecualizador avanzado
+fix: corregir crash en reproducción shuffle  
+docs: actualizar documentación de arquitectura
+refactor: optimizar carga de biblioteca musical
+test: añadir tests unitarios para PlayerCubit
+```
+
+#### Código Style Guide
+```dart
+// ✅ Nomenclatura correcta
+class PlaylistRepository {
+  Future<List<Playlist>> getAllPlaylists() async { ... }
+}
+
+// ✅ Documentación en español para funciones complejas
+/// Genera una playlist shuffle manteniendo la canción actual como primera
+/// para preservar la continuidad de reproducción
+List<SongModel> _generateShufflePlaylist(List<SongModel> playlist) { ... }
+
+// ✅ Estados inmutables con copyWith
+PlayerState copyWith({
+  List<SongModel>? playlist,
+  bool? isPlaying,
+}) => PlayerState(
+  playlist: playlist ?? this.playlist,
+  isPlaying: isPlaying ?? this.isPlaying,
+);
+```
+
+### 🔄 Flujo de Contribución
+1. **Fork** del repositorio principal
+2. **Branch** para feature (`git checkout -b feature/ecualizador-avanzado`)
+3. **Desarrollo** siguiendo Clean Architecture
+4. **Tests** unitarios y de integración  
+5. **Documentación** actualizada
+6. **Pull Request** con descripción detallada
+
+---
+
+## 🎖️ Versioning y Releases
+
+### 🚀 **Versión Actual: 4.0.0** *(Agosto 2024)*
+
+#### 🆕 **Novedades v4.0.0 - "Advanced Architecture"**
+- ✅ **Clean Architecture Completa**: 4 capas especializadas con 82 archivos organizados
+- ✅ **Sistema de Widgets Avanzado**: 42 widgets especializados en 4 categorías  
+- ✅ **BLoC Architecture**: 4 Cubits con estados inmutables complejos
+- ✅ **Reproducción Híbrida**: AudioPlayer + MPMusicPlayerController nativo iOS
+- ✅ **Sistema de Temas Dinámico**: 16 colores + generación automática de paletas
+- ✅ **Navegación Declarativa**: GoRouter con 6 pantallas + transiciones especializadas
+
+#### 📈 **Historial de Versiones**
+
+**v3.2.0** - Multi-Format Audio Support
+- Soporte para MP3, FLAC, WAV, AAC, OGG, M4A
+- Carga progresiva con streams y feedback visual
+- Sistema de caché inteligente para metadatos
+
+**v3.1.0** - Playlist Management System  
+- CRUD completo de playlists con persistencia
+- Modales unificados con responsive design
+- Navegación contextual avanzada
+
+**v3.0.0** - iPod Library Integration
+- Integración completa con biblioteca iPod nativa
+- 9 Method Channels para comunicación iOS
+- Verificación DRM y fallback automático
+
+---
+
+## 📄 Licencia y Contacto
+
+### 📜 **Licencia**
+Este proyecto es **privado y educacional**, desarrollado para demostrar implementación avanzada de Clean Architecture en Flutter con funcionalidades musicales especializadas.
+
+### 📞 **Soporte y Contacto**
+- **Documentación**: Consulta la carpeta `/documentation` para información técnica detallada
+- **Issues**: Reporta bugs o solicita características usando el sistema de issues
+- **Contribuciones**: Sigue las guías de contribución para pull requests
+
+---
+
+### 🔧 **Información Técnica**
+
+| Atributo | Valor |
+|----------|-------|
+| **Arquitectura** | Clean Architecture + BLoC Pattern |
+| **Plataformas** | iOS 12+ / Android API 21+ |
+| **Lenguaje** | Dart 3.0+ |
+| **Framework** | Flutter 3.8.1+ |
+| **Estado** | ✅ Producción Ready |
+| **Cobertura Tests** | En desarrollo |
+| **Documentación** | ✅ Completa |
+
+---
+
+**Sonofy** - *"La arquitectura musical del futuro"* 🎵
