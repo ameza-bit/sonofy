@@ -60,10 +60,26 @@ class PlaylistSelectorForm extends StatelessWidget {
           );
         }
 
+        final availablePlaylists = state.playlists
+            .where((playlist) => !playlist.containsSong(songId))
+            .toList();
+
+        if (availablePlaylists.isEmpty) {
+          return Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(24.0),
+                child: Text(context.tr('playlist.song_in_all_playlists')),
+              ),
+              _buildCreatePlaylistOption(context),
+            ],
+          );
+        }
+
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            ...state.playlists.map((playlist) {
+            ...availablePlaylists.map((playlist) {
               return ListTile(
                 title: Text(playlist.title),
                 subtitle: Text(
@@ -72,6 +88,7 @@ class PlaylistSelectorForm extends StatelessWidget {
                     namedArgs: {'count': playlist.songIds.length.toString()},
                   ),
                 ),
+                trailing: const Icon(Icons.add),
                 onTap: () => _addToPlaylist(context, playlist.id),
               );
             }),

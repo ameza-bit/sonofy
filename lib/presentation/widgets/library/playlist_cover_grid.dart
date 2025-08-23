@@ -6,7 +6,7 @@ class PlaylistCoverGrid extends StatelessWidget {
     this.songs, {
     required this.width,
     required this.height,
-    this.radius = 16,
+    this.radius = 0.0,
     super.key,
   });
 
@@ -46,7 +46,6 @@ class PlaylistCoverGrid extends StatelessWidget {
                             ? width / 2
                             : width,
                         height: songs.length > 2 ? height / 2 : height,
-                        radius: 0,
                       ),
                     )
                     .toList(),
@@ -63,6 +62,7 @@ class PlaylistCoverGrid extends StatelessWidget {
       child: QueryArtworkWidget(
         id: songs.first.id,
         type: ArtworkType.AUDIO,
+        artworkBorder: BorderRadius.zero,
         nullArtworkWidget: Container(
           decoration: const BoxDecoration(
             image: DecorationImage(
