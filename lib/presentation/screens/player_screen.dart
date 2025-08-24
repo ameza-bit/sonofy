@@ -53,7 +53,7 @@ class PlayerScreen extends StatelessWidget {
                   FontAwesomeIcons.lightEllipsisStrokeVertical,
                   size: 20.0,
                 ),
-                onPressed: () => OptionsModal.player(context),
+                onPressed: OptionsModal(context).player,
               ),
             ],
           ),

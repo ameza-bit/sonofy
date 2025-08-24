@@ -13,6 +13,7 @@ void modalView(
   required List<Widget> children,
   double? maxHeight = 0.65,
   bool showPlayer = false,
+  bool isScrollable = false,
 }) => showModalBottomSheet(
   context: context,
   useSafeArea: true,
@@ -70,9 +71,17 @@ void modalView(
                         ),
                       ),
                       const SizedBox(height: 24),
-                      Expanded(child: Column(children: children)),
-                      if (showPlayer)
-                        const SizedBox(height: 80), // Space for bottom player
+                      Expanded(
+                        child: isScrollable
+                            ? SingleChildScrollView(
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: children,
+                                ),
+                              )
+                            : Column(children: children),
+                      ),
+                      if (showPlayer) const SizedBox(height: 50),
                     ],
                   ),
                 ),

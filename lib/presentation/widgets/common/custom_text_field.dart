@@ -71,6 +71,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
         ),
         const SizedBox(height: 8),
         TextFormField(
+          onTapOutside: (_) => FocusScope.of(context).unfocus(),
           controller: widget.controller,
           obscureText: widget.isPassword && _obscureText,
           keyboardType: widget.keyboardType,

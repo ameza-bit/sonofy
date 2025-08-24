@@ -7,6 +7,7 @@ import 'package:sonofy/presentation/screens/equalizer_screen.dart';
 import 'package:sonofy/presentation/screens/library_screen.dart';
 import 'package:sonofy/presentation/screens/player_screen.dart';
 import 'package:sonofy/presentation/screens/playlist_screen.dart';
+import 'package:sonofy/presentation/screens/reorder_playlist_screen.dart';
 import 'package:sonofy/presentation/screens/settings_screen.dart';
 import 'package:sonofy/presentation/screens/splash_screen.dart';
 
@@ -38,21 +39,60 @@ class AppRoutes {
                 path: EqualizerScreen.routeName,
                 name: EqualizerScreen.routeName,
                 pageBuilder: (context, state) => PlayerSlideTransition(
-                  child: const EqualizerScreen(),
+                  child: PlaylistScreen(
+                    playlistId: state.pathParameters['playlistId'] ?? '',
+                  ),
                   key: state.pageKey,
                   name: state.name,
                   arguments: state.extra,
                 ),
               ),
               GoRoute(
-                path: PlaylistScreen.routeName,
-                name: PlaylistScreen.routeName,
+                path: '${PlaylistScreen.routeName}/:playlistId',
                 pageBuilder: (context, state) => PlayerSlideTransition(
-                  child: const PlaylistScreen(),
+                  child: const EqualizerScreen(),
                   key: state.pageKey,
                   name: state.name,
                   arguments: state.extra,
                 ),
+                routes: [
+                  GoRoute(
+                    path: ReorderPlaylistScreen.routeName,
+                    name: ReorderPlaylistScreen.routeName,
+                    pageBuilder: (context, state) => PageTransition(
+                      context: context,
+                      state: state,
+                      page: ReorderPlaylistScreen(
+                        playlistId: state.pathParameters['playlistId'] ?? '',
+                      ),
+                    ).fadeTransition(),
+                  ),
+                ],
+              ),
+              GoRoute(
+                path: '${PlaylistScreen.routeName}/:playlistId',
+                name: PlaylistScreen.routeName,
+                pageBuilder: (context, state) => PlayerSlideTransition(
+                  child: PlaylistScreen(
+                    playlistId: state.pathParameters['playlistId'] ?? '',
+                  ),
+                  key: state.pageKey,
+                  name: state.name,
+                  arguments: state.extra,
+                ),
+                routes: [
+                  GoRoute(
+                    path: ReorderPlaylistScreen.routeName,
+                    name: ReorderPlaylistScreen.routeName,
+                    pageBuilder: (context, state) => PageTransition(
+                      context: context,
+                      state: state,
+                      page: ReorderPlaylistScreen(
+                        playlistId: state.pathParameters['playlistId'] ?? '',
+                      ),
+                    ).fadeTransition(),
+                  ),
+                ],
               ),
               GoRoute(
                 path: PlayerScreen.routeName,

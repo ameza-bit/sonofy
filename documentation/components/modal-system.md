@@ -1,350 +1,413 @@
-# Sistema de Modales Unificado - modalView()
+# Sistema de Modales Contextual - OptionsModal
 
 ## 📋 Visión General
 
-El sistema `modalView()` es una función unificada que estandariza la creación y comportamiento de todos los modales en Sonofy. Proporciona una interfaz consistente, responsive al teclado y completamente personalizable.
+El sistema `OptionsModal` es una clase unificada que gestiona todos los modales contextuales en Sonofy. Proporciona opciones dinámicas según el contexto, mejorando la experiencia de usuario al mostrar solo las acciones relevantes para cada situación.
 
 ## 🎯 Características Principales
 
 ### ✅ Funcionalidades Core
-- **Responsive al Teclado**: Se eleva automáticamente cuando aparece el teclado
-- **Animaciones Suaves**: Transiciones de 100ms para mejor UX
-- **Diseño Consistente**: UI unificada con header, contenido y footer
-- **Player Opcional**: Soporte para mostrar BottomPlayer cuando sea necesario
-- **Altura Personalizable**: Control flexible de dimensiones del modal
+- **Opciones Contextuales**: Solo muestra acciones relevantes según el contexto
+- **Detección Inteligente**: Identifica automáticamente el estado de reproducción
+- **Gestión de Cola**: Opciones específicas para gestión de lista de reproducción
+- **Playlist Management**: Acciones contextuales para playlists específicas
+- **Player Integration**: Integración inteligente con el estado del reproductor
 
 ### ✅ Beneficios Técnicos
-- **Código Reutilizable**: Una función para todos los modales
-- **Mantenibilidad**: Cambios centralizados en un solo lugar
-- **Consistencia**: Comportamiento uniforme en toda la app
-- **Performance**: Optimizado para diferentes tipos de contenido
+- **UX Mejorada**: Usuario solo ve opciones aplicables
+- **Código Limpio**: Lógica condicional centralizada
+- **Mantenibilidad**: Fácil agregar nuevas opciones y contextos
+- **Performance**: Menos widgets renderizados innecesariamente
 
-## 📖 API de la Función
+## 📖 API de la Clase
 
 ```dart
-void modalView(
-  BuildContext context, {
-  required String title,                    // Título del modal
-  required List<Widget> children,          // Contenido del modal
-  double? maxHeight = 0.65,               // Altura máxima (0.0 - 1.0)
-  bool showPlayer = false,                // Mostrar BottomPlayer
-})
+class OptionsModal {
+  BuildContext context;
+  
+  OptionsModal(this.context);
+  
+  // Métodos principales
+  void library();                                    // Opciones de biblioteca
+  void player();                                     // Opciones del reproductor
+  void playlist();                                   // Opciones de playlist
+  void songLibraryContext(song, playlist);          // Canción desde biblioteca
+  void songPlaylistContext(song, playlist);         // Canción desde playlist
+  void songPlayerListContext(song, playlist);       // Canción desde cola de reproducción
+}
 ```
 
-### Parámetros
+### Métodos Contextuales
 
-| Parámetro | Tipo | Requerido | Descripción |
-|-----------|------|-----------|-------------|
-| `context` | `BuildContext` | ✅ | Context de Flutter para navegación |
-| `title` | `String` | ✅ | Título mostrado en el header del modal |
-| `children` | `List<Widget>` | ✅ | Lista de widgets que conforman el contenido |
-| `maxHeight` | `double?` | ❌ | Altura máxima como fracción de pantalla (default: 0.65) |
-| `showPlayer` | `bool` | ❌ | Si mostrar el BottomPlayer (default: false) |
+| Método | Contexto | Opciones Incluidas |
+|--------|----------|---------------------|
+| `library()` | Pantalla principal | Sleep, Order, Create Playlist, Equalizer, Settings |
+| `player()` | Reproductor activo | Sleep, Add/Remove Playlist*, Speed, Equalizer, Settings |
+| `playlist()` | Vista de playlist | Sleep, Reorder, Rename, Delete, Equalizer, Settings |
+| `songLibraryContext()` | Long press en biblioteca | Play, Play Next**, Add to Queue**, Add to Playlist, Song Info |
+| `songPlaylistContext()` | Long press en playlist | Play, Play Next**, Add to Queue**, Add/Remove Playlist, Song Info |
+| `songPlayerListContext()` | Long press en cola | Play, Play Next**, Add to Queue**, Remove from Queue, Add to Playlist, Song Info |
+
+*Solo si reproduce desde playlist  
+**Solo si hay reproducción activa
 
 ## 🎨 Estructura del Modal
 
 ```dart
-AnimatedContainer(
-  // Animación responsive al teclado
-  margin: EdgeInsets.only(bottom: keyboardHeight),
+class OptionsModal {
+  void _show(List<Widget> options) => modalView(
+    context,
+    isScrollable: true,
+    title: context.tr('options.title'),
+    children: [SectionCard(title: '', children: options)],
+  );
   
-  // Contenido principal
-  child: Scaffold(
-    body: Column([
-      // Header con título y botón cerrar
-      GestureDetector(
-        child: Column([
-          Text(title),
-          Icon(chevron_down),
-        ])
-      ),
-      
-      // Contenido expandible
-      Expanded(
-        child: Column(children: children)
-      ),
-      
-      // Espacio para BottomPlayer (opcional)
-      if (showPlayer) SizedBox(height: 80),
-    ]),
+  // Lógica condicional
+  void player() {
+    final playerState = context.read<PlayerCubit>().state;
+    final songsState = context.read<SongsCubit>().state;
     
-    // BottomPlayer opcional
-    bottomSheet: showPlayer ? BottomPlayer() : null,
-  ),
-)
+    final options = <Widget>[
+      const SleepOption(),
+      const AddPlaylistOption(),
+      // Solo mostrar si reproduce desde playlist
+      if (_isPlayingFromPlaylist(playerState, songsState))
+        const RemovePlaylistOption(),
+      const SpeedOption(),
+      const EqualizerOption(),
+      const SettingsOption(),
+    ];
+    _show(options);
+  }
+}
 ```
 
-## 📱 Casos de Uso por Tipo de Modal
+## 🔄 Lógica Condicional
 
-### 1. Modales Simples (Forms)
-**Ejemplos**: Crear playlist, renombrar playlist, eliminar playlist
+### Detección de Context Reproductor
 
 ```dart
-// Características
-- maxHeight: 0.4 (más pequeños)
-- showPlayer: false
-- Contenido: TextField + botones
-- Responsive al teclado
+static bool _isPlayingFromPlaylist(PlayerState playerState, SongsState songsState) {
+  // Si no hay canción seleccionada, no estamos reproduciendo desde playlist
+  if (!playerState.hasSelectedSong) return false;
+  
+  // Si la cantidad de canciones en la playlist actual es menor que
+  // el total de canciones en la biblioteca, estamos en una playlist específica
+  final playlistLength = playerState.playlist.length;
+  final totalSongsLength = songsState.songs.length;
+  
+  return playlistLength < totalSongsLength;
+}
+```
 
+### Opciones de Canción Contextual
+
+```dart
+void songLibraryContext(SongModel song, List<SongModel> playlist) {
+  final playerState = context.read<PlayerCubit>().state;
+  final options = <Widget>[
+    PlaySongOption(song: song, playlist: playlist),
+    
+    // Solo si hay reproducción activa
+    if (playerState.hasSelectedSong) ...[
+      PlayNextOption(song: song),
+      AddToQueueOption(song: song),
+    ],
+    
+    AddToPlaylistOption(song: song),
+    SongInfoOption(song: song),
+  ];
+  _show(options);
+}
+```
+
+## 📱 Casos de Uso Específicos
+
+### 1. Opciones de Biblioteca
+**Contexto**: `library_screen.dart`
+**Trigger**: Botón de opciones en AppBar
+
+```dart
 // Uso
-modalView(
-  context,
-  title: context.tr('options.create_playlist'),
-  maxHeight: 0.4,
-  children: [CreatePlaylistForm()],
-)
+OptionsModal(context).library();
+
+// Opciones mostradas
+├── Sleep Timer
+├── Order Songs 
+├── Create Playlist
+├── Equalizer
+└── Settings
 ```
 
-### 2. Modales de Contenido (Listas)
-**Ejemplos**: Selector de playlists, sleep timer
+### 2. Opciones de Reproductor
+**Contexto**: `player_screen.dart`
+**Trigger**: Botón de opciones en AppBar
 
 ```dart
-// Características  
-- maxHeight: 0.65 (altura default)
-- showPlayer: false
-- Contenido: ListView + opciones
-- Scroll interno
-
 // Uso
-modalView(
-  context,
-  title: context.tr('options.add_playlist'),
-  children: [PlaylistSelectorForm()],
-)
+OptionsModal(context).player();
+
+// Opciones mostradas (condicionales)
+├── Sleep Timer
+├── Add to Playlist
+├── Remove from Playlist  [solo si reproduce desde playlist]
+├── Playback Speed
+├── Equalizer
+└── Settings
 ```
 
-### 3. Modales de Media (Player Related)
-**Ejemplos**: Lyrics, playlist actual, configuración de reproducción
+### 3. Opciones de Playlist
+**Contexto**: `playlist_screen.dart`
+**Trigger**: Botón de opciones en AppBar
 
 ```dart
-// Características
-- maxHeight: 0.85 (más grandes)
-- showPlayer: true (mantiene contexto de reproducción)
-- Contenido: Media content + controles
-
 // Uso
-modalView(
-  context,
-  title: context.tr('player.lyrics'),
-  maxHeight: 0.85,
-  showPlayer: true,
-  children: [LyricsContent()],
-)
+OptionsModal(context).playlist();
+
+// Opciones mostradas
+├── Sleep Timer
+├── Reorder Songs
+├── Rename Playlist
+├── Delete Playlist
+├── Equalizer
+└── Settings
 ```
 
-## 🔧 Comportamiento Responsive al Teclado
+### 4. Contexto de Canción - Biblioteca
+**Contexto**: Long press en `SongCard` desde biblioteca
+**Trigger**: `onLongPress` en biblioteca
 
-### Problema Resuelto
 ```dart
-// ❌ ANTES: Modal se encogía con el teclado
-showModalBottomSheet(
-  constraints: BoxConstraints(maxHeight: fixed_height), // Rígido
-  builder: (context) => Widget(), // No responsive
-)
+// Uso
+OptionsModal(context).songLibraryContext(song, playlist);
 
-// ✅ AHORA: Modal se eleva con el teclado
-modalView() // Se ajusta automáticamente
+// Opciones mostradas
+├── Play
+├── Play Next          [solo si hay reproducción]
+├── Add to Queue       [solo si hay reproducción]
+├── Add to Playlist
+└── Song Information
 ```
 
-### Implementación Técnica
+### 5. Contexto de Canción - Playlist
+**Contexto**: Long press en `SongCard` desde vista de playlist
+**Trigger**: `onLongPress` en playlist
 
 ```dart
-// Detección del teclado
-final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
+// Uso
+OptionsModal(context).songPlaylistContext(song, playlist);
 
-// Elevación automática del modal
-margin: EdgeInsets.only(bottom: keyboardHeight),
-
-// Animación suave
-duration: const Duration(milliseconds: 100),
+// Opciones mostradas
+├── Play
+├── Play Next          [solo si hay reproducción]
+├── Add to Queue       [solo si hay reproducción]
+├── Add to Playlist
+├── Remove from Playlist
+└── Song Information
 ```
 
-## 🎛️ Configuraciones por Pantalla
+### 6. Contexto de Canción - Cola de Reproducción
+**Contexto**: Long press en `SongCard` desde modal de playlist del reproductor
+**Trigger**: `onLongPress` en `PlaylistModal`
 
-### Library Screen
 ```dart
-// Modal de opciones principales
-OptionsModal.library(context) // Usa modalView internamente
-├── Crear Playlist (maxHeight: 0.4)
-├── Configuraciones de Orden
-├── Sleep Timer (maxHeight: 0.65)
-└── Configuraciones
+// Uso
+OptionsModal(context).songPlayerListContext(song, playlist);
+
+// Opciones mostradas
+├── Play
+├── Play Next          [solo si hay reproducción]
+├── Add to Queue       [solo si hay reproducción]
+├── Remove from Queue
+├── Add to Playlist
+└── Song Information
 ```
 
-### Player Screen  
+## 🔧 Integración con SongCard
+
+### Estructura Actualizada de SongCard
+
 ```dart
-// Modales relacionados con reproducción
-OptionsModal.player(context) // Usa modalView internamente
-├── Agregar a Playlist (maxHeight: 0.65)
-├── Quitar de Playlist  
-├── Lyrics (maxHeight: 0.85, showPlayer: true)
-├── Playlist Actual (maxHeight: 0.85, showPlayer: true)
-└── Sleep Timer
+class SongCard extends StatelessWidget {
+  const SongCard({
+    required this.playlist,
+    required this.song,
+    required this.onTap,
+    required this.onLongPress,  // Callback directo
+    super.key,
+  });
+
+  final List<SongModel> playlist;
+  final SongModel song;
+  final VoidCallback onTap;
+  final VoidCallback onLongPress;  // Manejo externo del contexto
+}
 ```
 
-### Playlist Screen
-```dart
-// Modales específicos de playlist
-OptionsModal.playlist(context) // Usa modalView internamente  
-├── Renombrar Playlist (maxHeight: 0.4)
-├── Eliminar Playlist (maxHeight: 0.4)
-├── Reordenar Canciones
-└── Configuraciones
-```
+### Uso en Diferentes Pantallas
 
-## 🔄 Migración de Modales Anteriores
-
-### Antes (showModalBottomSheet directo)
 ```dart
-// ❌ Código duplicado en cada modal
-showModalBottomSheet(
-  context: context,
-  useSafeArea: true,
-  isScrollControlled: true,
-  backgroundColor: context.musicBackground,
-  constraints: BoxConstraints(/* ... */),
-  builder: (context) => BlocBuilder<SettingsCubit, SettingsState>(
-    builder: (context, state) {
-      return Scaffold(
-        backgroundColor: Colors.transparent,
-        body: SafeArea(
-          child: Hero(
-            child: SizedBox(
-              child: Padding(
-                child: Column(
-                  children: [
-                    GestureDetector(/* header */),
-                    /* contenido específico */
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ),
-      );
-    },
-  ),
+// En LibraryScreen
+SongCard(
+  playlist: orderedSongs,
+  song: song,
+  onTap: () => context.pushNamed(PlayerScreen.routeName),
+  onLongPress: () => OptionsModal(context).songLibraryContext(song, orderedSongs),
+);
+
+// En PlaylistScreen
+SongCard(
+  playlist: playlistSongs,
+  song: song,
+  onTap: () => context.pushNamed(PlayerScreen.routeName),
+  onLongPress: () => OptionsModal(context).songPlaylistContext(song, playlistSongs),
+);
+
+// En PlaylistModal
+SongCard(
+  playlist: state.playlist,
+  song: currentSong,
+  onTap: () => context.pop(),
+  onLongPress: () => OptionsModal(context).songPlayerListContext(currentSong, state.playlist),
 );
 ```
 
-### Después (modalView)
-```dart
-// ✅ Código simplificado y consistente
-modalView(
-  context,
-  title: 'Mi Modal',
-  children: [MiContenidoEspecifico()],
-)
+## 🎛️ Opciones Disponibles
+
+### Opciones de Reproductor
+- **PlaySongOption**: Reproduce la canción inmediatamente
+- **PlayNextOption**: Inserta canción después de la actual
+- **AddToQueueOption**: Agrega canción al final de la cola
+- **RemoveFromQueueOption**: Elimina canción de la cola actual
+
+### Opciones de Playlist
+- **AddToPlaylistOption**: Agrega canción a playlists existentes
+- **RemoveFromPlaylistOption**: Elimina canción de playlists
+
+### Opciones de Información
+- **SongInfoOption**: Muestra metadata completa de la canción
+- **ShareOption**: Comparte información de la canción
+
+### Opciones de Sistema
+- **SleepOption**: Configuración de sleep timer
+- **SpeedOption**: Velocidad de reproducción
+- **EqualizerOption**: Configuración de ecualizador
+- **SettingsOption**: Configuraciones generales
+
+## 🔍 Flujo de Decisión Condicional
+
+### Player Modal
+```
+¿Hay canción reproduciéndose?
+├── No → Solo opciones básicas
+└── Yes → ¿Reproduce desde playlist?
+    ├── No → Sin "Remove from Playlist"
+    └── Yes → Con "Remove from Playlist"
 ```
 
-## 🎨 Personalización Avanzada
+### Song Context Modal
+```
+¿Hay reproducción activa?
+├── No → Solo Play, Add to Playlist, Song Info
+└── Yes → Incluir Play Next, Add to Queue
 
-### Alturas Recomendadas por Tipo
-```dart
-// Modales pequeños (forms simples)
-maxHeight: 0.3 - 0.4
-
-// Modales medianos (listas, opciones)  
-maxHeight: 0.5 - 0.65 (default)
-
-// Modales grandes (contenido extenso)
-maxHeight: 0.8 - 0.9
+¿Desde qué contexto?
+├── Library → Sin Remove options
+├── Playlist → Con Remove from Playlist
+└── Player Queue → Con Remove from Queue
 ```
 
-### Cuándo Mostrar Player
-```dart
-// ✅ Mostrar Player cuando:
-- El modal está relacionado con reproducción actual
-- Usuario necesita controles de audio durante la acción
-- Modal muestra contenido de la canción actual (lyrics, info)
+## 📊 Beneficios de UX
 
-// ❌ NO mostrar Player cuando:
-- Modal es para configuraciones generales
-- Acción no está relacionada con reproducción
-- Modal podría obstaculizar los controles
+### Antes vs Después
+
+| Aspecto | Antes | Después |
+|---------|-------|---------|
+| **Opciones mostradas** | Todas siempre | Solo relevantes |
+| **Confusión del usuario** | Alta | Mínima |
+| **Clicks innecesarios** | Frecuentes | Eliminados |
+| **Contexto perdido** | Común | Never |
+| **Experiencia** | Inconsistente | Fluida |
+
+### Ejemplos de Mejora
+
+#### Escenario 1: Usuario no está reproduciendo música
+- **Antes**: Veía "Play Next", "Add to Queue" (no funcionales)
+- **Después**: Solo ve "Play", "Add to Playlist", "Song Info"
+
+#### Escenario 2: Usuario reproduce desde biblioteca general
+- **Antes**: Veía "Remove from Playlist" (sin sentido)
+- **Después**: No ve esa opción
+
+#### Escenario 3: Long press desde lista de reproducción
+- **Antes**: No tenía forma de quitar canción de la cola
+- **Después**: Ve "Remove from Queue" específicamente
+
+## 🚀 Extensibilidad
+
+### Agregar Nueva Opción
+
+```dart
+// 1. Crear el widget de opción
+class MyNewOption extends StatelessWidget {
+  const MyNewOption({super.key});
+  
+  @override
+  Widget build(BuildContext context) {
+    return SectionItem(
+      icon: FontAwesomeIcons.lightStar,
+      title: context.tr('options.my_new_option'),
+      onTap: () {
+        context.pop();
+        // Lógica de la opción
+      },
+    );
+  }
+}
+
+// 2. Agregar a OptionsModal
+void myContext(SongModel song) {
+  final options = <Widget>[
+    // ... otras opciones
+    const MyNewOption(),
+  ];
+  _show(options);
+}
 ```
 
-## 🔍 Debugging y Troubleshooting
+### Agregar Nuevo Contexto
 
-### Problemas Comunes
-
-#### 1. Modal no se ajusta al teclado
 ```dart
-// ✅ Verificar que el contenido use Column flexible
-children: [
-  Expanded(
-    child: Column(children: widgets), // ✅ Permite ajuste
-  )
-]
-
-// ❌ Evitar Column rígido
-children: [
-  Column(children: widgets), // ❌ No se ajusta
-]
+void songSpecialContext(SongModel song, List<SongModel> playlist) {
+  final playerState = context.read<PlayerCubit>().state;
+  final options = <Widget>[
+    PlaySongOption(song: song, playlist: playlist),
+    
+    // Lógica condicional específica
+    if (someCondition) SpecialOption(song: song),
+    
+    SongInfoOption(song: song),
+  ];
+  _show(options);
+}
 ```
-
-#### 2. Conflictos con Expanded dentro de ScrollView
-```dart
-// ✅ Usar Flexible en lugar de Expanded dentro de modalView
-children: [
-  Flexible(
-    child: ListView(...), // ✅ Compatible
-  )
-]
-
-// ❌ Evitar Expanded directo en children
-children: [
-  Expanded(child: ListView(...)), // ❌ Error de RenderFlex
-]
-```
-
-#### 3. Modal demasiado pequeño/grande
-```dart
-// ✅ Ajustar maxHeight según contenido
-modalView(
-  maxHeight: 0.4,  // Para forms pequeños
-  maxHeight: 0.65, // Para listas medianas  
-  maxHeight: 0.85, // Para contenido extenso
-)
-```
-
-## 📊 Métricas de Performance
-
-### Antes vs Después de modalView
-
-| Métrica | Antes | Después | Mejora |
-|---------|-------|---------|--------|
-| **Líneas de código por modal** | ~150 | ~20 | -87% |
-| **Tiempo de desarrollo** | ~2h | ~15min | -87% |
-| **Consistencia UI** | Variable | 100% | +100% |
-| **Bugs de responsive** | Frecuentes | Cero | -100% |
-| **Mantenibilidad** | Difícil | Fácil | +500% |
 
 ## 🎯 Mejores Prácticas
 
 ### ✅ Do's
-- Usar modalView() para todos los modales nuevos
-- Mantener children list organizada y simple
-- Configurar maxHeight apropiado según contenido
-- Usar showPlayer solo cuando sea relevante para audio
-- Implementar widgets de contenido como clases separadas
+- Usar OptionsModal(context).method() para todos los modales
+- Mantener lógica condicional simple y clara  
+- Agrupar opciones relacionadas
+- Proporcionar feedback visual claro
+- Testear todos los contextos posibles
 
-### ❌ Don'ts  
-- No usar showModalBottomSheet directamente
-- No hardcodear alturas fijas en children
-- No usar Expanded dentro de SingleChildScrollView
-- No mostrar player en modales de configuración
-- No duplicar estructura de header/footer
-
-## 🚀 Roadmap Futuro
-
-### Funcionalidades Planeadas
-- **Temas Personalizados**: Soporte para temas custom por modal
-- **Gestos Avanzados**: Swipe to dismiss, drag to resize
-- **Animaciones Custom**: Transiciones personalizables
-- **A11y Improvements**: Mejor soporte de accesibilidad
-- **Performance**: Lazy loading para contenido pesado
+### ❌ Don'ts
+- No mostrar opciones no funcionales
+- No duplicar lógica entre contextos
+- No ignorar el estado de reproducción
+- No mezclar contextos sin lógica clara
+- No hardcodear listas de opciones
 
 ---
 
-El sistema modalView() representa un paso significativo hacia la unificación y mejora de la experiencia de usuario en Sonofy, proporcionando una base sólida para el crecimiento futuro de la aplicación.
+El sistema OptionsModal contextual mejora significativamente la experiencia de usuario al proporcionar solo las opciones relevantes para cada situación, eliminando confusión y haciendo la app más intuitiva y eficiente.

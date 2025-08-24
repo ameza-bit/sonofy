@@ -295,6 +295,81 @@ BlocListener<PlayerCubit, PlayerState>(
 )
 ```
 
+#### ✨ Nuevos Métodos de Gestión de Cola
+
+**Métodos agregados para el sistema de modales contextuales:**
+
+```dart
+/// Inserta una canción después de la actual en la playlist
+void insertSongNext(SongModel song) {
+  if (state.playlist.isEmpty) return;
+  
+  final newPlaylist = List<SongModel>.from(state.playlist);
+  final insertIndex = state.currentIndex + 1;
+  
+  if (insertIndex < newPlaylist.length) {
+    newPlaylist.insert(insertIndex, song);
+  } else {
+    newPlaylist.add(song);
+  }
+  
+  emit(state.copyWith(playlist: newPlaylist));
+}
+
+/// Agrega una canción al final de la cola
+void addToQueue(SongModel song) {
+  final newPlaylist = List<SongModel>.from(state.playlist)..add(song);
+  emit(state.copyWith(playlist: newPlaylist));
+}
+
+/// Elimina una canción de la cola con manejo inteligente de índices
+void removeFromQueue(SongModel song) {
+  if (state.playlist.isEmpty) return;
+  
+  final songIndex = state.playlist.indexWhere((s) => s.id == song.id);
+  if (songIndex == -1) return;
+  
+  final newPlaylist = List<SongModel>.from(state.playlist)..removeAt(songIndex);
+  
+  // Ajustar índice actual si es necesario
+  int newCurrentIndex = state.currentIndex;
+  if (songIndex < state.currentIndex) {
+    newCurrentIndex = state.currentIndex - 1;
+  } else if (songIndex == state.currentIndex) {
+    // Si eliminamos canción actual, pausar y ajustar índice
+    _playerRepository.pause();
+    if (newPlaylist.isNotEmpty) {
+      if (newCurrentIndex >= newPlaylist.length) {
+        newCurrentIndex = 0;
+      }
+      final nextSong = newPlaylist[newCurrentIndex];
+      _playerRepository.play(nextSong.data);
+    } else {
+      newCurrentIndex = -1;
+    }
+  }
+  
+  emit(state.copyWith(
+    playlist: newPlaylist,
+    currentIndex: newCurrentIndex,
+    isPlaying: newPlaylist.isNotEmpty && songIndex == state.currentIndex,
+  ));
+}
+```
+
+#### Casos de Uso de los Nuevos Métodos
+
+```dart
+// ✨ Reproducir a continuación
+context.read<PlayerCubit>().insertSongNext(selectedSong);
+
+// ✨ Agregar a la cola
+context.read<PlayerCubit>().addToQueue(selectedSong);
+
+// ✨ Quitar de la cola
+context.read<PlayerCubit>().removeFromQueue(selectedSong);
+```
+
 ## 📚 SongsCubit
 
 ### Estado (`presentation/blocs/songs/songs_state.dart`)

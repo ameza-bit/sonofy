@@ -16,12 +16,16 @@ class SongCard extends StatelessWidget {
     required this.playlist,
     required this.song,
     required this.onTap,
+    required this.onLongPress,
+    this.shuffledPlaylist,
     super.key,
   });
 
   final List<SongModel> playlist;
   final SongModel song;
   final VoidCallback onTap;
+  final VoidCallback onLongPress;
+  final List<SongModel>? shuffledPlaylist;
 
   @override
   Widget build(BuildContext context) {
@@ -31,9 +35,14 @@ class SongCard extends StatelessWidget {
 
         return InkWell(
           onTap: () {
-            context.read<PlayerCubit>().setPlayingSong(playlist, song);
+            context.read<PlayerCubit>().setPlayingSong(
+              playlist,
+              song,
+              shuffledPlaylist,
+            );
             onTap();
           },
+          onLongPress: onLongPress,
           child: Card(
             margin: const EdgeInsets.symmetric(vertical: 4.0),
             child: Padding(
@@ -58,6 +67,7 @@ class SongCard extends StatelessWidget {
                             context.read<PlayerCubit>().setPlayingSong(
                               playlist,
                               song,
+                              shuffledPlaylist,
                             );
                           }
                         },

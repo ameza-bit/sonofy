@@ -2,12 +2,14 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:on_audio_query_pluse/on_audio_query.dart';
 import 'package:sonofy/core/constants/app_constants.dart';
 import 'package:sonofy/core/extensions/theme_extensions.dart';
 import 'package:sonofy/presentation/blocs/playlists/playlists_cubit.dart';
 import 'package:sonofy/presentation/blocs/playlists/playlists_state.dart';
 import 'package:sonofy/presentation/blocs/songs/songs_cubit.dart';
 import 'package:sonofy/presentation/blocs/songs/songs_state.dart';
+import 'package:sonofy/presentation/screens/library_screen.dart';
 import 'package:sonofy/presentation/screens/player_screen.dart';
 import 'package:sonofy/presentation/widgets/common/font_awesome/font_awesome_flutter.dart';
 import 'package:sonofy/presentation/widgets/library/bottom_player.dart';
@@ -16,7 +18,8 @@ import 'package:sonofy/presentation/widgets/options/options_modal.dart';
 
 class PlaylistScreen extends StatefulWidget {
   static const String routeName = 'playlist';
-  const PlaylistScreen({super.key});
+  const PlaylistScreen({required this.playlistId, super.key});
+  final String playlistId;
 
   @override
   State<PlaylistScreen> createState() => _PlaylistScreenState();
@@ -26,17 +29,19 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
   @override
   void initState() {
     super.initState();
-    // Asegurar que tenemos una playlist seleccionada al entrar a la pantalla
+    // Asegurar que tenemos una playlist válida al entrar a la pantalla
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final playlistsCubit = context.read<PlaylistsCubit>();
       final playlistsState = playlistsCubit.state;
 
-      // Si no hay playlist seleccionada pero hay playlists disponibles,
-      // esto puede indicar que venimos de un reinicio de app
-      if (playlistsState.selectedPlaylist == null &&
-          playlistsState.hasPlaylists) {
-        // En este caso, volvemos a Library Screen ya que no sabemos cuál playlist mostrar
-        context.go('/library');
+      // Verificar si la playlist existe
+      final playlist = playlistsState.getPlaylistById(widget.playlistId);
+      if (playlist == null && playlistsState.hasPlaylists) {
+        // Si la playlist no existe, volvemos a Library Screen
+        context.goNamed(LibraryScreen.routeName);
+      } else if (playlist != null) {
+        // Seleccionar la playlist actual para mantener consistencia en el estado
+        playlistsCubit.selectPlaylist(widget.playlistId);
       }
     });
   }
@@ -45,7 +50,9 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
   Widget build(BuildContext context) {
     return BlocBuilder<PlaylistsCubit, PlaylistsState>(
       builder: (context, playlistsState) {
-        final selectedPlaylist = playlistsState.selectedPlaylist;
+        final selectedPlaylist = playlistsState.getPlaylistById(
+          widget.playlistId,
+        );
 
         return Scaffold(
           appBar: AppBar(
@@ -62,7 +69,7 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
                   FontAwesomeIcons.lightEllipsisStrokeVertical,
                   size: 20.0,
                 ),
-                onPressed: () => OptionsModal.playlist(context),
+                onPressed: OptionsModal(context).playlist,
               ),
               const SizedBox(width: 12),
             ],
@@ -92,14 +99,16 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
                         );
                       }
 
-                      // Filtrar canciones que están en la playlist
-                      // Convertir song.id (int) a String para comparar con songIds almacenados
-                      final playlistSongs = songsState.songs.where((song) {
-                        final songIdAsString = song.id.toString();
-                        return selectedPlaylist.songIds.contains(
-                          songIdAsString,
-                        );
-                      }).toList();
+                      // Ordenar canciones según el orden en la playlist
+                      final playlistSongs = <SongModel>[];
+                      for (final songId in selectedPlaylist.songIds) {
+                        final song = songsState.songs
+                            .where((s) => s.id.toString() == songId)
+                            .firstOrNull;
+                        if (song != null) {
+                          playlistSongs.add(song);
+                        }
+                      }
 
                       if (playlistSongs.isEmpty) {
                         return Column(
@@ -150,6 +159,11 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
                                 song: playlistSongs[index],
                                 onTap: () =>
                                     context.pushNamed(PlayerScreen.routeName),
+                                onLongPress: () =>
+                                    OptionsModal(context).songPlaylistContext(
+                                      playlistSongs[index],
+                                      playlistSongs,
+                                    ),
                               ),
                             );
                           }
