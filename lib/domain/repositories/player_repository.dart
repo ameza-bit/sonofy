@@ -10,8 +10,9 @@ abstract class PlayerRepository {
   Future<bool> setPlaybackSpeed(double speed);
   double getPlaybackSpeed();
 
-  // TODO(Armando): Add equalizer control methods
-  // Future<bool> setEqualizerBand(int bandIndex, double gain);
-  // Future<List<double>> getEqualizerBands();
-  // Future<bool> setEqualizerPreset(String presetName);
+  Future<bool> setEqualizerEnabled(bool enabled);
+  Future<bool> setEqualizerBand(int bandIndex, double gain);
+  Future<bool> setAllEqualizerBands(List<double> gains);
+  Future<bool> setEqualizerPreamp(double gain);
+  Future<bool> resetEqualizer();
 }

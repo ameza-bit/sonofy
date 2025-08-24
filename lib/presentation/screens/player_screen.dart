@@ -13,6 +13,7 @@ import 'package:sonofy/presentation/widgets/options/options_modal.dart';
 import 'package:sonofy/presentation/widgets/player/player_control.dart';
 import 'package:sonofy/presentation/widgets/player/player_bottom_modals.dart';
 import 'package:sonofy/presentation/widgets/player/player_slider.dart';
+import 'package:sonofy/presentation/widgets/equalizer/equalizer_modal.dart';
 
 class PlayerScreen extends StatelessWidget {
   static const String routeName = 'player';
@@ -48,6 +49,13 @@ class PlayerScreen extends StatelessWidget {
               ),
             ),
             actions: [
+              IconButton(
+                icon: const Icon(
+                  Icons.equalizer,
+                  size: 22.0,
+                ),
+                onPressed: () => _showEqualizerModal(context),
+              ),
               IconButton(
                 icon: const Icon(
                   FontAwesomeIcons.lightEllipsisStrokeVertical,
@@ -150,6 +158,15 @@ class PlayerScreen extends StatelessWidget {
           bottomNavigationBar: const PlayerBottomModals(),
         );
       },
+    );
+  }
+
+  void _showEqualizerModal(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => const EqualizerModal(),
     );
   }
 }

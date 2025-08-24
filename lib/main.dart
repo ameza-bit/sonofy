@@ -11,10 +11,12 @@ import 'package:sonofy/data/repositories/player_repository_impl.dart';
 import 'package:sonofy/data/repositories/playlist_repository_impl.dart';
 import 'package:sonofy/data/repositories/settings_repository_impl.dart';
 import 'package:sonofy/data/repositories/songs_repository_impl.dart';
+import 'package:sonofy/data/repositories/equalizer_repository_impl.dart';
 import 'package:sonofy/domain/repositories/player_repository.dart';
 import 'package:sonofy/domain/repositories/playlist_repository.dart';
 import 'package:sonofy/domain/repositories/settings_repository.dart';
 import 'package:sonofy/domain/repositories/songs_repository.dart';
+import 'package:sonofy/domain/repositories/equalizer_repository.dart';
 import 'package:sonofy/domain/usecases/add_song_to_playlist_usecase.dart';
 import 'package:sonofy/domain/usecases/create_playlist_usecase.dart';
 import 'package:sonofy/domain/usecases/delete_playlist_usecase.dart';
@@ -25,11 +27,14 @@ import 'package:sonofy/domain/usecases/remove_song_from_playlist_usecase.dart';
 import 'package:sonofy/domain/usecases/reorder_songs_in_playlist_usecase.dart';
 import 'package:sonofy/domain/usecases/select_music_folder_usecase.dart';
 import 'package:sonofy/domain/usecases/update_playlist_usecase.dart';
+import 'package:sonofy/domain/usecases/get_equalizer_settings_usecase.dart';
+import 'package:sonofy/domain/usecases/update_equalizer_usecase.dart';
 import 'package:sonofy/presentation/blocs/player/player_cubit.dart';
 import 'package:sonofy/presentation/blocs/playlists/playlists_cubit.dart';
 import 'package:sonofy/presentation/blocs/settings/settings_cubit.dart';
 import 'package:sonofy/presentation/blocs/settings/settings_state.dart';
 import 'package:sonofy/presentation/blocs/songs/songs_cubit.dart';
+import 'package:sonofy/presentation/blocs/equalizer/equalizer_cubit.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
 Future<void> main() async {
@@ -42,6 +47,7 @@ Future<void> main() async {
   final SongsRepository songsRepository = SongsRepositoryImpl();
   final PlayerRepository playerRepository = PlayerRepositoryImpl();
   final PlaylistRepository playlistRepository = PlaylistRepositoryImpl();
+  final EqualizerRepository equalizerRepository = EqualizerRepositoryImpl();
 
   // Use Cases para música local - solo iOS
   SelectMusicFolderUseCase? selectMusicFolderUseCase;
@@ -77,6 +83,12 @@ Future<void> main() async {
   final ReorderSongsInPlaylistUseCase reorderSongsInPlaylistUseCase =
       ReorderSongsInPlaylistUseCase(playlistRepository);
 
+  // Use Cases del ecualizador
+  final GetEqualizerSettingsUseCase getEqualizerSettingsUseCase =
+      GetEqualizerSettingsUseCase(equalizerRepository);
+  final UpdateEqualizerUseCase updateEqualizerUseCase =
+      UpdateEqualizerUseCase(equalizerRepository);
+
   runApp(
     MultiBlocProvider(
       providers: [
@@ -107,6 +119,12 @@ Future<void> main() async {
             addSongToPlaylistUseCase,
             removeSongFromPlaylistUseCase,
             reorderSongsInPlaylistUseCase,
+          ),
+        ),
+        BlocProvider<EqualizerCubit>(
+          create: (context) => EqualizerCubit(
+            getEqualizerSettingsUseCase: getEqualizerSettingsUseCase,
+            updateEqualizerUseCase: updateEqualizerUseCase,
           ),
         ),
       ],

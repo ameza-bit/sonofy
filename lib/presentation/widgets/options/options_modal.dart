@@ -5,7 +5,6 @@ import 'package:sonofy/presentation/widgets/common/section_card.dart';
 import 'package:sonofy/presentation/widgets/options/add_playlist_option.dart';
 import 'package:sonofy/presentation/widgets/options/create_playlist_option.dart';
 import 'package:sonofy/presentation/widgets/options/delete_playlist_option.dart';
-import 'package:sonofy/presentation/widgets/options/equalizer_option.dart';
 import 'package:sonofy/presentation/widgets/options/order_option.dart';
 import 'package:sonofy/presentation/widgets/options/rename_playlist_option.dart';
 import 'package:sonofy/presentation/widgets/options/reorder_option.dart';
@@ -44,7 +43,6 @@ class OptionsModal {
     const SleepOption(),
     const OrderOption(),
     const CreatePlaylistOption(),
-    const EqualizerOption(),
     const SettingsOption(),
   ]);
 
@@ -53,7 +51,6 @@ class OptionsModal {
     const ReorderOption(),
     const RenamePlaylistOption(),
     const DeletePlaylistOption(),
-    const EqualizerOption(),
     const SettingsOption(),
   ]);
 
@@ -61,7 +58,6 @@ class OptionsModal {
     const SleepOption(),
     const AddPlaylistOption(),
     const SpeedOption(),
-    const EqualizerOption(),
     const SettingsOption(),
   ]);
 

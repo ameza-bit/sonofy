@@ -192,6 +192,25 @@
       "range_description": "Ingresa un valor entre 1 y 180 minutos",
       "waiting_for_song_end": "Esperando que Termine la Canción",
       "will_pause_after_song": "La música se pausará cuando termine la canción actual"
+    },
+    "equalizer": {
+      "title": "Ecualizador",
+      "enabled": "Ecualizador Activado",
+      "presets": "Presets",
+      "preamp": "Preamp",
+      "frequency_bands": "Bandas de Frecuencia",
+      "custom_mode": "Modo personalizado activado",
+      "custom_mode_info": "Selecciona \"Custom\" para ajustar manualmente las bandas",
+      "reset_to_default": "Restablecer por Defecto",
+      "reset_dialog_title": "Restablecer Ecualizador",
+      "reset_dialog_message": "¿Estás seguro de que quieres restablecer todas las configuraciones del ecualizador?",
+      "reset_button": "Restablecer",
+      "error_loading": "Error al cargar configuración del ecualizador",
+      "error_toggle": "Error al cambiar estado del ecualizador",
+      "error_preset": "Error al cambiar preset del ecualizador",
+      "error_band": "Error al actualizar banda del ecualizador",
+      "error_preamp": "Error al actualizar preamp",
+      "error_reset": "Error al restablecer ecualizador"
     }
   },
   "reorder": {

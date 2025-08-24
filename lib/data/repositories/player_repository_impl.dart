@@ -7,6 +7,11 @@ final class PlayerRepositoryImpl implements PlayerRepository {
   final player = AudioPlayer();
   bool _usingNativePlayer = false;
   double _playbackSpeed = 1.0;
+  
+  // Equalizer state (for future implementation with just_audio or native)
+  bool _equalizerEnabled = false;
+  List<double> _equalizerBands = List.filled(10, 0.0);
+  double _preamp = 0.0;
 
   @override
   bool isPlaying() {
@@ -127,5 +132,54 @@ final class PlayerRepositoryImpl implements PlayerRepository {
       return _playbackSpeed;
     }
     return _playbackSpeed;
+  }
+
+  @override
+  Future<bool> setEqualizerEnabled(bool enabled) async {
+    _equalizerEnabled = enabled;
+    // TODO: Implement actual equalizer control when migrating to just_audio
+    // For now, just store the state
+    return true;
+  }
+
+  @override
+  Future<bool> setEqualizerBand(int bandIndex, double gain) async {
+    if (bandIndex < 0 || bandIndex >= 10) return false;
+    
+    _equalizerBands[bandIndex] = gain.clamp(-12.0, 12.0);
+    
+    // TODO: Apply equalizer band when using just_audio or native implementation
+    // For now, just store the values
+    return _equalizerEnabled;
+  }
+
+  @override
+  Future<bool> setAllEqualizerBands(List<double> gains) async {
+    if (gains.length != 10) return false;
+    
+    for (int i = 0; i < 10; i++) {
+      _equalizerBands[i] = gains[i].clamp(-12.0, 12.0);
+    }
+    
+    // TODO: Apply all equalizer bands when using just_audio or native implementation
+    return _equalizerEnabled;
+  }
+
+  @override
+  Future<bool> setEqualizerPreamp(double gain) async {
+    _preamp = gain.clamp(-12.0, 12.0);
+    
+    // TODO: Apply preamp when using just_audio or native implementation
+    return _equalizerEnabled;
+  }
+
+  @override
+  Future<bool> resetEqualizer() async {
+    _equalizerEnabled = false;
+    _equalizerBands = List.filled(10, 0.0);
+    _preamp = 0.0;
+    
+    // TODO: Reset actual equalizer when using just_audio or native implementation
+    return true;
   }
 }

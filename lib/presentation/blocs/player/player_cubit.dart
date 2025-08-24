@@ -479,6 +479,15 @@ class PlayerCubit extends Cubit<PlayerState> {
     Preferences.playerPreferences = preferences;
   }
 
+  /// Sincroniza la configuración del ecualizador con el reproductor
+  Future<void> syncEqualizer(bool enabled, List<double> bands, double preamp) async {
+    await _playerRepository.setEqualizerEnabled(enabled);
+    if (enabled) {
+      await _playerRepository.setAllEqualizerBands(bands);
+      await _playerRepository.setEqualizerPreamp(preamp);
+    }
+  }
+
   @override
   Future<void> close() {
     _positionController?.close();
