@@ -39,35 +39,11 @@ class AppRoutes {
                 path: EqualizerScreen.routeName,
                 name: EqualizerScreen.routeName,
                 pageBuilder: (context, state) => PlayerSlideTransition(
-                  child: PlaylistScreen(
-                    playlistId: state.pathParameters['playlistId'] ?? '',
-                  ),
-                  key: state.pageKey,
-                  name: state.name,
-                  arguments: state.extra,
-                ),
-              ),
-              GoRoute(
-                path: '${PlaylistScreen.routeName}/:playlistId',
-                pageBuilder: (context, state) => PlayerSlideTransition(
                   child: const EqualizerScreen(),
                   key: state.pageKey,
                   name: state.name,
                   arguments: state.extra,
                 ),
-                routes: [
-                  GoRoute(
-                    path: ReorderPlaylistScreen.routeName,
-                    name: ReorderPlaylistScreen.routeName,
-                    pageBuilder: (context, state) => PageTransition(
-                      context: context,
-                      state: state,
-                      page: ReorderPlaylistScreen(
-                        playlistId: state.pathParameters['playlistId'] ?? '',
-                      ),
-                    ).fadeTransition(),
-                  ),
-                ],
               ),
               GoRoute(
                 path: '${PlaylistScreen.routeName}/:playlistId',
