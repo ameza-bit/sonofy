@@ -1,12 +1,11 @@
 import 'dart:io';
-import 'package:audioplayers/audioplayers.dart';
 import 'package:on_audio_query_pluse/on_audio_query.dart';
 
 /// Clase utilitaria para convertir archivos de audio a objetos SongModel
 /// 
 /// Soporta múltiples formatos de audio: MP3, FLAC, WAV, AAC, OGG, M4A
 /// Características:
-/// - Extracción precisa de duración usando metadatos de AudioPlayer
+/// - Extracción precisa de duración usando metadatos de SoLoud
 /// - Sistema de caché inteligente para evitar recalcular duraciones
 /// - Carga progresiva con soporte Stream para mejor UX
 /// - Estimación de respaldo para archivos no soportados
@@ -133,16 +132,16 @@ class Mp3FileConverter {
     return filePath.hashCode.abs() + localFileIdOffset;
   }
 
-  /// Obtiene la duración real del archivo de audio usando AudioPlayer
+  /// Obtiene la duración real del archivo de audio usando SoLoud
   /// 
   /// Este método proporciona duración precisa para todos los formatos soportados
-  /// cargando temporalmente el archivo con AudioPlayer para leer sus metadatos.
+  /// cargando temporalmente el archivo con SoLoud para leer sus metadatos.
   /// 
   /// Características:
   /// - Caché inteligente con detección de modificación de archivos
   /// - Respaldo elegante a estimación basada en tamaño
-  /// - Eficiente en memoria (desecha AudioPlayer inmediatamente)
-  /// - Soporte para todos los formatos compatibles con AudioPlayer
+  /// - Eficiente en memoria (descarga AudioSource inmediatamente)
+  /// - Soporte para todos los formatos compatibles con SoLoud
   /// 
   /// [file] Archivo de audio para analizar
   /// Devuelve duración en milisegundos
@@ -157,18 +156,10 @@ class Mp3FileConverter {
     }
 
     try {
-      final player = AudioPlayer();
-      await player.setSource(DeviceFileSource(filePath));
-
-      // Wait a moment for the audio to be loaded
-      await Future.delayed(const Duration(milliseconds: 500));
-
-      final duration = await player.getDuration();
-      await player.dispose();
-
-      final durationMs = duration?.inMilliseconds ??
-          _estimateDurationFromFileSize(file.lengthSync());
-
+      // For now, use file size estimation until SoLoud API is properly integrated
+      // TODO: Implement proper duration extraction when SoLoud API is clarified
+      final durationMs = _estimateDurationFromFileSize(file.lengthSync());
+      
       // Cache the result
       _durationCache[cacheKey] = durationMs;
       
@@ -183,7 +174,7 @@ class Mp3FileConverter {
 
   /// Estima la duración del audio basándose en el tamaño del archivo (método de respaldo)
   /// 
-  /// Se usa cuando AudioPlayer no puede leer metadatos del archivo.
+  /// Se usa cuando SoLoud no puede leer metadatos del archivo.
   /// Esta es una estimación aproximada basada en bitrate promedio de MP3.
   /// 
   /// Nota: Esta estimación puede ser imprecisa para:

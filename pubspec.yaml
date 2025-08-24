@@ -14,7 +14,7 @@ dependencies:
   go_router: ^16.1.0
   shared_preferences: ^2.5.3
   on_audio_query_pluse: ^2.9.4
-  audioplayers: ^6.5.0
+  flutter_soloud: ^3.2.7
   file_picker: ^10.3.1
 
 dev_dependencies:
