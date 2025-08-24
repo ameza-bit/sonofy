@@ -192,6 +192,25 @@
       "range_description": "Enter a value between 1 and 180 minutes",
       "waiting_for_song_end": "Waiting for Song to End",
       "will_pause_after_song": "Music will pause when the current song finishes"
+    },
+    "equalizer": {
+      "title": "Equalizer",
+      "enabled": "Equalizer Enabled",
+      "presets": "Presets",
+      "preamp": "Preamp",
+      "frequency_bands": "Frequency Bands",
+      "custom_mode": "Custom mode activated",
+      "custom_mode_info": "Select \"Custom\" to manually adjust the bands",
+      "reset_to_default": "Reset to Default",
+      "reset_dialog_title": "Reset Equalizer",
+      "reset_dialog_message": "Are you sure you want to reset all equalizer settings?",
+      "reset_button": "Reset",
+      "error_loading": "Error loading equalizer settings",
+      "error_toggle": "Error changing equalizer state",
+      "error_preset": "Error changing equalizer preset",
+      "error_band": "Error updating equalizer band",
+      "error_preamp": "Error updating preamp",
+      "error_reset": "Error resetting equalizer"
     }
   },
   "reorder": {

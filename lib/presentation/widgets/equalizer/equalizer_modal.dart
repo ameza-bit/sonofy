@@ -1,5 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sonofy/core/enums/equalizer_preset.dart';
 import 'package:sonofy/presentation/blocs/equalizer/equalizer_cubit.dart';
@@ -22,52 +23,84 @@ class _EqualizerModalState extends State<EqualizerModal> {
     final equalizerCubit = context.read<EqualizerCubit>();
     final playerCubit = context.read<PlayerCubit>();
     
+    // Configurar sincronización con el reproductor
     equalizerCubit.setPlayerSync(playerCubit.syncEqualizer);
-    equalizerCubit.loadEqualizerSettings();
+    
+    // Cargar configuración guardada del ecualizador
+    equalizerCubit.loadEqualizerSettings().then((_) {
+      // Sincronizar configuración inicial con el reproductor
+      final state = equalizerCubit.state;
+      if (state.equalizer.isEnabled) {
+        playerCubit.syncEqualizer(
+          state.equalizer.isEnabled,
+          state.equalizer.currentValues,
+          state.equalizer.preamp,
+        );
+      }
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     
-    return Container(
-      height: MediaQuery.of(context).size.height * 0.8,
-      decoration: BoxDecoration(
-        color: theme.scaffoldBackgroundColor,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      child: BlocBuilder<EqualizerCubit, EqualizerState>(
-        builder: (context, state) {
-          if (state.isLoading) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
-          }
+    return BlocListener<EqualizerCubit, EqualizerState>(
+      listener: (context, state) {
+        if (state.errorMessage != null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(context.tr(state.errorMessage!)),
+              backgroundColor: Colors.red,
+              action: SnackBarAction(
+                label: context.tr('common.close'),
+                textColor: Colors.white,
+                onPressed: () {
+                  context.read<EqualizerCubit>().clearError();
+                },
+              ),
+            ),
+          );
+        }
+      },
+      child: Container(
+        height: MediaQuery.of(context).size.height * 0.8,
+        decoration: BoxDecoration(
+          color: theme.scaffoldBackgroundColor,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        child: BlocBuilder<EqualizerCubit, EqualizerState>(
+          builder: (context, state) {
+            if (state.isLoading) {
+              return const Center(
+                child: CircularProgressIndicator(),
+              );
+            }
 
-          return Column(
-            children: [
-              _buildHeader(context),
-              Expanded(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    children: [
-                      _buildEnableSwitch(context, state),
-                      const SizedBox(height: 20),
-                      _buildPresetSelector(context, state),
-                      const SizedBox(height: 20),
-                      _buildPreamp(context, state),
-                      const SizedBox(height: 20),
-                      _buildEqualizer(context, state),
-                      const SizedBox(height: 20),
-                      _buildResetButton(context),
-                    ],
+            return Column(
+              children: [
+                _buildHeader(context),
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      children: [
+                        _buildEnableSwitch(context, state),
+                        const SizedBox(height: 20),
+                        _buildPresetSelector(context, state),
+                        const SizedBox(height: 20),
+                        _buildPreamp(context, state),
+                        const SizedBox(height: 20),
+                        _buildEqualizer(context, state),
+                        const SizedBox(height: 20),
+                        _buildResetButton(context),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            ],
-          );
-        },
+              ],
+            );
+          },
+        ),
       ),
     );
   }
@@ -127,6 +160,7 @@ class _EqualizerModalState extends State<EqualizerModal> {
             Switch(
               value: state.equalizer.isEnabled,
               onChanged: (value) {
+                HapticFeedback.selectionClick();
                 context.read<EqualizerCubit>().setEqualizerEnabled(value);
               },
             ),
@@ -191,6 +225,7 @@ class _EqualizerModalState extends State<EqualizerModal> {
                 max: 12.0,
                 divisions: 48,
                 onChanged: (value) {
+                  HapticFeedback.selectionClick();
                   context.read<EqualizerCubit>().setPreamp(value);
                 },
               ),

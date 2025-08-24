@@ -42,7 +42,7 @@ class EqualizerBandSlider extends StatelessWidget {
                     : theme.disabledColor.withValues(alpha: 0.3),
                 thumbColor: isEnabled ? theme.primaryColor : theme.disabledColor,
                 thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 10),
-                overlayShape: const RoundSliderOverlayShape(overlayRadius: 16),
+                overlayShape: const RoundSliderOverlayShape(),
                 tickMarkShape: SliderTickMarkShape.noTickMark,
               ),
               child: Slider(

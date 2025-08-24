@@ -34,7 +34,7 @@ class EqualizerCubit extends Cubit<EqualizerState> {
     } catch (e) {
       emit(state.copyWith(
         isLoading: false,
-        errorMessage: 'Error al cargar configuración del ecualizador',
+        errorMessage: 'player.equalizer.error_loading',
       ));
     }
   }
@@ -52,7 +52,7 @@ class EqualizerCubit extends Cubit<EqualizerState> {
       );
     } catch (e) {
       emit(state.copyWith(
-        errorMessage: 'Error al cambiar estado del ecualizador',
+        errorMessage: 'player.equalizer.error_toggle',
       ));
     }
   }
@@ -72,7 +72,7 @@ class EqualizerCubit extends Cubit<EqualizerState> {
       }
     } catch (e) {
       emit(state.copyWith(
-        errorMessage: 'Error al cambiar preset del ecualizador',
+        errorMessage: 'player.equalizer.error_preset',
       ));
     }
   }
@@ -100,7 +100,7 @@ class EqualizerCubit extends Cubit<EqualizerState> {
       }
     } catch (e) {
       emit(state.copyWith(
-        errorMessage: 'Error al actualizar banda del ecualizador',
+        errorMessage: 'player.equalizer.error_band',
       ));
     }
   }
@@ -117,7 +117,7 @@ class EqualizerCubit extends Cubit<EqualizerState> {
       emit(state.copyWith(equalizer: updatedEqualizer));
     } catch (e) {
       emit(state.copyWith(
-        errorMessage: 'Error al actualizar ecualizador',
+        errorMessage: 'player.equalizer.error_band',
       ));
     }
   }
@@ -137,7 +137,7 @@ class EqualizerCubit extends Cubit<EqualizerState> {
       }
     } catch (e) {
       emit(state.copyWith(
-        errorMessage: 'Error al actualizar preamp',
+        errorMessage: 'player.equalizer.error_preamp',
       ));
     }
   }
@@ -149,7 +149,7 @@ class EqualizerCubit extends Cubit<EqualizerState> {
       emit(state.copyWith(equalizer: defaultEqualizer));
     } catch (e) {
       emit(state.copyWith(
-        errorMessage: 'Error al restablecer ecualizador',
+        errorMessage: 'player.equalizer.error_reset',
       ));
     }
   }

@@ -137,7 +137,7 @@ final class PlayerRepositoryImpl implements PlayerRepository {
   @override
   Future<bool> setEqualizerEnabled(bool enabled) async {
     _equalizerEnabled = enabled;
-    // TODO: Implement actual equalizer control when migrating to just_audio
+    // TODO(equalizer): Implement actual equalizer control when migrating to just_audio
     // For now, just store the state
     return true;
   }
@@ -148,7 +148,7 @@ final class PlayerRepositoryImpl implements PlayerRepository {
     
     _equalizerBands[bandIndex] = gain.clamp(-12.0, 12.0);
     
-    // TODO: Apply equalizer band when using just_audio or native implementation
+    // TODO(equalizer): Apply equalizer band when using just_audio or native implementation
     // For now, just store the values
     return _equalizerEnabled;
   }
@@ -161,7 +161,7 @@ final class PlayerRepositoryImpl implements PlayerRepository {
       _equalizerBands[i] = gains[i].clamp(-12.0, 12.0);
     }
     
-    // TODO: Apply all equalizer bands when using just_audio or native implementation
+    // TODO(equalizer): Apply all equalizer bands when using just_audio or native implementation
     return _equalizerEnabled;
   }
 
@@ -169,8 +169,9 @@ final class PlayerRepositoryImpl implements PlayerRepository {
   Future<bool> setEqualizerPreamp(double gain) async {
     _preamp = gain.clamp(-12.0, 12.0);
     
-    // TODO: Apply preamp when using just_audio or native implementation
-    return _equalizerEnabled;
+    // TODO(equalizer): Apply preamp when using just_audio or native implementation
+    // For now, we use the stored _preamp value in the TODO implementation
+    return _equalizerEnabled && _preamp.isFinite;
   }
 
   @override
@@ -179,7 +180,7 @@ final class PlayerRepositoryImpl implements PlayerRepository {
     _equalizerBands = List.filled(10, 0.0);
     _preamp = 0.0;
     
-    // TODO: Reset actual equalizer when using just_audio or native implementation
+    // TODO(equalizer): Reset actual equalizer when using just_audio or native implementation
     return true;
   }
 }
