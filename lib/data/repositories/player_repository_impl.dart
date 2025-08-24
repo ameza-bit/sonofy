@@ -7,6 +7,10 @@ final class PlayerRepositoryImpl implements PlayerRepository {
   final player = AudioPlayer();
   bool _usingNativePlayer = false;
   double _playbackSpeed = 1.0;
+  
+  // Simulación de estado del ecualizador (AudioPlayers no tiene soporte nativo)
+  List<double> _equalizerBands = [0.0, 0.0, 0.0]; // Bass, Mid, Treble
+  bool _equalizerEnabled = false;
 
   @override
   bool isPlaying() {
@@ -127,5 +131,48 @@ final class PlayerRepositoryImpl implements PlayerRepository {
       return _playbackSpeed;
     }
     return _playbackSpeed;
+  }
+
+  @override
+  Future<bool> setEqualizerBand(int bandIndex, double gain) async {
+    if (bandIndex >= 0 && bandIndex < _equalizerBands.length) {
+      _equalizerBands[bandIndex] = gain;
+      
+      // TODO: Aplicar filtros de audio reales cuando esté disponible
+      // Por ahora solo guardamos el estado
+      
+      if (_usingNativePlayer && Platform.isIOS) {
+        // Usar ecualizador nativo de iOS
+        return IpodLibraryConverter.setEqualizerBand(bandIndex, gain);
+      } else {
+        // TODO: Aplicar filtros con AudioPlayers cuando tenga soporte
+        // Por ahora retornamos true para mantener la funcionalidad de UI
+        return true;
+      }
+    }
+    return false;
+  }
+
+  @override
+  Future<List<double>> getEqualizerBands() async {
+    return List<double>.from(_equalizerBands);
+  }
+
+  @override
+  Future<bool> setEqualizerEnabled(bool enabled) async {
+    _equalizerEnabled = enabled;
+    
+    if (_usingNativePlayer && Platform.isIOS) {
+      // Usar ecualizador nativo de iOS
+      return IpodLibraryConverter.setEqualizerEnabled(enabled);
+    } else {
+      // TODO: Activar/desactivar filtros de AudioPlayers
+      return true;
+    }
+  }
+
+  @override
+  Future<bool> isEqualizerEnabled() async {
+    return _equalizerEnabled;
   }
 }

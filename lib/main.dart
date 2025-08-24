@@ -12,7 +12,6 @@ import 'package:sonofy/data/repositories/player_repository_impl.dart';
 import 'package:sonofy/data/repositories/playlist_repository_impl.dart';
 import 'package:sonofy/data/repositories/settings_repository_impl.dart';
 import 'package:sonofy/data/repositories/songs_repository_impl.dart';
-import 'package:sonofy/domain/repositories/equalizer_repository.dart';
 import 'package:sonofy/domain/repositories/player_repository.dart';
 import 'package:sonofy/domain/repositories/playlist_repository.dart';
 import 'package:sonofy/domain/repositories/settings_repository.dart';
@@ -44,7 +43,10 @@ Future<void> main() async {
   final SongsRepository songsRepository = SongsRepositoryImpl();
   final PlayerRepository playerRepository = PlayerRepositoryImpl();
   final PlaylistRepository playlistRepository = PlaylistRepositoryImpl();
-  final EqualizerRepository equalizerRepository = EqualizerRepositoryImpl();
+  final EqualizerRepositoryImpl equalizerRepository = EqualizerRepositoryImpl();
+  
+  // Conectar ecualizador con reproductor para sincronización
+  equalizerRepository.setPlayerRepository(playerRepository);
 
   // Use Cases para música local - solo iOS
   SelectMusicFolderUseCase? selectMusicFolderUseCase;

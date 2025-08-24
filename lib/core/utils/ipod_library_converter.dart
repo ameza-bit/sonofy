@@ -172,4 +172,31 @@ class IpodLibraryConverter {
       return 1.0;
     }
   }
+
+  static Future<bool> setEqualizerBand(int bandIndex, double gain) async {
+    if (!_isIOS) return false;
+
+    try {
+      final result = await _channel.invokeMethod('setEqualizerBand', {
+        'bandIndex': bandIndex,
+        'gain': gain,
+      });
+      return result as bool? ?? false;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  static Future<bool> setEqualizerEnabled(bool enabled) async {
+    if (!_isIOS) return false;
+
+    try {
+      final result = await _channel.invokeMethod('setEqualizerEnabled', {
+        'enabled': enabled,
+      });
+      return result as bool? ?? false;
+    } catch (e) {
+      return false;
+    }
+  }
 }

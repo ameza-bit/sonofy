@@ -24,6 +24,18 @@ class PlayerCubit extends Cubit<PlayerState> {
     final savedSpeed = _settingsRepository.getSettings().playbackSpeed;
     emit(state.copyWith(playbackSpeed: savedSpeed));
     _playerRepository.setPlaybackSpeed(savedSpeed);
+    _initializeEqualizer();
+  }
+
+  void _initializeEqualizer() {
+    final settings = _settingsRepository.getSettings();
+    final equalizerSettings = settings.equalizerSettings;
+    
+    // Aplicar configuración del ecualizador al PlayerRepository
+    _playerRepository.setEqualizerEnabled(equalizerSettings.isEnabled);
+    for (int i = 0; i < equalizerSettings.bands.length; i++) {
+      _playerRepository.setEqualizerBand(i, equalizerSettings.bands[i].gain);
+    }
   }
 
   Future<void> setPlayingSong(List<SongModel> playlist, SongModel song) async {
