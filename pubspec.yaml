@@ -9,11 +9,85 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  easy_localization: ^3.0.8
+  flutter_bloc: ^9.1.1
+  go_router: ^16.1.0
+  shared_preferences: ^2.5.3
+  on_audio_query_pluse: ^2.9.4
+  audioplayers: ^6.5.0
+  file_picker: ^10.3.1
+  path_provider: ^2.1.5
+  path: ^1.9.1
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^5.0.0
+  flutter_launcher_icons: ^0.14.4
+
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/images/icon-white.png"
+  min_sdk_android: 21
+  adaptive_icon_background: "#df7630"
+  adaptive_icon_foreground: "assets/images/icon-white.png"
+  remove_alpha_ios: true
+  background_color_ios: "#df7630"
+  image_path_ios: "assets/images/icon-white.png"
+  web:
+    generate: true
+    image_path: "assets/images/icon-white.png"
+    background_color: "#df7630"
+    theme_color: "#df7630"
+  windows:
+    generate: true
+    image_path: "assets/images/icon-white.png"
+    icon_size: 256
+  macos:
+    generate: true
+    image_path: "assets/images/icon-white.png"
 
 flutter:
   uses-material-design: true
+
+  assets:
+    - assets/translations/
+    - assets/images/
+
+  fonts:
+    - family: SF_UI_Display
+      fonts:
+        - asset: assets/fonts/sf-ui-display-cufonfonts/sf-ui-display-medium-58646be638f96.otf
+        - asset: assets/fonts/sf-ui-display-cufonfonts/sf-ui-display-bold-58646a511e3d9.otf
+    - family: FontAwesomeSolid
+      fonts:
+        - asset: assets/fonts/font_awesome/fa-solid-900.ttf
+    - family: FontAwesomeRegular
+      fonts:
+        - asset: assets/fonts/font_awesome/fa-regular-400.ttf
+    - family: FontAwesomeLight
+      fonts:
+        - asset: assets/fonts/font_awesome/fa-light-300.ttf
+    - family: FontAwesomeThin
+      fonts:
+        - asset: assets/fonts/font_awesome/fa-thin-100.ttf
+    - family: FontAwesomeBrands
+      fonts:
+        - asset: assets/fonts/font_awesome/fa-brands-400.ttf
+    - family: FontAwesomeDuotone
+      fonts:
+        - asset: assets/fonts/font_awesome/fa-duotone-900.ttf
+    - family: FontAwesomeSharpSolid
+      fonts:
+        - asset: assets/fonts/font_awesome/fa-sharp-solid-900.ttf
+    - family: FontAwesomeSharpRegular
+      fonts:
+        - asset: assets/fonts/font_awesome/fa-sharp-regular-400.ttf
+    - family: FontAwesomeSharpLight
+      fonts:
+        - asset: assets/fonts/font_awesome/fa-sharp-light-300.ttf
+    - family: FontAwesomeSharpThin
+      fonts:
+        - asset: assets/fonts/font_awesome/fa-sharp-thin-100.ttf
+
