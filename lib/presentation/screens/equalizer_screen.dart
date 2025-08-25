@@ -207,47 +207,27 @@ class EqualizerScreen extends StatelessWidget {
 
                     const SizedBox(height: 24),
 
-                    // Botones de acción
-                    Container(
-                      padding: const EdgeInsets.all(16),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: OutlinedButton.icon(
-                              onPressed: () {
-                                context.read<EqualizerCubit>().resetToFlat();
-                              },
-                              icon: const Icon(
-                                FontAwesomeIcons.lightRotateLeft,
-                              ),
-                              label: Text(context.tr('equalizer.reset')),
-                              style: OutlinedButton.styleFrom(
-                                foregroundColor: primaryColor,
-                                side: BorderSide(color: primaryColor),
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 12,
-                                ),
+                    // Botón de acción
+                    SafeArea(
+                      child: Container(
+                        padding: const EdgeInsets.all(16),
+                        child: Center(
+                          child: OutlinedButton.icon(
+                            onPressed: () {
+                              context.read<EqualizerCubit>().resetToFlat();
+                            },
+                            icon: const Icon(FontAwesomeIcons.lightRotateLeft),
+                            label: Text(context.tr('equalizer.reset')),
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: primaryColor,
+                              side: BorderSide(color: primaryColor),
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 12,
+                                horizontal: 32,
                               ),
                             ),
                           ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: ElevatedButton.icon(
-                              onPressed: () {
-                                context.pop();
-                              },
-                              icon: const Icon(FontAwesomeIcons.lightCheck),
-                              label: Text(context.tr('common.apply')),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: primaryColor,
-                                foregroundColor: Colors.white,
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 12,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
+                        ),
                       ),
                     ),
                   ],
