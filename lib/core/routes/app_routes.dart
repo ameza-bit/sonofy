@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:sonofy/core/transitions/player_transition.dart';
 import 'package:sonofy/core/utils/page_transition.dart';
 import 'package:sonofy/main.dart';
+import 'package:sonofy/presentation/screens/equalizer_screen.dart';
 import 'package:sonofy/presentation/screens/library_screen.dart';
 import 'package:sonofy/presentation/screens/player_screen.dart';
 import 'package:sonofy/presentation/screens/playlist_screen.dart';
@@ -34,6 +35,16 @@ class AppRoutes {
               page: const LibraryScreen(),
             ).fadeTransition(),
             routes: [
+              GoRoute(
+                path: EqualizerScreen.routeName,
+                name: EqualizerScreen.routeName,
+                pageBuilder: (context, state) => PlayerSlideTransition(
+                  child: const EqualizerScreen(),
+                  key: state.pageKey,
+                  name: state.name,
+                  arguments: state.extra,
+                ),
+              ),
               GoRoute(
                 path: '${PlaylistScreen.routeName}/:playlistId',
                 name: PlaylistScreen.routeName,

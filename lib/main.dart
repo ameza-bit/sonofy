@@ -7,6 +7,7 @@ import 'package:sonofy/core/enums/language.dart';
 import 'package:sonofy/core/routes/app_routes.dart';
 import 'package:sonofy/core/services/preferences.dart';
 import 'package:sonofy/core/themes/main_theme.dart';
+import 'package:sonofy/data/repositories/equalizer_repository_impl.dart';
 import 'package:sonofy/data/repositories/player_repository_impl.dart';
 import 'package:sonofy/data/repositories/playlist_repository_impl.dart';
 import 'package:sonofy/data/repositories/settings_repository_impl.dart';
@@ -25,6 +26,7 @@ import 'package:sonofy/domain/usecases/remove_song_from_playlist_usecase.dart';
 import 'package:sonofy/domain/usecases/reorder_songs_in_playlist_usecase.dart';
 import 'package:sonofy/domain/usecases/select_music_folder_usecase.dart';
 import 'package:sonofy/domain/usecases/update_playlist_usecase.dart';
+import 'package:sonofy/presentation/blocs/equalizer/equalizer_cubit.dart';
 import 'package:sonofy/presentation/blocs/player/player_cubit.dart';
 import 'package:sonofy/presentation/blocs/playlists/playlists_cubit.dart';
 import 'package:sonofy/presentation/blocs/settings/settings_cubit.dart';
@@ -42,6 +44,10 @@ Future<void> main() async {
   final SongsRepository songsRepository = SongsRepositoryImpl();
   final PlayerRepository playerRepository = PlayerRepositoryImpl();
   final PlaylistRepository playlistRepository = PlaylistRepositoryImpl();
+  final EqualizerRepositoryImpl equalizerRepository = EqualizerRepositoryImpl();
+  
+  // Conectar ecualizador con reproductor para sincronización
+  equalizerRepository.setPlayerRepository(playerRepository);
 
   // Use Cases para música local - solo iOS
   SelectMusicFolderUseCase? selectMusicFolderUseCase;
@@ -108,6 +114,9 @@ Future<void> main() async {
             removeSongFromPlaylistUseCase,
             reorderSongsInPlaylistUseCase,
           ),
+        ),
+        BlocProvider<EqualizerCubit>(
+          create: (context) => EqualizerCubit(equalizerRepository),
         ),
       ],
       child: EasyLocalization(

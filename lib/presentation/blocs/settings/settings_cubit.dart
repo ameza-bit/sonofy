@@ -5,6 +5,7 @@ import 'package:flutter/material.dart' show ThemeMode;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sonofy/core/enums/language.dart';
 import 'package:sonofy/core/enums/order_by.dart';
+import 'package:sonofy/data/models/equalizer_settings.dart';
 import 'package:sonofy/data/models/setting.dart';
 import 'package:sonofy/domain/repositories/settings_repository.dart';
 import 'package:sonofy/domain/usecases/select_music_folder_usecase.dart';
@@ -60,6 +61,10 @@ class SettingsCubit extends Cubit<SettingsState> {
 
   void updatePlaybackSpeed(double playbackSpeed) {
     _updateSetting(state.settings.copyWith(playbackSpeed: playbackSpeed));
+  }
+
+  void updateEqualizerSettings(EqualizerSettings equalizerSettings) {
+    _updateSetting(state.settings.copyWith(equalizerSettings: equalizerSettings));
   }
 
   void updateSettings(Settings settings) {

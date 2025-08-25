@@ -198,5 +198,31 @@
     "title": "Reorder Songs",
     "discard_changes_message": "Are you sure you want to discard the changes made?",
     "songs_count": "{count} songs"
+  },
+  "equalizer": {
+    "title": "Equalizer",
+    "enabled": "Enabled",
+    "disabled": "Disabled",
+    "enabled_description": "Equalizer is active and applying effects",
+    "disabled_description": "Equalizer is disabled",
+    "custom_mode": "Custom mode active",
+    "reset": "Reset",
+    "presets": {
+      "normal": "Normal",
+      "rock": "Rock",
+      "pop": "Pop",
+      "jazz": "Jazz",
+      "classical": "Classical"
+    },
+    "bands": {
+      "bass": "Bass",
+      "mid": "Mid",
+      "treble": "Treble"
+    },
+    "frequencies": {
+      "60hz": "60 Hz",
+      "1khz": "1 kHz",
+      "16khz": "16 kHz"
+    }
   }
 }

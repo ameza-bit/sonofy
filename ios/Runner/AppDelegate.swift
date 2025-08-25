@@ -1,10 +1,13 @@
 import Flutter
 import UIKit
 import MediaPlayer
+import AVFoundation
 
 @main
 @objc class AppDelegate: FlutterAppDelegate {
   private var musicPlayer: MPMusicPlayerController?
+  private var audioEngine: AVAudioEngine?
+  private var equalizerNode: AVAudioUnitEQ?
   override func application(
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
@@ -53,6 +56,10 @@ import MediaPlayer
         self?.setPlaybackSpeed(call: call, result: result)
       case "getPlaybackSpeed":
         self?.getPlaybackSpeed(result: result)
+      case "setEqualizerBand":
+        self?.setEqualizerBand(call: call, result: result)
+      case "setEqualizerEnabled":
+        self?.setEqualizerEnabled(call: call, result: result)
       default:
         result(FlutterMethodNotImplemented)
       }
@@ -281,5 +288,38 @@ import MediaPlayer
     let currentSpeed = Double(player.currentPlaybackRate)
     logToFlutter("📊 Current playback speed: \(currentSpeed)x")
     result(currentSpeed)
+  }
+  
+  private func setEqualizerBand(call: FlutterMethodCall, result: @escaping FlutterResult) {
+    logToFlutter("🎚️ Setting equalizer band")
+    
+    guard let args = call.arguments as? [String: Any],
+          let bandIndex = args["bandIndex"] as? Int,
+          let gain = args["gain"] as? Double else {
+      logToFlutter("❌ Invalid equalizer band arguments")
+      result(false)
+      return
+    }
+    
+    // TODO: Implementar ecualizador real con AVAudioEngine
+    // Por ahora solo registramos la configuración
+    logToFlutter("🎚️ Band \(bandIndex) set to \(gain)dB (simulated)")
+    result(true)
+  }
+  
+  private func setEqualizerEnabled(call: FlutterMethodCall, result: @escaping FlutterResult) {
+    logToFlutter("🎚️ Setting equalizer enabled status")
+    
+    guard let args = call.arguments as? [String: Any],
+          let enabled = args["enabled"] as? Bool else {
+      logToFlutter("❌ Invalid equalizer enabled arguments")
+      result(false)
+      return
+    }
+    
+    // TODO: Implementar activación/desactivación real del ecualizador
+    // Por ahora solo registramos el estado
+    logToFlutter("🎚️ Equalizer \(enabled ? "enabled" : "disabled") (simulated)")
+    result(true)
   }
 }

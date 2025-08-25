@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:sonofy/core/enums/language.dart';
 import 'package:sonofy/core/enums/order_by.dart';
+import 'package:sonofy/data/models/equalizer_settings.dart';
 
 Settings settingsFromJson(String str) => Settings.fromJson(json.decode(str));
 String settingsToJson(Settings data) => json.encode(data.toJson());
@@ -16,6 +17,7 @@ class Settings {
   final String? localMusicPath;
   final OrderBy orderBy;
   final double playbackSpeed;
+  final EqualizerSettings equalizerSettings;
 
   Settings({
     this.themeMode = ThemeMode.system,
@@ -26,7 +28,8 @@ class Settings {
     this.localMusicPath,
     this.orderBy = OrderBy.titleAsc,
     this.playbackSpeed = 1.0,
-  });
+    EqualizerSettings? equalizerSettings,
+  }) : equalizerSettings = equalizerSettings ?? EqualizerSettings.initial();
 
   factory Settings.fromJson(Map<String, dynamic> json) => Settings(
     themeMode: ThemeMode.values[json['isDarkMode'] ?? 0],
@@ -37,6 +40,9 @@ class Settings {
     localMusicPath: json['localMusicPath'],
     orderBy: OrderByExtension.fromString(json['orderBy'] ?? 'titleAsc'),
     playbackSpeed: (json['playbackSpeed'] ?? 1.0).toDouble(),
+    equalizerSettings: json['equalizerSettings'] != null
+        ? EqualizerSettings.fromJson(json['equalizerSettings'])
+        : EqualizerSettings.initial(),
   );
 
   Map<String, dynamic> toJson() => {
@@ -48,6 +54,7 @@ class Settings {
     'localMusicPath': localMusicPath,
     'orderBy': orderBy.stringValue,
     'playbackSpeed': playbackSpeed,
+    'equalizerSettings': equalizerSettings.toJson(),
   };
 
   Settings copyWith({
@@ -59,6 +66,7 @@ class Settings {
     String? localMusicPath,
     OrderBy? orderBy,
     double? playbackSpeed,
+    EqualizerSettings? equalizerSettings,
   }) {
     return Settings(
       themeMode: themeMode ?? this.themeMode,
@@ -69,6 +77,7 @@ class Settings {
       localMusicPath: localMusicPath ?? this.localMusicPath,
       orderBy: orderBy ?? this.orderBy,
       playbackSpeed: playbackSpeed ?? this.playbackSpeed,
+      equalizerSettings: equalizerSettings ?? this.equalizerSettings,
     );
   }
 }
