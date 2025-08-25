@@ -45,9 +45,14 @@ Future<void> main() async {
   final PlayerRepository playerRepository = PlayerRepositoryImpl();
   final PlaylistRepository playlistRepository = PlaylistRepositoryImpl();
   final EqualizerRepositoryImpl equalizerRepository = EqualizerRepositoryImpl();
-  
+
   // Conectar ecualizador con reproductor para sincronización
   equalizerRepository.setPlayerRepository(playerRepository);
+
+  // Inicializar carpeta Music en iOS
+  if (songsRepository is SongsRepositoryImpl) {
+    await songsRepository.initializeMusicFolder();
+  }
 
   // Use Cases para música local - solo iOS
   SelectMusicFolderUseCase? selectMusicFolderUseCase;
@@ -57,10 +62,7 @@ Future<void> main() async {
   if (!kIsWeb && Platform.isIOS) {
     selectMusicFolderUseCase = SelectMusicFolderUseCase(songsRepository);
     getSongsFromFolderUseCase = GetSongsFromFolderUseCase(songsRepository);
-    getLocalSongsUseCase = GetLocalSongsUseCase(
-      songsRepository,
-      settingsRepository,
-    );
+    getLocalSongsUseCase = GetLocalSongsUseCase(songsRepository);
   }
 
   // Use Cases para playlists

@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:on_audio_query_pluse/on_audio_query.dart';
 import 'package:sonofy/core/enums/order_by.dart';
+import 'package:sonofy/core/utils/functions.dart' show getMusicFolderPath;
 import 'package:sonofy/domain/repositories/settings_repository.dart';
 import 'package:sonofy/domain/usecases/get_local_songs_usecase.dart';
 import 'package:sonofy/domain/repositories/songs_repository.dart';
@@ -149,9 +150,8 @@ class SongsCubit extends Cubit<SongsState> {
 
     try {
       // Primero obtenemos el total de archivos para mostrar progreso
-      final settings = _settingsRepository.getSettings();
-      final localPath = settings.localMusicPath;
-      if (localPath == null || localPath.isEmpty) {
+      final localPath = await getMusicFolderPath();
+      if (localPath.isEmpty) {
         return;
       }
 
