@@ -101,24 +101,6 @@ class SettingsCubit extends Cubit<SettingsState> {
     }
   }
 
-  Future<List<File>> getMp3FilesFromCurrentFolder() async {
-    // Solo iOS soporta obtención de archivos de carpetas
-    if (_getSongsFromFolderUseCase == null) {
-      return [];
-    }
-
-    final currentPath = state.settings.localMusicPath;
-    if (currentPath == null || currentPath.isEmpty) {
-      return [];
-    }
-
-    try {
-      return await _getSongsFromFolderUseCase(currentPath);
-    } catch (e) {
-      return [];
-    }
-  }
-
   void _updateSetting(Settings newSetting) {
     try {
       _settingsRepository.saveSettings(newSetting);

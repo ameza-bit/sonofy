@@ -1,32 +1,11 @@
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:on_audio_query_pluse/on_audio_query.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:path/path.dart' as path;
+import 'package:sonofy/core/utils/functions.dart' show getMusicFolderPath;
 import 'package:sonofy/domain/repositories/songs_repository.dart';
 
 final class SongsRepositoryImpl implements SongsRepository {
   final OnAudioQuery _audioQuery = OnAudioQuery();
-
-  /// Obtiene o crea la carpeta Music en el directorio de documentos de la app (solo iOS)
-  Future<String> _getMusicFolderPath() async {
-    if (!kIsWeb && Platform.isIOS) {
-      final Directory appDocDir = await getApplicationDocumentsDirectory();
-      final String musicFolderPath = path.join(appDocDir.path, 'Music');
-
-      // Crear la carpeta si no existe
-      final Directory musicDir = Directory(musicFolderPath);
-      if (!musicDir.existsSync()) {
-        await musicDir.create(recursive: true);
-        if (kDebugMode) {
-          print('Created Music folder at: $musicFolderPath');
-        }
-      }
-
-      return musicFolderPath;
-    }
-    return '';
-  }
 
   Future<bool> _configureAudioQuery() async {
     await _audioQuery.setLogConfig(
@@ -52,7 +31,7 @@ final class SongsRepositoryImpl implements SongsRepository {
     if (!kIsWeb && Platform.isIOS) {
       try {
         // Siempre devolver la ruta de la carpeta Music de la app
-        final String musicFolderPath = await _getMusicFolderPath();
+        final String musicFolderPath = await getMusicFolderPath();
 
         if (kDebugMode) {
           print('Music folder path: $musicFolderPath');
@@ -76,7 +55,7 @@ final class SongsRepositoryImpl implements SongsRepository {
     if (!kIsWeb && Platform.isIOS) {
       try {
         // Usar siempre la carpeta Music de la app
-        final String musicFolderPath = await _getMusicFolderPath();
+        final String musicFolderPath = await getMusicFolderPath();
         final directory = Directory(musicFolderPath);
 
         if (!directory.existsSync()) {
@@ -117,7 +96,7 @@ final class SongsRepositoryImpl implements SongsRepository {
   /// Inicializa la carpeta Music en el directorio de la app (llamar desde main)
   Future<void> initializeMusicFolder() async {
     if (!kIsWeb && Platform.isIOS) {
-      await _getMusicFolderPath();
+      await getMusicFolderPath();
       if (kDebugMode) {
         print('Music folder initialized');
       }

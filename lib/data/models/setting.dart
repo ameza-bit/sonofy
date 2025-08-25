@@ -14,7 +14,6 @@ class Settings {
   final double fontSize;
   final Language language;
   final bool biometricEnabled;
-  final String? localMusicPath;
   final OrderBy orderBy;
   final double playbackSpeed;
   final EqualizerSettings equalizerSettings;
@@ -25,7 +24,6 @@ class Settings {
     this.fontSize = 1.0,
     this.language = Language.spanish,
     this.biometricEnabled = false,
-    this.localMusicPath,
     this.orderBy = OrderBy.titleAsc,
     this.playbackSpeed = 1.0,
     EqualizerSettings? equalizerSettings,
@@ -37,7 +35,6 @@ class Settings {
     fontSize: (json['fontSize'] ?? 1.0).toDouble(),
     language: Language.values[json['language'] ?? 0],
     biometricEnabled: json['biometricEnabled'] ?? false,
-    localMusicPath: json['localMusicPath'],
     orderBy: OrderByExtension.fromString(json['orderBy'] ?? 'titleAsc'),
     playbackSpeed: (json['playbackSpeed'] ?? 1.0).toDouble(),
     equalizerSettings: json['equalizerSettings'] != null
@@ -51,7 +48,6 @@ class Settings {
     'fontSize': fontSize,
     'language': language.index,
     'biometricEnabled': biometricEnabled,
-    'localMusicPath': localMusicPath,
     'orderBy': orderBy.stringValue,
     'playbackSpeed': playbackSpeed,
     'equalizerSettings': equalizerSettings.toJson(),
@@ -74,7 +70,6 @@ class Settings {
       fontSize: fontSize ?? this.fontSize,
       language: language ?? this.language,
       biometricEnabled: biometricEnabled ?? this.biometricEnabled,
-      localMusicPath: localMusicPath ?? this.localMusicPath,
       orderBy: orderBy ?? this.orderBy,
       playbackSpeed: playbackSpeed ?? this.playbackSpeed,
       equalizerSettings: equalizerSettings ?? this.equalizerSettings,

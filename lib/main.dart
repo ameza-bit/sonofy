@@ -45,7 +45,7 @@ Future<void> main() async {
   final PlayerRepository playerRepository = PlayerRepositoryImpl();
   final PlaylistRepository playlistRepository = PlaylistRepositoryImpl();
   final EqualizerRepositoryImpl equalizerRepository = EqualizerRepositoryImpl();
-  
+
   // Conectar ecualizador con reproductor para sincronización
   equalizerRepository.setPlayerRepository(playerRepository);
 
@@ -62,10 +62,7 @@ Future<void> main() async {
   if (!kIsWeb && Platform.isIOS) {
     selectMusicFolderUseCase = SelectMusicFolderUseCase(songsRepository);
     getSongsFromFolderUseCase = GetSongsFromFolderUseCase(songsRepository);
-    getLocalSongsUseCase = GetLocalSongsUseCase(
-      songsRepository,
-      settingsRepository,
-    );
+    getLocalSongsUseCase = GetLocalSongsUseCase(songsRepository);
   }
 
   // Use Cases para playlists
