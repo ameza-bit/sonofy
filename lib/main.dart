@@ -49,6 +49,11 @@ Future<void> main() async {
   // Conectar ecualizador con reproductor para sincronización
   equalizerRepository.setPlayerRepository(playerRepository);
 
+  // Inicializar carpeta Music en iOS
+  if (songsRepository is SongsRepositoryImpl) {
+    await songsRepository.initializeMusicFolder();
+  }
+
   // Use Cases para música local - solo iOS
   SelectMusicFolderUseCase? selectMusicFolderUseCase;
   GetSongsFromFolderUseCase? getSongsFromFolderUseCase;
