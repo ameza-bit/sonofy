@@ -1,14 +1,15 @@
+import 'dart:async';
 import 'dart:io';
 import 'package:audio_service/audio_service.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:sonofy/domain/repositories/player_repository.dart';
 import 'package:sonofy/core/utils/ipod_library_converter.dart';
 
-final class PlayerRepositoryImpl extends BaseAudioHandler
-    implements PlayerRepository {
+final class PlayerRepositoryImpl extends BaseAudioHandler implements PlayerRepository {
   final player = AudioPlayer();
   bool _usingNativePlayer = false;
   double _playbackSpeed = 1.0;
+  bool _isPaused = false;
 
   // Simulación de estado del ecualizador (AudioPlayers no tiene soporte nativo)
   final List<double> _equalizerBands = [0.0, 0.0, 0.0]; // Bass, Mid, Treble
@@ -17,6 +18,12 @@ final class PlayerRepositoryImpl extends BaseAudioHandler
   // Estado actual para AudioService
   String? _currentUrl;
   Duration _currentPosition = Duration.zero;
+
+  // Stream para comunicar eventos al PlayerCubit
+  final StreamController<PlayerEvent> _eventsController = StreamController<PlayerEvent>.broadcast();
+
+  @override
+  Stream<PlayerEvent> get playerEvents => _eventsController.stream;
 
   @override
   bool isPlaying() {
@@ -34,6 +41,7 @@ final class PlayerRepositoryImpl extends BaseAudioHandler
     await player.stop();
     await IpodLibraryConverter.stopNativeMusicPlayer();
     _usingNativePlayer = false;
+    _isPaused = false;
 
     if (IpodLibraryConverter.isIpodLibraryUrl(url) && Platform.isIOS) {
       // Check if DRM protected
@@ -59,13 +67,34 @@ final class PlayerRepositoryImpl extends BaseAudioHandler
   }
 
   @override
+  Future<bool> resumeTrack() async {
+    if (_currentUrl == null) return false;
+
+    if (_usingNativePlayer && Platform.isIOS) {
+      await IpodLibraryConverter.resumeNativeMusicPlayer();
+      final playing = isPlaying();
+      _isPaused = !playing;
+      _updatePlaybackState(playing);
+      return playing;
+    } else {
+      await player.resume();
+      final playing = isPlaying();
+      _isPaused = !playing;
+      _updatePlaybackState(playing);
+      return playing;
+    }
+  }
+
+  @override
   Future<bool> pauseTrack() async {
     if (_usingNativePlayer && Platform.isIOS) {
       await IpodLibraryConverter.pauseNativeMusicPlayer();
+      _isPaused = true;
       _updatePlaybackState(false);
       return false;
     } else {
       await player.pause();
+      _isPaused = true;
     }
     final playing = isPlaying();
     _updatePlaybackState(playing);
@@ -211,8 +240,18 @@ final class PlayerRepositoryImpl extends BaseAudioHandler
   @override
   Future<void> play() async {
     if (_currentUrl != null) {
-      final success = await playTrackInternal(_currentUrl!);
+      bool success;
+      if (_isPaused) {
+        // Si estaba pausado, reanudar sin reiniciar
+        success = await resumeTrack();
+      } else {
+        // Si no había nada reproduciéndose, iniciar desde el principio
+        success = await playTrackInternal(_currentUrl!);
+      }
       _updatePlaybackState(success);
+      if (!_eventsController.isClosed) {
+        _eventsController.add(PlayEvent());
+      }
     }
   }
 
@@ -220,6 +259,9 @@ final class PlayerRepositoryImpl extends BaseAudioHandler
   Future<void> pause() async {
     await pauseTrackInternal();
     _updatePlaybackState(false);
+    if (!_eventsController.isClosed) {
+      _eventsController.add(PauseEvent());
+    }
   }
 
   @override
@@ -227,6 +269,9 @@ final class PlayerRepositoryImpl extends BaseAudioHandler
     // Este método será llamado desde la notificación
     // El PlayerCubit manejará la lógica de navegación
     _updatePlaybackState(isPlaying());
+    if (!_eventsController.isClosed) {
+      _eventsController.add(NextEvent());
+    }
   }
 
   @override
@@ -234,6 +279,9 @@ final class PlayerRepositoryImpl extends BaseAudioHandler
     // Este método será llamado desde la notificación
     // El PlayerCubit manejará la lógica de navegación
     _updatePlaybackState(isPlaying());
+    if (!_eventsController.isClosed) {
+      _eventsController.add(PreviousEvent());
+    }
   }
 
   @override
@@ -242,6 +290,9 @@ final class PlayerRepositoryImpl extends BaseAudioHandler
     await _seekToPosition(position);
     _currentPosition = position;
     _updatePlaybackState(isPlaying());
+    if (!_eventsController.isClosed) {
+      _eventsController.add(SeekEvent(position));
+    }
   }
 
   Future<void> _seekToPosition(Duration position) async {
@@ -291,5 +342,10 @@ final class PlayerRepositoryImpl extends BaseAudioHandler
         artUri: artUri != null ? Uri.parse(artUri) : null,
       ),
     );
+  }
+
+  // Cerrar el StreamController al destruir la instancia
+  void dispose() {
+    _eventsController.close();
   }
 }

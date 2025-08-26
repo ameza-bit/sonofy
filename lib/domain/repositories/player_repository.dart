@@ -1,7 +1,23 @@
+sealed class PlayerEvent {}
+
+class PlayEvent extends PlayerEvent {}
+
+class PauseEvent extends PlayerEvent {}
+
+class NextEvent extends PlayerEvent {}
+
+class PreviousEvent extends PlayerEvent {}
+
+class SeekEvent extends PlayerEvent {
+  final Duration position;
+  SeekEvent(this.position);
+}
+
 abstract class PlayerRepository {
   bool isPlaying();
   Future<bool> playTrack(String url);
   Future<bool> pauseTrack();
+  Future<bool> resumeTrack();
   Future<bool> togglePlayPause();
   Future<bool> seekToPosition(Duration position);
   Future<Duration?> getCurrentPosition();
@@ -14,4 +30,6 @@ abstract class PlayerRepository {
   Future<List<double>> getEqualizerBands();
   Future<bool> setEqualizerEnabled(bool enabled);
   Future<bool> isEqualizerEnabled();
+
+  Stream<PlayerEvent> get playerEvents;
 }

@@ -23,11 +23,12 @@ class PlayerCubit extends Cubit<PlayerState> {
   final SettingsRepository _settingsRepository;
   StreamController<int>? _positionController;
   Timer? _sleepTimer;
+  StreamSubscription<PlayerEvent>? _playerEventsSubscription;
 
-  PlayerCubit(this._playerRepository, this._settingsRepository)
-    : super(PlayerState.initial()) {
+  PlayerCubit(this._playerRepository, this._settingsRepository) : super(PlayerState.initial()) {
     _initializePositionStream();
     _initializePlaybackSpeed();
+    _subscribeToPlayerEvents();
   }
 
   void _initializePlaybackSpeed() {
@@ -48,6 +49,32 @@ class PlayerCubit extends Cubit<PlayerState> {
     }
   }
 
+  void _subscribeToPlayerEvents() {
+    _playerEventsSubscription = _playerRepository.playerEvents.listen((event) {
+      switch (event) {
+        case PlayEvent():
+          if (!state.isPlaying) {
+            emit(state.copyWith(isPlaying: true));
+          }
+          break;
+        case PauseEvent():
+          if (state.isPlaying) {
+            emit(state.copyWith(isPlaying: false));
+          }
+          break;
+        case NextEvent():
+          nextSong();
+          break;
+        case PreviousEvent():
+          previousSong();
+          break;
+        case SeekEvent():
+          // La posición se actualizará automáticamente por el stream de posición
+          break;
+      }
+    });
+  }
+
   /// Establece una nueva canción y playlist para reproducir.
   ///
   /// Regenera una nueva lista shuffle (a menos que se proporcione una existente)
@@ -56,21 +83,14 @@ class PlayerCubit extends Cubit<PlayerState> {
   /// [playlist] - Lista original de canciones
   /// [song] - Canción a reproducir
   /// [shuffledPlaylist] - Lista shuffle existente (opcional, para preservar secuencia)
-  Future<void> setPlayingSong(
-    List<SongModel> playlist,
-    SongModel song,
-    List<SongModel>? shuffledPlaylist,
-  ) async {
+  Future<void> setPlayingSong(List<SongModel> playlist, SongModel song, List<SongModel>? shuffledPlaylist) async {
     final index = playlist.indexWhere((s) => s.id == song.id);
     final bool isPlaying = await _playerRepository.playTrack(song.data);
 
     // Generar nueva lista shuffle
-    final shufflePlaylist =
-        shuffledPlaylist ?? _generateShufflePlaylist(playlist, song);
+    final shufflePlaylist = shuffledPlaylist ?? _generateShufflePlaylist(playlist, song);
     // Si se generó una nueva lista shuffle, la canción será el índice 0
-    final shuffleIndex = shuffledPlaylist != null
-        ? shufflePlaylist.indexWhere((s) => s.id == song.id)
-        : 0;
+    final shuffleIndex = shuffledPlaylist != null ? shufflePlaylist.indexWhere((s) => s.id == song.id) : 0;
 
     // Actualizar MediaItem para AudioService
     _updateAudioServiceMediaItem(song);
@@ -100,9 +120,7 @@ class PlayerCubit extends Cubit<PlayerState> {
       nextIndex = _getNextIndex();
     }
 
-    final bool isPlaying = await _playerRepository.playTrack(
-      state.activePlaylist[nextIndex].data,
-    );
+    final bool isPlaying = await _playerRepository.playTrack(state.activePlaylist[nextIndex].data);
 
     // Actualizar MediaItem para AudioService
     _updateAudioServiceMediaItem(state.activePlaylist[nextIndex]);
@@ -125,9 +143,7 @@ class PlayerCubit extends Cubit<PlayerState> {
       previousIndex = _getPreviousIndex();
     }
 
-    final bool isPlaying = await _playerRepository.playTrack(
-      state.activePlaylist[previousIndex].data,
-    );
+    final bool isPlaying = await _playerRepository.playTrack(state.activePlaylist[previousIndex].data);
 
     // Actualizar MediaItem para AudioService
     _updateAudioServiceMediaItem(state.activePlaylist[previousIndex]);
@@ -227,10 +243,7 @@ class PlayerCubit extends Cubit<PlayerState> {
       // Activando shuffle: generar nueva lista shuffle y encontrar índice actual
       final currentSong = state.currentSong;
       if (currentSong != null) {
-        final newShufflePlaylist = _generateShufflePlaylist(
-          state.playlist,
-          currentSong,
-        );
+        final newShufflePlaylist = _generateShufflePlaylist(state.playlist, currentSong);
         // La canción actual siempre será el índice 0 en la nueva lista shuffle
         const newCurrentIndex = 0;
 
@@ -248,15 +261,8 @@ class PlayerCubit extends Cubit<PlayerState> {
       // Desactivando shuffle: encontrar índice en playlist original
       final currentSong = state.currentSong;
       if (currentSong != null) {
-        final newCurrentIndex = state.playlist.indexWhere(
-          (s) => s.id == currentSong.id,
-        );
-        emit(
-          state.copyWith(
-            isShuffleEnabled: newShuffleState,
-            currentIndex: newCurrentIndex,
-          ),
-        );
+        final newCurrentIndex = state.playlist.indexWhere((s) => s.id == currentSong.id);
+        emit(state.copyWith(isShuffleEnabled: newShuffleState, currentIndex: newCurrentIndex));
       } else {
         emit(state.copyWith(isShuffleEnabled: newShuffleState));
       }
@@ -432,8 +438,7 @@ class PlayerCubit extends Cubit<PlayerState> {
     final songIndex = state.playlist.indexWhere((s) => s.id == song.id);
     if (songIndex == -1) return;
 
-    final newPlaylist = List<SongModel>.from(state.playlist)
-      ..removeAt(songIndex);
+    final newPlaylist = List<SongModel>.from(state.playlist)..removeAt(songIndex);
 
     // Adjust current index if necessary
     int newCurrentIndex = state.currentIndex;
@@ -473,10 +478,7 @@ class PlayerCubit extends Cubit<PlayerState> {
   /// [currentSong] - Canción que debe ser primera (opcional)
   ///
   /// Returns: Lista mezclada con canción actual al inicio (si se proporciona)
-  List<SongModel> _generateShufflePlaylist(
-    List<SongModel> playlist, [
-    SongModel? currentSong,
-  ]) {
+  List<SongModel> _generateShufflePlaylist(List<SongModel> playlist, [SongModel? currentSong]) {
     if (playlist.isEmpty) return [];
 
     final shuffled = List.of(playlist);
@@ -496,10 +498,7 @@ class PlayerCubit extends Cubit<PlayerState> {
   }
 
   void _savePlayerPreferences() {
-    final preferences = PlayerPreferences(
-      isShuffleEnabled: state.isShuffleEnabled,
-      repeatMode: state.repeatMode,
-    );
+    final preferences = PlayerPreferences(isShuffleEnabled: state.isShuffleEnabled, repeatMode: state.repeatMode);
     Preferences.playerPreferences = preferences;
   }
 
@@ -517,6 +516,7 @@ class PlayerCubit extends Cubit<PlayerState> {
   Future<void> close() {
     _positionController?.close();
     _sleepTimer?.cancel();
+    _playerEventsSubscription?.cancel();
     return super.close();
   }
 }
