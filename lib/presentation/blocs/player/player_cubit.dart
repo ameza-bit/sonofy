@@ -133,9 +133,25 @@ class PlayerCubit extends Cubit<PlayerState> {
   /// Comportamiento según modo de repetición:
   /// - RepeatMode.one: Repite la canción actual
   /// - RepeatMode.all/none: Retrocede según lógica de navegación
+  ///
+  /// Comportamiento según posición actual:
+  /// - Si la canción lleva más de 5 segundos: reinicia desde el inicio
+  /// - Si la canción lleva menos de 5 segundos: va a la canción anterior
   Future<void> previousSong() async {
     if (state.activePlaylist.isEmpty) return;
 
+    // Obtener la posición actual de la canción
+    final currentPosition = await _playerRepository.getCurrentPosition();
+    final currentPositionMs = currentPosition?.inMilliseconds ?? 0;
+    const fiveSecondsInMs = 5 * 1000; // 5 segundos en milisegundos
+
+    // Si han pasado más de 5 segundos, reiniciar la canción desde el inicio
+    if (currentPositionMs > fiveSecondsInMs) {
+      await _playerRepository.seekToPosition(Duration.zero);
+      return;
+    }
+
+    // Si han pasado menos de 5 segundos, ir a la canción anterior
     int previousIndex;
     if (state.repeatMode == RepeatMode.one) {
       previousIndex = state.currentIndex;
