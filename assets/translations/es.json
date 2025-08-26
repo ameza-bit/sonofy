@@ -171,7 +171,7 @@
   "player": {
     "now_playing": "Sonando",
     "lyrics": "Letras",
-    "playlist": "Lista de Reproducción",
+    "playlist": "Reproducción",
     "no_song_selected": "No hay canción seleccionada",
     "share_text": "🎵 Escuchando: {title} por {artist} del álbum {album} 🎵",
     "song_copied_to_clipboard": "Información de la canción copiada al portapapeles",
