@@ -1,9 +1,9 @@
 abstract class PlayerRepository {
   bool isPlaying();
-  Future<bool> play(String url);
-  Future<bool> pause();
+  Future<bool> playTrack(String url);
+  Future<bool> pauseTrack();
   Future<bool> togglePlayPause();
-  Future<bool> seek(Duration position);
+  Future<bool> seekToPosition(Duration position);
   Future<Duration?> getCurrentPosition();
   Future<Duration?> getDuration();
 
