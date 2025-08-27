@@ -428,6 +428,23 @@ class PlayerCubit extends Cubit<PlayerState> {
     return _playerRepository.getPlaybackSpeed();
   }
 
+  /// Activa el modo de avance rápido (doble velocidad)
+  Future<void> startSeekForward() async {
+    if (!state.hasSelectedSong) return;
+    
+    await _playerRepository.setPlaybackSpeed(2.0);
+    emit(state.copyWith(playbackSpeed: 2.0));
+  }
+
+  /// Desactiva el modo de avance rápido (vuelve a velocidad normal)
+  Future<void> stopSeekForward() async {
+    if (!state.hasSelectedSong) return;
+    
+    // Volver a la velocidad normal (1.0)
+    await _playerRepository.setPlaybackSpeed(1.0);
+    emit(state.copyWith(playbackSpeed: 1.0));
+  }
+
   void insertSongNext(SongModel song) {
     if (state.playlist.isEmpty) return;
 
