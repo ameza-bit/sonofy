@@ -80,16 +80,11 @@ class PlayerControl extends StatelessWidget {
                     },
                   ),
                   Expanded(
-                    child: GestureDetector(
-                      onTap: () => context.read<PlayerCubit>().nextSong(),
-                      onLongPressStart: (_) => context.read<PlayerCubit>().startSeekForward(),
-                      onLongPressEnd: (_) => context.read<PlayerCubit>().stopSeekForward(),
-                      child: Container(
-                        padding: const EdgeInsets.all(12.0),
-                        child: const Icon(
-                          FontAwesomeIcons.solidForward,
-                          size: 30.0,
-                        ),
+                    child: IconButton(
+                      onPressed: () => context.read<PlayerCubit>().nextSong(),
+                      icon: const Icon(
+                        FontAwesomeIcons.solidForward,
+                        size: 30.0,
                       ),
                     ),
                   ),
