@@ -166,6 +166,9 @@ class _PlayerScreenState extends State<PlayerScreen> {
                     ),
                   ),
                   GestureDetector(
+                    onTap: () => context.read<PlayerCubit>().togglePlayPause(),
+                    onDoubleTap: () =>
+                        context.read<PlayerCubit>().toggleRepeat(),
                     onVerticalDragEnd: (details) {
                       if (details.primaryVelocity != null) {
                         if (details.primaryVelocity! > 0) {
