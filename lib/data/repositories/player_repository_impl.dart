@@ -242,7 +242,7 @@ final class PlayerRepositoryImpl extends BaseAudioHandler implements PlayerRepos
     try {
       // Asegurar que el volumen esté en el rango correcto (0.0 - 1.0)
       final clampedVolume = volume.clamp(0.0, 1.0);
-      VolumeController().setVolume(clampedVolume);
+      await VolumeController.instance.setVolume(clampedVolume);
       return true;
     } catch (e) {
       return false;
@@ -252,7 +252,7 @@ final class PlayerRepositoryImpl extends BaseAudioHandler implements PlayerRepos
   @override
   Future<double> getVolume() async {
     try {
-      return await VolumeController().getVolume();
+      return await VolumeController.instance.getVolume();
     } catch (e) {
       return 0.5; // Valor por defecto en caso de error
     }
