@@ -31,5 +31,8 @@ abstract class PlayerRepository {
   Future<bool> setEqualizerEnabled(bool enabled);
   Future<bool> isEqualizerEnabled();
 
+  Future<bool> setVolume(double volume);
+  Future<double> getVolume();
+
   Stream<PlayerEvent> get playerEvents;
 }

@@ -177,6 +177,10 @@
     "song_copied_to_clipboard": "Información de la canción copiada al portapapeles",
     "speed_normal": "{speed} (Normal)",
     "speed_changed": "Velocidad de reproducción cambiada a {speed}",
+    "gestures": {
+      "speed_label": "Velocidad",
+      "volume_label": "Volumen"
+    },
     "sleep": {
       "title": "Apagado automático",
       "wait_description": "Esperar a terminar la ultima canción",

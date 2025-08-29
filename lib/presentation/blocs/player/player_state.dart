@@ -43,6 +43,9 @@ class PlayerState {
   /// Velocidad de reproducción (1.0 = normal)
   final double playbackSpeed;
   
+  /// Volumen del sistema (0.0 - 1.0)
+  final double volume;
+  
   /// Duración total del temporizador de sueño
   final Duration? sleepTimerDuration;
   
@@ -58,6 +61,7 @@ class PlayerState {
     required this.isSleepTimerActive,
     required this.waitForSongToFinish,
     required this.playbackSpeed,
+    required this.volume,
     List<SongModel>? shufflePlaylist,
     this.sleepTimerDuration,
     this.sleepTimerRemaining,
@@ -74,6 +78,7 @@ class PlayerState {
       sleepTimerDuration = null,
       sleepTimerRemaining = null,
       playbackSpeed = 1.0,
+      volume = 0.5,
       isSleepTimerActive = false,
       waitForSongToFinish = false;
 
@@ -86,6 +91,7 @@ class PlayerState {
     bool? isSleepTimerActive,
     bool? waitForSongToFinish,
     double? playbackSpeed,
+    double? volume,
     List<SongModel>? shufflePlaylist,
     Duration? sleepTimerDuration,
     Duration? sleepTimerRemaining,
@@ -99,6 +105,7 @@ class PlayerState {
       isSleepTimerActive: isSleepTimerActive ?? this.isSleepTimerActive,
       waitForSongToFinish: waitForSongToFinish ?? this.waitForSongToFinish,
       playbackSpeed: playbackSpeed ?? this.playbackSpeed,
+      volume: volume ?? this.volume,
       shufflePlaylist: shufflePlaylist ?? _shufflePlaylist,
       sleepTimerDuration: sleepTimerDuration ?? this.sleepTimerDuration,
       sleepTimerRemaining: sleepTimerRemaining ?? this.sleepTimerRemaining,

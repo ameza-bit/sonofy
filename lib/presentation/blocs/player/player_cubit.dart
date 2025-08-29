@@ -36,6 +36,7 @@ class PlayerCubit extends Cubit<PlayerState> {
     emit(state.copyWith(playbackSpeed: savedSpeed));
     _playerRepository.setPlaybackSpeed(savedSpeed);
     _initializeEqualizer();
+    _initializeVolume();
   }
 
   void _initializeEqualizer() {
@@ -46,6 +47,16 @@ class PlayerCubit extends Cubit<PlayerState> {
     _playerRepository.setEqualizerEnabled(equalizerSettings.isEnabled);
     for (int i = 0; i < equalizerSettings.bands.length; i++) {
       _playerRepository.setEqualizerBand(i, equalizerSettings.bands[i].gain);
+    }
+  }
+
+  Future<void> _initializeVolume() async {
+    try {
+      final currentVolume = await _playerRepository.getVolume();
+      emit(state.copyWith(volume: currentVolume));
+    } catch (e) {
+      // Si hay error obteniendo el volumen, usar valor por defecto
+      emit(state.copyWith(volume: 0.5));
     }
   }
 
@@ -443,6 +454,63 @@ class PlayerCubit extends Cubit<PlayerState> {
     // Volver a la velocidad normal (1.0)
     await _playerRepository.setPlaybackSpeed(1.0);
     emit(state.copyWith(playbackSpeed: 1.0));
+  }
+
+  /// Establece el volumen del sistema
+  Future<bool> setVolume(double volume) async {
+    final clampedVolume = volume.clamp(0.0, 1.0);
+    final success = await _playerRepository.setVolume(clampedVolume);
+    if (success) {
+      emit(state.copyWith(volume: clampedVolume));
+    }
+    return success;
+  }
+
+  /// Obtiene el volumen actual del sistema
+  Future<double> getVolume() async {
+    return _playerRepository.getVolume();
+  }
+
+  /// Incrementa el volumen en la cantidad especificada
+  Future<void> increaseVolume(double increment) async {
+    final newVolume = (state.volume + increment).clamp(0.0, 1.0);
+    await setVolume(newVolume);
+  }
+
+  /// Decrementa el volumen en la cantidad especificada
+  Future<void> decreaseVolume(double decrement) async {
+    final newVolume = (state.volume - decrement).clamp(0.0, 1.0);
+    await setVolume(newVolume);
+  }
+
+  /// Incrementa la velocidad de reproducción según niveles predefinidos
+  Future<void> increaseSpeed() async {
+    const speedLevels = [0.5, 0.75, 1.0, 1.25, 1.5, 2.0];
+    int currentIndex = speedLevels.indexOf(state.playbackSpeed);
+    if (currentIndex == -1) {
+      // Si no está en los niveles predefinidos, encontrar el más cercano
+      currentIndex = speedLevels.indexWhere((speed) => speed >= state.playbackSpeed);
+      if (currentIndex == -1) currentIndex = speedLevels.length - 1;
+    }
+    
+    if (currentIndex < speedLevels.length - 1) {
+      await setPlaybackSpeed(speedLevels[currentIndex + 1]);
+    }
+  }
+
+  /// Decrementa la velocidad de reproducción según niveles predefinidos
+  Future<void> decreaseSpeed() async {
+    const speedLevels = [0.5, 0.75, 1.0, 1.25, 1.5, 2.0];
+    int currentIndex = speedLevels.indexOf(state.playbackSpeed);
+    if (currentIndex == -1) {
+      // Si no está en los niveles predefinidos, encontrar el más cercano
+      currentIndex = speedLevels.lastIndexWhere((speed) => speed <= state.playbackSpeed);
+      if (currentIndex == -1) currentIndex = 0;
+    }
+    
+    if (currentIndex > 0) {
+      await setPlaybackSpeed(speedLevels[currentIndex - 1]);
+    }
   }
 
   void insertSongNext(SongModel song) {
