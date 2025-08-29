@@ -10,6 +10,7 @@ import 'package:sonofy/presentation/blocs/player/player_state.dart';
 import 'package:sonofy/presentation/widgets/common/font_awesome/font_awesome_flutter.dart';
 import 'package:sonofy/presentation/widgets/library/bottom_clipper_container.dart';
 import 'package:sonofy/presentation/widgets/options/options_modal.dart';
+import 'package:sonofy/presentation/widgets/options/song_info_option.dart';
 import 'package:sonofy/presentation/widgets/player/player_control.dart';
 import 'package:sonofy/presentation/widgets/player/player_bottom_modals.dart';
 import 'package:sonofy/presentation/widgets/player/player_slider.dart';
@@ -166,9 +167,15 @@ class _PlayerScreenState extends State<PlayerScreen> {
                   ),
                   GestureDetector(
                     onVerticalDragEnd: (details) {
-                      if (details.primaryVelocity != null &&
-                          details.primaryVelocity! > 0) {
-                        context.pop();
+                      if (details.primaryVelocity != null) {
+                        if (details.primaryVelocity! > 0) {
+                          // Deslizar hacia abajo = cerrar pantalla
+                          context.pop();
+                        } else if (details.primaryVelocity! < 0 &&
+                            state.currentSong != null) {
+                          // Deslizar hacia arriba = mostrar info de la canción
+                          SongInfoOption.show(context, state.currentSong!);
+                        }
                       }
                     },
                     onHorizontalDragEnd: (details) {
