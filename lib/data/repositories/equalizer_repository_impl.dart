@@ -46,10 +46,10 @@ class EqualizerRepositoryImpl implements EqualizerRepository {
       final currentSettings = getEqualizerSettings();
       final newSettings = currentSettings.updateBand(bandIndex, gain);
       await saveEqualizerSettings(newSettings);
-      
+
       // Sincronizar con PlayerRepository si está disponible
       await _playerRepository?.setEqualizerBand(bandIndex, gain);
-      
+
       return true;
     } catch (e) {
       return false;
@@ -62,14 +62,14 @@ class EqualizerRepositoryImpl implements EqualizerRepository {
       final currentSettings = getEqualizerSettings();
       final newSettings = currentSettings.applyPreset(preset);
       await saveEqualizerSettings(newSettings);
-      
+
       // Sincronizar todas las bandas con PlayerRepository
       if (_playerRepository != null) {
         for (int i = 0; i < newSettings.bands.length; i++) {
           await _playerRepository!.setEqualizerBand(i, newSettings.bands[i].gain);
         }
       }
-      
+
       return true;
     } catch (e) {
       return false;
@@ -82,10 +82,10 @@ class EqualizerRepositoryImpl implements EqualizerRepository {
       final currentSettings = getEqualizerSettings();
       final newSettings = currentSettings.copyWith(isEnabled: enabled);
       await saveEqualizerSettings(newSettings);
-      
+
       // Sincronizar estado habilitado con PlayerRepository
       await _playerRepository?.setEqualizerEnabled(enabled);
-      
+
       return true;
     } catch (e) {
       return false;

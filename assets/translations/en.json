@@ -177,6 +177,10 @@
     "song_copied_to_clipboard": "Song information copied to clipboard",
     "speed_normal": "{speed} (Normal)",
     "speed_changed": "Playback speed changed to {speed}",
+    "gestures": {
+      "speed_label": "Speed",
+      "volume_label": "Volume"
+    },
     "sleep": {
       "title": "Sleep Timer",
       "wait_description": "Wait for the last song to finish",
