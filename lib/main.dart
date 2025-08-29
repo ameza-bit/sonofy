@@ -57,6 +57,7 @@ Future<void> main() async {
       androidNotificationChannelId: 'com.sonofy.app.channel.audio',
       androidNotificationChannelName: 'Sonofy Audio playback',
       androidNotificationOngoing: true,
+      androidNotificationIcon: 'mipmap/notification_icon',
     ),
   );
 
