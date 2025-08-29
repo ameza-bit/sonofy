@@ -144,7 +144,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
                       // Control de velocidad - lado izquierdo
                       final playerCubit = context.read<PlayerCubit>();
                       final deltaY = details.delta.dy;
-                      
+
                       // Sensibilidad del gesto (ajustar según necesidad)
                       if (deltaY < -5) {
                         // Deslizar hacia arriba = aumentar velocidad
@@ -171,6 +171,18 @@ class _PlayerScreenState extends State<PlayerScreen> {
                         context.pop();
                       }
                     },
+                    onHorizontalDragEnd: (details) {
+                      final playerCubit = context.read<PlayerCubit>();
+                      if (details.primaryVelocity != null) {
+                        if (details.primaryVelocity! > 0) {
+                          // Deslizar hacia la derecha = canción anterior
+                          playerCubit.previousSong();
+                        } else if (details.primaryVelocity! < 0) {
+                          // Deslizar hacia la izquierda = siguiente canción
+                          playerCubit.nextSong();
+                        }
+                      }
+                    },
                     child: ColoredBox(
                       color: context.musicDeepBlack.withValues(alpha: 0.5),
                       child: SizedBox(
@@ -184,7 +196,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
                       // Control de volumen - lado derecho
                       final playerCubit = context.read<PlayerCubit>();
                       final deltaY = details.delta.dy;
-                      
+
                       // Sensibilidad del gesto para volumen (más sensible)
                       if (deltaY < -3) {
                         // Deslizar hacia arriba = aumentar volumen
