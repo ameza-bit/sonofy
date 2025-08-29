@@ -9,10 +9,7 @@ import 'package:sonofy/presentation/widgets/common/section_card.dart';
 import 'package:sonofy/presentation/widgets/common/section_item.dart';
 
 class SongInfoOption extends StatelessWidget {
-  const SongInfoOption({
-    required this.song,
-    super.key,
-  });
+  const SongInfoOption({required this.song, super.key});
 
   final SongModel song;
 
@@ -23,12 +20,15 @@ class SongInfoOption extends StatelessWidget {
       title: context.tr('options.song_info'),
       onTap: () {
         context.pop();
-        _showSongInfo(context);
+        _showSongInfo(context, song);
       },
     );
   }
 
-  void _showSongInfo(BuildContext context) {
+  static void show(BuildContext context, SongModel song) =>
+      _showSongInfo(context, song);
+
+  static void _showSongInfo(BuildContext context, SongModel song) {
     modalView(
       context,
       title: context.tr('options.song_info'),
@@ -72,7 +72,7 @@ class SongInfoOption extends StatelessWidget {
     );
   }
 
-  String _formatFileSize(int bytes) {
+  static String _formatFileSize(int bytes) {
     if (bytes < 1024) return '$bytes B';
     if (bytes < 1024 * 1024) return '${(bytes / 1024).toStringAsFixed(1)} KB';
     return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
@@ -80,10 +80,7 @@ class SongInfoOption extends StatelessWidget {
 }
 
 class _InfoItem extends StatelessWidget {
-  const _InfoItem({
-    required this.label,
-    required this.value,
-  });
+  const _InfoItem({required this.label, required this.value});
 
   final String label;
   final String value;

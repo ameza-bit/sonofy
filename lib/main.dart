@@ -2,11 +2,14 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:audio_service/audio_service.dart';
 import 'package:sonofy/core/enums/language.dart';
 import 'package:sonofy/core/routes/app_routes.dart';
 import 'package:sonofy/core/services/preferences.dart';
 import 'package:sonofy/core/themes/main_theme.dart';
+import 'package:sonofy/core/utils/responsive_measures.dart';
 import 'package:sonofy/data/repositories/equalizer_repository_impl.dart';
 import 'package:sonofy/data/repositories/player_repository_impl.dart';
 import 'package:sonofy/data/repositories/playlist_repository_impl.dart';
@@ -42,9 +45,21 @@ Future<void> main() async {
 
   final SettingsRepository settingsRepository = SettingsRepositoryImpl();
   final SongsRepository songsRepository = SongsRepositoryImpl();
-  final PlayerRepository playerRepository = PlayerRepositoryImpl();
+  final PlayerRepositoryImpl playerRepositoryImpl = PlayerRepositoryImpl();
+  final PlayerRepository playerRepository = playerRepositoryImpl;
   final PlaylistRepository playlistRepository = PlaylistRepositoryImpl();
   final EqualizerRepositoryImpl equalizerRepository = EqualizerRepositoryImpl();
+
+  // Inicializar AudioService con nuestro PlayerRepositoryImpl como AudioHandler
+  await AudioService.init(
+    builder: () => playerRepositoryImpl,
+    config: const AudioServiceConfig(
+      androidNotificationChannelId: 'com.sonofy.app.channel.audio',
+      androidNotificationChannelName: 'Sonofy Audio playback',
+      androidNotificationOngoing: true,
+      androidNotificationIcon: 'mipmap/notification_icon',
+    ),
+  );
 
   // Conectar ecualizador con reproductor para sincronización
   equalizerRepository.setPlayerRepository(playerRepository);
@@ -66,46 +81,24 @@ Future<void> main() async {
   }
 
   // Use Cases para playlists
-  final GetAllPlaylistsUseCase getAllPlaylistsUseCase = GetAllPlaylistsUseCase(
-    playlistRepository,
-  );
-  final CreatePlaylistUseCase createPlaylistUseCase = CreatePlaylistUseCase(
-    playlistRepository,
-  );
-  final DeletePlaylistUseCase deletePlaylistUseCase = DeletePlaylistUseCase(
-    playlistRepository,
-  );
-  final UpdatePlaylistUseCase updatePlaylistUseCase = UpdatePlaylistUseCase(
-    playlistRepository,
-  );
-  final AddSongToPlaylistUseCase addSongToPlaylistUseCase =
-      AddSongToPlaylistUseCase(playlistRepository);
-  final RemoveSongFromPlaylistUseCase removeSongFromPlaylistUseCase =
-      RemoveSongFromPlaylistUseCase(playlistRepository);
-  final ReorderSongsInPlaylistUseCase reorderSongsInPlaylistUseCase =
-      ReorderSongsInPlaylistUseCase(playlistRepository);
+  final GetAllPlaylistsUseCase getAllPlaylistsUseCase = GetAllPlaylistsUseCase(playlistRepository);
+  final CreatePlaylistUseCase createPlaylistUseCase = CreatePlaylistUseCase(playlistRepository);
+  final DeletePlaylistUseCase deletePlaylistUseCase = DeletePlaylistUseCase(playlistRepository);
+  final UpdatePlaylistUseCase updatePlaylistUseCase = UpdatePlaylistUseCase(playlistRepository);
+  final AddSongToPlaylistUseCase addSongToPlaylistUseCase = AddSongToPlaylistUseCase(playlistRepository);
+  final RemoveSongFromPlaylistUseCase removeSongFromPlaylistUseCase = RemoveSongFromPlaylistUseCase(playlistRepository);
+  final ReorderSongsInPlaylistUseCase reorderSongsInPlaylistUseCase = ReorderSongsInPlaylistUseCase(playlistRepository);
 
   runApp(
     MultiBlocProvider(
       providers: [
         BlocProvider<SettingsCubit>(
-          create: (context) => SettingsCubit(
-            settingsRepository,
-            selectMusicFolderUseCase,
-            getSongsFromFolderUseCase,
-          ),
+          create: (context) => SettingsCubit(settingsRepository, selectMusicFolderUseCase, getSongsFromFolderUseCase),
         ),
         BlocProvider<SongsCubit>(
-          create: (context) => SongsCubit(
-            songsRepository,
-            getLocalSongsUseCase,
-            settingsRepository,
-          ),
+          create: (context) => SongsCubit(songsRepository, getLocalSongsUseCase, settingsRepository),
         ),
-        BlocProvider<PlayerCubit>(
-          create: (context) =>
-              PlayerCubit(playerRepository, settingsRepository),
-        ),
+        BlocProvider<PlayerCubit>(create: (context) => PlayerCubit(playerRepository, settingsRepository)),
         BlocProvider<PlaylistsCubit>(
           create: (context) => PlaylistsCubit(
             getAllPlaylistsUseCase,
@@ -117,9 +110,7 @@ Future<void> main() async {
             reorderSongsInPlaylistUseCase,
           ),
         ),
-        BlocProvider<EqualizerCubit>(
-          create: (context) => EqualizerCubit(equalizerRepository),
-        ),
+        BlocProvider<EqualizerCubit>(create: (context) => EqualizerCubit(equalizerRepository)),
       ],
       child: EasyLocalization(
         supportedLocales: const [Locale('es'), Locale('en')],
@@ -137,6 +128,16 @@ class MainApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final routerConfig = AppRoutes.getGoRoutes(navigatorKey);
+    if (ResponsiveMeasures.isMobile) {
+      SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
+    } else {
+      SystemChrome.setPreferredOrientations([
+        DeviceOrientation.portraitUp,
+        DeviceOrientation.portraitDown,
+        DeviceOrientation.landscapeLeft,
+        DeviceOrientation.landscapeRight,
+      ]);
+    }
 
     return BlocBuilder<SettingsCubit, SettingsState>(
       buildWhen: (previous, current) {
@@ -151,18 +152,16 @@ class MainApp extends StatelessWidget {
           debugShowCheckedModeBanner: false,
           title: 'Sonofy',
           routerConfig: routerConfig,
-          theme: MainTheme.createLightTheme(state.settings.primaryColor)
-              .copyWith(
-                textTheme: MainTheme.createLightTheme(
-                  state.settings.primaryColor,
-                ).textTheme.apply(fontSizeFactor: state.settings.fontSize),
-              ),
-          darkTheme: MainTheme.createDarkTheme(state.settings.primaryColor)
-              .copyWith(
-                textTheme: MainTheme.createDarkTheme(
-                  state.settings.primaryColor,
-                ).textTheme.apply(fontSizeFactor: state.settings.fontSize),
-              ),
+          theme: MainTheme.createLightTheme(state.settings.primaryColor).copyWith(
+            textTheme: MainTheme.createLightTheme(
+              state.settings.primaryColor,
+            ).textTheme.apply(fontSizeFactor: state.settings.fontSize),
+          ),
+          darkTheme: MainTheme.createDarkTheme(state.settings.primaryColor).copyWith(
+            textTheme: MainTheme.createDarkTheme(
+              state.settings.primaryColor,
+            ).textTheme.apply(fontSizeFactor: state.settings.fontSize),
+          ),
           themeMode: state.settings.themeMode,
           localizationsDelegates: context.localizationDelegates,
           supportedLocales: context.supportedLocales,

@@ -18,23 +18,21 @@ class PlayerBottomModals extends StatelessWidget {
       builder: (context, state) {
         final primaryColor = state.settings.primaryColor;
 
-        Widget bottomButton({
-          required String label,
-          required VoidCallback onTap,
-        }) {
+        Widget bottomButton({required String label, required VoidCallback onTap}) {
           return Expanded(
             child: GestureDetector(
               onTap: onTap,
+              onVerticalDragEnd: (details) {
+                if (details.primaryVelocity != null && details.primaryVelocity! < 0) {
+                  onTap.call();
+                }
+              },
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(
-                      FontAwesomeIcons.lightChevronUp,
-                      color: primaryColor,
-                      size: 12,
-                    ),
+                    Icon(FontAwesomeIcons.lightChevronUp, color: primaryColor, size: 12),
                     Text(
                       label,
                       textAlign: TextAlign.center,
@@ -52,9 +50,7 @@ class PlayerBottomModals extends StatelessWidget {
           child: SizedBox(
             width: double.infinity,
             child: ClipRRect(
-              borderRadius: const BorderRadius.vertical(
-                top: Radius.circular(100.0),
-              ),
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(100.0)),
               child: Material(
                 color: Theme.of(context).cardColor,
                 child: SafeArea(
@@ -62,14 +58,8 @@ class PlayerBottomModals extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
                       if (kDebugMode)
-                        bottomButton(
-                          label: context.tr('player.lyrics'),
-                          onTap: () => LyricsModal.show(context),
-                        ),
-                      bottomButton(
-                        label: context.tr('player.playlist'),
-                        onTap: () => PlaylistModal.show(context),
-                      ),
+                        bottomButton(label: context.tr('player.lyrics'), onTap: () => LyricsModal.show(context)),
+                      bottomButton(label: context.tr('player.playlist'), onTap: () => PlaylistModal.show(context)),
                     ],
                   ),
                 ),
