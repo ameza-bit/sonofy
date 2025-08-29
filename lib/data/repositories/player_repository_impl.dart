@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'package:audio_service/audio_service.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:volume_controller/volume_controller.dart';
 import 'package:sonofy/domain/repositories/player_repository.dart';
 import 'package:sonofy/core/utils/ipod_library_converter.dart';
 
@@ -234,6 +235,27 @@ final class PlayerRepositoryImpl extends BaseAudioHandler implements PlayerRepos
   @override
   Future<bool> isEqualizerEnabled() async {
     return _equalizerEnabled;
+  }
+
+  @override
+  Future<bool> setVolume(double volume) async {
+    try {
+      // Asegurar que el volumen esté en el rango correcto (0.0 - 1.0)
+      final clampedVolume = volume.clamp(0.0, 1.0);
+      await VolumeController.instance.setVolume(clampedVolume);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  @override
+  Future<double> getVolume() async {
+    try {
+      return await VolumeController.instance.getVolume();
+    } catch (e) {
+      return 0.5; // Valor por defecto en caso de error
+    }
   }
 
   // AudioService BaseAudioHandler methods - estos se llaman desde las notificaciones

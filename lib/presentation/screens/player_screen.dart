@@ -10,13 +10,49 @@ import 'package:sonofy/presentation/blocs/player/player_state.dart';
 import 'package:sonofy/presentation/widgets/common/font_awesome/font_awesome_flutter.dart';
 import 'package:sonofy/presentation/widgets/library/bottom_clipper_container.dart';
 import 'package:sonofy/presentation/widgets/options/options_modal.dart';
+import 'package:sonofy/presentation/widgets/options/song_info_option.dart';
 import 'package:sonofy/presentation/widgets/player/player_control.dart';
 import 'package:sonofy/presentation/widgets/player/player_bottom_modals.dart';
 import 'package:sonofy/presentation/widgets/player/player_slider.dart';
+import 'package:sonofy/presentation/widgets/player/gesture_indicator.dart';
 
-class PlayerScreen extends StatelessWidget {
+class PlayerScreen extends StatefulWidget {
   static const String routeName = 'player';
   const PlayerScreen({super.key});
+
+  @override
+  State<PlayerScreen> createState() => _PlayerScreenState();
+}
+
+class _PlayerScreenState extends State<PlayerScreen> {
+  bool _speedIndicatorVisible = false;
+  bool _volumeIndicatorVisible = false;
+
+  void _showSpeedIndicator() {
+    setState(() {
+      _speedIndicatorVisible = true;
+    });
+    Future.delayed(const Duration(seconds: 1), () {
+      if (mounted) {
+        setState(() {
+          _speedIndicatorVisible = false;
+        });
+      }
+    });
+  }
+
+  void _showVolumeIndicator() {
+    setState(() {
+      _volumeIndicatorVisible = true;
+    });
+    Future.delayed(const Duration(seconds: 1), () {
+      if (mounted) {
+        setState(() {
+          _volumeIndicatorVisible = false;
+        });
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -81,10 +117,46 @@ class PlayerScreen extends StatelessWidget {
                   colorBlendMode: BlendMode.darken,
                 ),
               ),
+              // Indicadores visuales
+              Positioned(
+                left: size.width * 0.1,
+                top: size.height * 0.25,
+                child: GestureIndicator(
+                  label: context.tr('player.gestures.speed_label'),
+                  value: '${state.playbackSpeed}x',
+                  icon: Icons.speed,
+                  isVisible: _speedIndicatorVisible,
+                ),
+              ),
+              Positioned(
+                right: size.width * 0.1,
+                top: size.height * 0.25,
+                child: GestureIndicator(
+                  label: context.tr('player.gestures.volume_label'),
+                  value: '${(state.volume * 100).round()}%',
+                  icon: Icons.volume_up,
+                  isVisible: _volumeIndicatorVisible,
+                ),
+              ),
               Row(
                 children: [
                   GestureDetector(
-                    // TODO(Armando): Drag de velocidad
+                    onPanUpdate: (details) {
+                      // Control de velocidad - lado izquierdo
+                      final playerCubit = context.read<PlayerCubit>();
+                      final deltaY = details.delta.dy;
+
+                      // Sensibilidad del gesto (ajustar según necesidad)
+                      if (deltaY < -5) {
+                        // Deslizar hacia arriba = aumentar velocidad
+                        playerCubit.increaseSpeed();
+                        _showSpeedIndicator();
+                      } else if (deltaY > 5) {
+                        // Deslizar hacia abajo = disminuir velocidad
+                        playerCubit.decreaseSpeed();
+                        _showSpeedIndicator();
+                      }
+                    },
                     child: ColoredBox(
                       color: context.musicDeepBlack.withValues(alpha: 0.5),
                       child: SizedBox(
@@ -94,10 +166,31 @@ class PlayerScreen extends StatelessWidget {
                     ),
                   ),
                   GestureDetector(
+                    onTap: () => context.read<PlayerCubit>().togglePlayPause(),
+                    onDoubleTap: () =>
+                        context.read<PlayerCubit>().toggleRepeat(),
                     onVerticalDragEnd: (details) {
-                      if (details.primaryVelocity != null &&
-                          details.primaryVelocity! > 0) {
-                        context.pop();
+                      if (details.primaryVelocity != null) {
+                        if (details.primaryVelocity! > 0) {
+                          // Deslizar hacia abajo = cerrar pantalla
+                          context.pop();
+                        } else if (details.primaryVelocity! < 0 &&
+                            state.currentSong != null) {
+                          // Deslizar hacia arriba = mostrar info de la canción
+                          SongInfoOption.show(context, state.currentSong!);
+                        }
+                      }
+                    },
+                    onHorizontalDragEnd: (details) {
+                      final playerCubit = context.read<PlayerCubit>();
+                      if (details.primaryVelocity != null) {
+                        if (details.primaryVelocity! > 0) {
+                          // Deslizar hacia la derecha = canción anterior
+                          playerCubit.previousSong();
+                        } else if (details.primaryVelocity! < 0) {
+                          // Deslizar hacia la izquierda = siguiente canción
+                          playerCubit.nextSong();
+                        }
                       }
                     },
                     child: ColoredBox(
@@ -109,7 +202,22 @@ class PlayerScreen extends StatelessWidget {
                     ),
                   ),
                   GestureDetector(
-                    // TODO(Armando): Drag de volumen
+                    onPanUpdate: (details) {
+                      // Control de volumen - lado derecho
+                      final playerCubit = context.read<PlayerCubit>();
+                      final deltaY = details.delta.dy;
+
+                      // Sensibilidad del gesto para volumen (más sensible)
+                      if (deltaY < -3) {
+                        // Deslizar hacia arriba = aumentar volumen
+                        playerCubit.increaseVolume(0.05);
+                        _showVolumeIndicator();
+                      } else if (deltaY > 3) {
+                        // Deslizar hacia abajo = disminuir volumen
+                        playerCubit.decreaseVolume(0.05);
+                        _showVolumeIndicator();
+                      }
+                    },
                     child: ColoredBox(
                       color: context.musicDeepBlack.withValues(alpha: 0.5),
                       child: SizedBox(
