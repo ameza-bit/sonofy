@@ -81,18 +81,44 @@ class PlayerScreen extends StatelessWidget {
                   colorBlendMode: BlendMode.darken,
                 ),
               ),
-              GestureDetector(
-                onVerticalDragEnd: (details) {
-                  if (details.primaryVelocity != null &&
-                      details.primaryVelocity! > 0) {
-                    context.pop();
-                  }
-                },
-                child: Container(
-                  width: double.infinity,
-                  height: size.height * 0.6,
-                  color: context.musicDeepBlack.withValues(alpha: 0.5),
-                ),
+              Row(
+                children: [
+                  GestureDetector(
+                    // TODO(Armando): Drag de velocidad
+                    child: ColoredBox(
+                      color: context.musicDeepBlack.withValues(alpha: 0.5),
+                      child: SizedBox(
+                        width: size.width * 0.15,
+                        height: size.height * 0.6,
+                      ),
+                    ),
+                  ),
+                  GestureDetector(
+                    onVerticalDragEnd: (details) {
+                      if (details.primaryVelocity != null &&
+                          details.primaryVelocity! > 0) {
+                        context.pop();
+                      }
+                    },
+                    child: ColoredBox(
+                      color: context.musicDeepBlack.withValues(alpha: 0.5),
+                      child: SizedBox(
+                        width: size.width * 0.7,
+                        height: size.height * 0.6,
+                      ),
+                    ),
+                  ),
+                  GestureDetector(
+                    // TODO(Armando): Drag de volumen
+                    child: ColoredBox(
+                      color: context.musicDeepBlack.withValues(alpha: 0.5),
+                      child: SizedBox(
+                        width: size.width * 0.15,
+                        height: size.height * 0.6,
+                      ),
+                    ),
+                  ),
+                ],
               ),
               Column(
                 children: [
