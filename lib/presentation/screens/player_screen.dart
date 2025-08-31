@@ -58,6 +58,11 @@ class _PlayerScreenState extends State<PlayerScreen> {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     return BlocBuilder<PlayerCubit, PlayerState>(
+      buildWhen: (previous, current) =>
+          previous.currentSong?.id != current.currentSong?.id ||
+          previous.isPlaying != current.isPlaying ||
+          previous.playbackSpeed != current.playbackSpeed ||
+          previous.volume != current.volume,
       builder: (context, state) {
         final currentSong = state.currentSong;
 
@@ -99,8 +104,8 @@ class _PlayerScreenState extends State<PlayerScreen> {
                 id: currentSong?.id ?? -1,
                 type: ArtworkType.AUDIO,
                 artworkBorder: BorderRadius.zero,
-                artworkWidth: double.infinity,
-                artworkHeight: size.height * 0.6,
+                artworkWidth: size.width.clamp(200, 800),
+                artworkHeight: (size.height * 0.6).clamp(300, 600),
                 artworkFit: BoxFit.fitHeight,
                 errorBuilder: (_, _, _) => Image.asset(
                   context.imagePlaceholder,
