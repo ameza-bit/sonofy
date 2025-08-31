@@ -112,7 +112,7 @@ class PlayerCubit extends Cubit<PlayerState> {
         : 0;
 
     // Actualizar MediaItem para AudioService
-    _updateAudioServiceMediaItem(song);
+    await _updateAudioServiceMediaItem(song);
 
     emit(
       state.copyWith(
@@ -144,7 +144,7 @@ class PlayerCubit extends Cubit<PlayerState> {
     );
 
     // Actualizar MediaItem para AudioService
-    _updateAudioServiceMediaItem(state.activePlaylist[nextIndex]);
+    await _updateAudioServiceMediaItem(state.activePlaylist[nextIndex]);
 
     emit(state.copyWith(currentIndex: nextIndex, isPlaying: isPlaying));
   }
@@ -185,7 +185,7 @@ class PlayerCubit extends Cubit<PlayerState> {
     );
 
     // Actualizar MediaItem para AudioService
-    _updateAudioServiceMediaItem(state.activePlaylist[previousIndex]);
+    await _updateAudioServiceMediaItem(state.activePlaylist[previousIndex]);
 
     emit(state.copyWith(currentIndex: previousIndex, isPlaying: isPlaying));
   }
@@ -638,13 +638,14 @@ class PlayerCubit extends Cubit<PlayerState> {
     Preferences.playerPreferences = preferences;
   }
 
-  void _updateAudioServiceMediaItem(SongModel song) {
+  Future<void> _updateAudioServiceMediaItem(SongModel song) async {
     // Cast del PlayerRepository a PlayerRepositoryImpl para acceder a updateCurrentMediaItem
     final playerImpl = _playerRepository as PlayerRepositoryImpl;
-    playerImpl.updateCurrentMediaItem(
+    await playerImpl.updateCurrentMediaItem(
       song.title,
       song.artist ?? song.composer ?? 'Unknown Artist',
       null, // TODO(dev): Agregar artwork URI si está disponible
+      album: song.album,
     );
   }
 

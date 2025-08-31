@@ -57,6 +57,9 @@ final class PlayerRepositoryImpl extends BaseAudioHandler
       final success = await IpodLibraryConverter.playWithNativeMusicPlayer(url);
       if (success) {
         _usingNativePlayer = true;
+        // Set a default MediaItem for iPod library tracks
+        // The actual metadata will be updated by PlayerCubit when available
+        await _setDefaultMediaItem();
       }
       await _updatePlaybackStateWithCurrentPosition(success);
       return success;
@@ -64,6 +67,9 @@ final class PlayerRepositoryImpl extends BaseAudioHandler
       // Use audioplayers for regular files (and iPod URLs on Android)
       await player.play(DeviceFileSource(url));
       final playing = isPlaying();
+      // Set a default MediaItem for regular files
+      // The actual metadata will be updated by PlayerCubit when available
+      await _setDefaultMediaItem();
       await _updatePlaybackStateWithCurrentPosition(playing);
       return playing;
     }
@@ -357,16 +363,36 @@ final class PlayerRepositoryImpl extends BaseAudioHandler
     );
   }
 
-  void updateCurrentMediaItem(String title, String artist, String? artUri) {
+  Future<void> updateCurrentMediaItem(String title, String artist, String? artUri, {String? album}) async {
+    // Get duration if available
+    final duration = await getDuration();
+    
     mediaItem.add(
       MediaItem(
         id: _currentUrl ?? '',
-        album: '',
+        album: album ?? '',
         title: title,
         artist: artist,
         artUri: artUri != null ? Uri.parse(artUri) : null,
+        duration: duration,
       ),
     );
+  }
+
+  Future<void> _setDefaultMediaItem() async {
+    if (_currentUrl != null) {
+      // Get duration if available
+      final duration = await getDuration();
+      
+      mediaItem.add(
+        MediaItem(
+          id: _currentUrl!,
+          title: 'Unknown Track',
+          artist: 'Unknown Artist',
+          duration: duration,
+        ),
+      );
+    }
   }
 
   // Cerrar el StreamController al destruir la instancia
