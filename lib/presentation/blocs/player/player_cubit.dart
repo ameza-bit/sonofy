@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:on_audio_query_pluse/on_audio_query.dart';
 import 'package:sonofy/core/services/preferences.dart';
+import 'package:sonofy/core/utils/ipod_library_converter.dart';
 import 'package:sonofy/data/models/player_preferences.dart';
 import 'package:sonofy/data/repositories/player_repository_impl.dart';
 import 'package:sonofy/domain/repositories/player_repository.dart';
@@ -80,11 +81,140 @@ class PlayerCubit extends Cubit<PlayerState> {
         case PreviousEvent():
           previousSong();
           break;
-        case SeekEvent():
-          // La posición se actualizará automáticamente por el stream de posición
+        case SeekEvent(position: final position):
+          // Actualizar la posición en el stream inmediatamente
+          if (!_positionController!.isClosed) {
+            _positionController!.add(position.inMilliseconds);
+          }
+          break;
+        case NowPlayingItemChangedEvent():
+          // Manejar cambio de canción desde iOS
+          _handleNowPlayingItemChanged();
           break;
       }
     });
+  }
+
+  Future<void> _handleNowPlayingItemChanged() async {
+    // Este método se ejecuta cuando MPMusicPlayerController cambia de canción
+    // Necesitamos sincronizar el estado del PlayerCubit con el reproductor nativo
+    if (_playerRepository is PlayerRepositoryImpl) {
+      // Actualizar el estado de reproducción
+      final isPlaying = _playerRepository.isPlaying();
+      
+      try {
+        // Obtener información de la canción actual desde iOS
+        final nowPlayingInfo = await IpodLibraryConverter.getCurrentNowPlayingItem();
+        
+        if (nowPlayingInfo != null) {
+          // Crear un SongModel temporal con la información de iOS
+          final currentSong = _createSongModelFromNowPlaying(nowPlayingInfo);
+          
+          // Buscar la canción en nuestra playlist actual si existe
+          final songIndex = _findSongInCurrentPlaylist(currentSong);
+          
+          if (songIndex != -1) {
+            // La canción está en nuestra playlist, actualizar el índice
+            emit(state.copyWith(
+              currentIndex: songIndex,
+              isPlaying: isPlaying,
+            ));
+          } else {
+            // La canción no está en nuestra playlist actual
+            // Esto puede pasar cuando el usuario navega desde Control Center
+            // en una queue diferente a la que tenemos en Flutter
+            
+            // Crear una playlist temporal con la canción actual
+            final tempPlaylist = [currentSong];
+            emit(state.copyWith(
+              playlist: tempPlaylist,
+              shufflePlaylist: tempPlaylist,
+              currentIndex: 0,
+              isPlaying: isPlaying,
+              isShuffleEnabled: false, // Resetear shuffle cuando perdemos la queue
+            ));
+          }
+          
+          // Actualizar MediaItem para AudioService
+          await _updateAudioServiceMediaItemFromNowPlaying(nowPlayingInfo);
+        } else {
+          // Solo actualizar el estado de reproducción si no hay información
+          emit(state.copyWith(isPlaying: isPlaying));
+        }
+      } catch (e) {
+        // En caso de error, solo actualizar el estado de reproducción
+        emit(state.copyWith(isPlaying: isPlaying));
+      }
+    }
+  }
+
+  SongModel _createSongModelFromNowPlaying(Map<String, dynamic> nowPlayingInfo) {
+    // Crear un SongModel a partir de la información de iOS
+    final id = int.tryParse(nowPlayingInfo['id']?.toString() ?? '0') ?? 0;
+    final title = nowPlayingInfo['title']?.toString() ?? 'Unknown Title';
+    final artist = nowPlayingInfo['artist']?.toString();
+    final album = nowPlayingInfo['album']?.toString();
+    final duration = (nowPlayingInfo['duration'] as double?)?.round();
+    final composer = nowPlayingInfo['composer']?.toString();
+    final trackNumber = nowPlayingInfo['trackNumber'] as int?;
+    final albumTrackCount = nowPlayingInfo['albumTrackCount'] as int?;
+    final discNumber = nowPlayingInfo['discNumber'] as int?;
+    
+    // Crear URL de iPod Library
+    final data = 'ipod-library://item/item.m4a?id=$id';
+    
+    return SongModel({
+      '_id': id,
+      '_data': data,
+      '_display_name': '$title.m4a',
+      'title': title,
+      'artist': artist,
+      'album': album,
+      'duration': duration,
+      'composer': composer,
+      'track': trackNumber,
+      'album_track_count': albumTrackCount,
+      'disc_number': discNumber,
+    });
+  }
+
+  int _findSongInCurrentPlaylist(SongModel targetSong) {
+    // Buscar la canción en la playlist activa
+    final activePlaylist = state.activePlaylist;
+    
+    for (int i = 0; i < activePlaylist.length; i++) {
+      final song = activePlaylist[i];
+      // Comparar por ID si es una canción de iPod Library
+      if (song.data.contains('ipod-library://') && 
+          targetSong.data.contains('ipod-library://')) {
+        if (song.id == targetSong.id) {
+          return i;
+        }
+      }
+      // También comparar por título y artista como fallback
+      else if (song.title == targetSong.title && 
+               song.artist == targetSong.artist) {
+        return i;
+      }
+    }
+    
+    return -1; // No encontrada
+  }
+
+  Future<void> _updateAudioServiceMediaItemFromNowPlaying(Map<String, dynamic> nowPlayingInfo) async {
+    if (_playerRepository is PlayerRepositoryImpl) {
+      final title = nowPlayingInfo['title']?.toString() ?? 'Unknown Title';
+      final artist = nowPlayingInfo['artist']?.toString() ?? 'Unknown Artist';
+      final album = nowPlayingInfo['album']?.toString();
+      
+      final playerImpl = _playerRepository;
+      await playerImpl.updateCurrentMediaItem(
+        title,
+        artist,
+        null, // TODO(dev): Obtener artwork de iOS si está disponible
+        album: album,
+      );
+    }
   }
 
   /// Establece una nueva canción y playlist para reproducir.

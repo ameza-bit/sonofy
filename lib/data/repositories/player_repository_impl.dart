@@ -62,19 +62,19 @@ final class PlayerRepositoryImpl extends BaseAudioHandler
 
   void _setupIosCallbacks() {
     // Configurar callbacks para eventos de iOS
-    IpodLibraryConverter.setPlaybackStateChangedCallback(() {
+    IpodLibraryConverter.playbackStateChangedCallback = () {
       if (_usingNativePlayer && !_eventsController.isClosed) {
         // Actualizar estado cuando iOS notifique cambios
         _updatePlaybackStateWithCurrentPosition(isPlaying());
       }
-    });
+    };
 
-    IpodLibraryConverter.setNowPlayingItemChangedCallback(() {
+    IpodLibraryConverter.nowPlayingItemChangedCallback = () {
       if (_usingNativePlayer && !_eventsController.isClosed) {
         // Notificar cambio de canción
         _eventsController.add(NowPlayingItemChangedEvent());
       }
-    });
+    };
   }
 
   @override

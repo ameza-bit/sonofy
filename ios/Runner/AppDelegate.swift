@@ -68,6 +68,8 @@ import AVFoundation
         self?.skipToPrevious(result: result)
       case "setQueue":
         self?.setQueue(call: call, result: result)
+      case "getCurrentNowPlayingItem":
+        self?.getCurrentNowPlayingItem(result: result)
       default:
         result(FlutterMethodNotImplemented)
       }
@@ -452,5 +454,30 @@ import AVFoundation
     
     logToFlutter("✅ Queue set with \(mediaItems.count) items")
     result(true)
+  }
+  
+  private func getCurrentNowPlayingItem(result: @escaping FlutterResult) {
+    guard let player = musicPlayer,
+          let nowPlayingItem = player.nowPlayingItem else {
+      logToFlutter("❌ No now playing item available")
+      result(nil)
+      return
+    }
+    
+    let songInfo: [String: Any?] = [
+      "id": String(nowPlayingItem.persistentID),
+      "title": nowPlayingItem.title,
+      "artist": nowPlayingItem.artist,
+      "album": nowPlayingItem.albumTitle,
+      "duration": nowPlayingItem.playbackDuration,
+      "albumArtist": nowPlayingItem.albumArtist,
+      "composer": nowPlayingItem.composer,
+      "trackNumber": nowPlayingItem.albumTrackNumber,
+      "albumTrackCount": nowPlayingItem.albumTrackCount,
+      "discNumber": nowPlayingItem.discNumber
+    ]
+    
+    logToFlutter("🎵 Current now playing: \(nowPlayingItem.title ?? "Unknown")")
+    result(songInfo)
   }
 }

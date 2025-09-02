@@ -9,8 +9,7 @@ class IpodLibraryConverter {
   static void _setupLogReceiver() {
     _channel.setMethodCallHandler((call) async {
       if (call.method == 'logFromIOS') {
-        final message = call.arguments as String? ?? 'Unknown iOS log';
-        print('iOS Log: $message');
+        // Log from iOS received
       } else if (call.method == 'playbackStateChanged') {
         _onPlaybackStateChanged?.call();
       } else if (call.method == 'nowPlayingItemChanged') {
@@ -23,11 +22,13 @@ class IpodLibraryConverter {
   static void Function()? _onPlaybackStateChanged;
   static void Function()? _onNowPlayingItemChanged;
 
-  static void setPlaybackStateChangedCallback(void Function() callback) {
+  static void Function()? get playbackStateChangedCallback => _onPlaybackStateChanged;
+  static set playbackStateChangedCallback(void Function()? callback) {
     _onPlaybackStateChanged = callback;
   }
 
-  static void setNowPlayingItemChangedCallback(void Function() callback) {
+  static void Function()? get nowPlayingItemChangedCallback => _onNowPlayingItemChanged;
+  static set nowPlayingItemChangedCallback(void Function()? callback) {
     _onNowPlayingItemChanged = callback;
   }
 
@@ -249,6 +250,17 @@ class IpodLibraryConverter {
       return result as bool? ?? false;
     } catch (e) {
       return false;
+    }
+  }
+
+  static Future<Map<String, dynamic>?> getCurrentNowPlayingItem() async {
+    if (!_isIOS) return null;
+
+    try {
+      final result = await _channel.invokeMethod('getCurrentNowPlayingItem');
+      return result != null ? Map<String, dynamic>.from(result as Map) : null;
+    } catch (e) {
+      return null;
     }
   }
 }

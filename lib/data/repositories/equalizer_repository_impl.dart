@@ -9,7 +9,8 @@ class EqualizerRepositoryImpl implements EqualizerRepository {
   EqualizerSettings? _cachedSettings;
   PlayerRepository? _playerRepository;
 
-  void setPlayerRepository(PlayerRepository playerRepository) {
+  PlayerRepository? get playerRepository => _playerRepository;
+  set playerRepository(PlayerRepository? playerRepository) {
     _playerRepository = playerRepository;
   }
 
