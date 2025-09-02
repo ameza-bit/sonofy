@@ -13,6 +13,8 @@ class SeekEvent extends PlayerEvent {
   SeekEvent(this.position);
 }
 
+class NowPlayingItemChangedEvent extends PlayerEvent {}
+
 abstract class PlayerRepository {
   bool isPlaying();
   Future<bool> playTrack(String url);

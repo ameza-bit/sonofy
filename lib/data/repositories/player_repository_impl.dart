@@ -25,8 +25,57 @@ final class PlayerRepositoryImpl extends BaseAudioHandler
   final StreamController<PlayerEvent> _eventsController =
       StreamController<PlayerEvent>.broadcast();
 
+  // Constructor para inicializar listeners
+  PlayerRepositoryImpl() {
+    _setupAudioPlayersListeners();
+    _setupIosCallbacks();
+  }
+
   @override
   Stream<PlayerEvent> get playerEvents => _eventsController.stream;
+
+  void _setupAudioPlayersListeners() {
+    // Listener para cambios de estado del reproductor
+    player.onPlayerStateChanged.listen((PlayerState state) {
+      if (!_usingNativePlayer) {
+        final playing = state == PlayerState.playing;
+        _isPaused = !playing;
+        _updatePlaybackStateWithCurrentPosition(playing);
+      }
+    });
+
+    // Listener para cambios de posición
+    player.onPositionChanged.listen((Duration position) {
+      if (!_usingNativePlayer) {
+        _currentPosition = position;
+        _updatePlaybackStateWithCurrentPosition(isPlaying());
+      }
+    });
+
+    // Listener para cuando termina una canción
+    player.onPlayerComplete.listen((_) {
+      if (!_usingNativePlayer && !_eventsController.isClosed) {
+        _eventsController.add(NextEvent());
+      }
+    });
+  }
+
+  void _setupIosCallbacks() {
+    // Configurar callbacks para eventos de iOS
+    IpodLibraryConverter.setPlaybackStateChangedCallback(() {
+      if (_usingNativePlayer && !_eventsController.isClosed) {
+        // Actualizar estado cuando iOS notifique cambios
+        _updatePlaybackStateWithCurrentPosition(isPlaying());
+      }
+    });
+
+    IpodLibraryConverter.setNowPlayingItemChangedCallback(() {
+      if (_usingNativePlayer && !_eventsController.isClosed) {
+        // Notificar cambio de canción
+        _eventsController.add(NowPlayingItemChangedEvent());
+      }
+    });
+  }
 
   @override
   bool isPlaying() {
@@ -296,8 +345,12 @@ final class PlayerRepositoryImpl extends BaseAudioHandler
 
   @override
   Future<void> skipToNext() async {
-    // Este método será llamado desde la notificación
-    // El PlayerCubit manejará la lógica de navegación
+    // Si está usando el reproductor nativo, ejecutar navegación nativa
+    if (_usingNativePlayer && Platform.isIOS) {
+      await IpodLibraryConverter.skipToNext();
+    }
+    
+    // Actualizar estado y notificar
     await _updatePlaybackStateWithCurrentPosition(isPlaying());
     if (!_eventsController.isClosed) {
       _eventsController.add(NextEvent());
@@ -306,8 +359,12 @@ final class PlayerRepositoryImpl extends BaseAudioHandler
 
   @override
   Future<void> skipToPrevious() async {
-    // Este método será llamado desde la notificación
-    // El PlayerCubit manejará la lógica de navegación
+    // Si está usando el reproductor nativo, ejecutar navegación nativa
+    if (_usingNativePlayer && Platform.isIOS) {
+      await IpodLibraryConverter.skipToPrevious();
+    }
+    
+    // Actualizar estado y notificar
     await _updatePlaybackStateWithCurrentPosition(isPlaying());
     if (!_eventsController.isClosed) {
       _eventsController.add(PreviousEvent());

@@ -8,6 +8,8 @@ import AVFoundation
   private var musicPlayer: MPMusicPlayerController?
   private var audioEngine: AVAudioEngine?
   private var equalizerNode: AVAudioUnitEQ?
+  private var currentQueue: [MPMediaItem] = []
+  private var currentIndex: Int = 0
   override func application(
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
@@ -60,6 +62,12 @@ import AVFoundation
         self?.setEqualizerBand(call: call, result: result)
       case "setEqualizerEnabled":
         self?.setEqualizerEnabled(call: call, result: result)
+      case "skipToNext":
+        self?.skipToNext(result: result)
+      case "skipToPrevious":
+        self?.skipToPrevious(result: result)
+      case "setQueue":
+        self?.setQueue(call: call, result: result)
       default:
         result(FlutterMethodNotImplemented)
       }
@@ -117,6 +125,7 @@ import AVFoundation
     // Initialize music player if needed
     if musicPlayer == nil {
       musicPlayer = MPMusicPlayerController.applicationMusicPlayer
+      setupMusicPlayerObservers()
       logToFlutter("🎵 Created new MPMusicPlayerController")
     }
     
@@ -139,6 +148,10 @@ import AVFoundation
     
     let collection = MPMediaItemCollection(items: mediaItems)
     logToFlutter("✅ Found \(mediaItems.count) item(s), setting queue...")
+    
+    // Update current queue tracking
+    currentQueue = mediaItems
+    currentIndex = 0
     
     // Set the queue and play
     player.setQueue(with: collection)
@@ -320,6 +333,124 @@ import AVFoundation
     // TODO: Implementar activación/desactivación real del ecualizador
     // Por ahora solo registramos el estado
     logToFlutter("🎚️ Equalizer \(enabled ? "enabled" : "disabled") (simulated)")
+    result(true)
+  }
+  
+  // MARK: - Music Player Observers and Navigation
+  
+  private func setupMusicPlayerObservers() {
+    guard let player = musicPlayer else { return }
+    
+    // Observer para cambios de estado de reproducción
+    NotificationCenter.default.addObserver(
+      forName: .MPMusicPlayerControllerPlaybackStateDidChange,
+      object: player,
+      queue: .main
+    ) { [weak self] _ in
+      self?.notifyPlaybackStateChanged()
+    }
+    
+    // Observer para cambios de canción
+    NotificationCenter.default.addObserver(
+      forName: .MPMusicPlayerControllerNowPlayingItemDidChange,
+      object: player,
+      queue: .main
+    ) { [weak self] _ in
+      self?.notifyNowPlayingItemChanged()
+    }
+    
+    // Inicializar notificaciones
+    player.beginGeneratingPlaybackNotifications()
+    logToFlutter("🔔 Music player observers setup complete")
+  }
+  
+  private func notifyPlaybackStateChanged() {
+    logToFlutter("🔄 Playback state changed")
+    if let channel = logChannel {
+      DispatchQueue.main.async {
+        channel.invokeMethod("playbackStateChanged", arguments: nil)
+      }
+    }
+  }
+  
+  private func notifyNowPlayingItemChanged() {
+    logToFlutter("🎵 Now playing item changed")
+    if let channel = logChannel {
+      DispatchQueue.main.async {
+        channel.invokeMethod("nowPlayingItemChanged", arguments: nil)
+      }
+    }
+  }
+  
+  private func skipToNext(result: @escaping FlutterResult) {
+    logToFlutter("⏭️ Skipping to next track")
+    guard let player = musicPlayer else {
+      logToFlutter("❌ No music player available for next")
+      result(false)
+      return
+    }
+    
+    player.skipToNextItem()
+    currentIndex = min(currentIndex + 1, currentQueue.count - 1)
+    logToFlutter("✅ Skipped to next track (index: \(currentIndex))")
+    result(true)
+  }
+  
+  private func skipToPrevious(result: @escaping FlutterResult) {
+    logToFlutter("⏮️ Skipping to previous track")
+    guard let player = musicPlayer else {
+      logToFlutter("❌ No music player available for previous")
+      result(false)
+      return
+    }
+    
+    player.skipToPreviousItem()
+    currentIndex = max(currentIndex - 1, 0)
+    logToFlutter("✅ Skipped to previous track (index: \(currentIndex))")
+    result(true)
+  }
+  
+  private func setQueue(call: FlutterMethodCall, result: @escaping FlutterResult) {
+    logToFlutter("📋 Setting music player queue")
+    guard let args = call.arguments as? [String: Any],
+          let songIds = args["songIds"] as? [String] else {
+      logToFlutter("❌ Invalid queue arguments")
+      result(false)
+      return
+    }
+    
+    guard let player = musicPlayer else {
+      logToFlutter("❌ No music player available for queue")
+      result(false)
+      return
+    }
+    
+    let query = MPMediaQuery.songs()
+    var mediaItems: [MPMediaItem] = []
+    
+    for songIdString in songIds {
+      guard let songId = UInt64(songIdString) else { continue }
+      let predicate = MPMediaPropertyPredicate(value: NSNumber(value: songId), forProperty: MPMediaItemPropertyPersistentID)
+      query.addFilterPredicate(predicate)
+      
+      if let items = query.items, let item = items.first {
+        mediaItems.append(item)
+      }
+      query.removeFilterPredicate(predicate)
+    }
+    
+    guard !mediaItems.isEmpty else {
+      logToFlutter("❌ No valid media items found for queue")
+      result(false)
+      return
+    }
+    
+    currentQueue = mediaItems
+    currentIndex = 0
+    let collection = MPMediaItemCollection(items: mediaItems)
+    player.setQueue(with: collection)
+    
+    logToFlutter("✅ Queue set with \(mediaItems.count) items")
     result(true)
   }
 }

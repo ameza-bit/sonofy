@@ -9,9 +9,26 @@ class IpodLibraryConverter {
   static void _setupLogReceiver() {
     _channel.setMethodCallHandler((call) async {
       if (call.method == 'logFromIOS') {
-        call.arguments as String? ?? 'Unknown iOS log';
+        final message = call.arguments as String? ?? 'Unknown iOS log';
+        print('iOS Log: $message');
+      } else if (call.method == 'playbackStateChanged') {
+        _onPlaybackStateChanged?.call();
+      } else if (call.method == 'nowPlayingItemChanged') {
+        _onNowPlayingItemChanged?.call();
       }
     });
+  }
+
+  // Callbacks para eventos de iOS
+  static void Function()? _onPlaybackStateChanged;
+  static void Function()? _onNowPlayingItemChanged;
+
+  static void setPlaybackStateChangedCallback(void Function() callback) {
+    _onPlaybackStateChanged = callback;
+  }
+
+  static void setNowPlayingItemChangedCallback(void Function() callback) {
+    _onNowPlayingItemChanged = callback;
   }
 
   static Future<bool> isDrmProtected(String ipodUrl) async {
@@ -193,6 +210,41 @@ class IpodLibraryConverter {
     try {
       final result = await _channel.invokeMethod('setEqualizerEnabled', {
         'enabled': enabled,
+      });
+      return result as bool? ?? false;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  static Future<bool> skipToNext() async {
+    if (!_isIOS) return false;
+
+    try {
+      final result = await _channel.invokeMethod('skipToNext');
+      return result as bool? ?? false;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  static Future<bool> skipToPrevious() async {
+    if (!_isIOS) return false;
+
+    try {
+      final result = await _channel.invokeMethod('skipToPrevious');
+      return result as bool? ?? false;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  static Future<bool> setQueue(List<String> songIds) async {
+    if (!_isIOS) return false;
+
+    try {
+      final result = await _channel.invokeMethod('setQueue', {
+        'songIds': songIds,
       });
       return result as bool? ?? false;
     } catch (e) {
