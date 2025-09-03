@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:flutter/services.dart';
 
-class IpodLibraryConverter {
+class AudioPlayerConverter {
   static const MethodChannel _channel = MethodChannel('ipod_library_converter');
 
   static bool get _isIOS => Platform.isIOS;
@@ -198,5 +198,159 @@ class IpodLibraryConverter {
     } catch (e) {
       return false;
     }
+  }
+
+  // ==========================================
+  // MÉTODOS PARA REPRODUCCIÓN NATIVA DE MP3
+  // ==========================================
+
+  /// Reproduce un archivo MP3/audio local usando AVAudioPlayer nativo
+  /// 
+  /// [filePath] - Ruta completa al archivo de audio local
+  /// Returns: true si la reproducción comenzó exitosamente
+  static Future<bool> playMP3WithNativePlayer(String filePath) async {
+    if (!_isIOS) {
+      return false;
+    }
+
+    _setupLogReceiver();
+
+    try {
+      final result = await _channel.invokeMethod('playMP3WithNativePlayer', {
+        'filePath': filePath,
+      });
+
+      return result as bool? ?? false;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Obtiene la duración real de un archivo MP3/audio usando metadatos nativos
+  /// 
+  /// [filePath] - Ruta completa al archivo de audio
+  /// Returns: Duración en segundos como double
+  static Future<double> getMP3Duration(String filePath) async {
+    if (!_isIOS) return 0.0;
+
+    try {
+      final result = await _channel.invokeMethod('getMP3Duration', {
+        'filePath': filePath,
+      });
+      return result as double? ?? 0.0;
+    } catch (e) {
+      return 0.0;
+    }
+  }
+
+  /// Pausa el reproductor nativo de archivos MP3
+  static Future<bool> pauseNativeMP3Player() async {
+    if (!_isIOS) return false;
+
+    try {
+      final result = await _channel.invokeMethod('pauseNativeMP3Player');
+      return result as bool? ?? false;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Detiene el reproductor nativo de archivos MP3
+  static Future<bool> stopNativeMP3Player() async {
+    if (!_isIOS) return false;
+
+    try {
+      final result = await _channel.invokeMethod('stopNativeMP3Player');
+      return result as bool? ?? false;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Reanuda el reproductor nativo de archivos MP3
+  static Future<bool> resumeNativeMP3Player() async {
+    if (!_isIOS) return false;
+
+    try {
+      final result = await _channel.invokeMethod('resumeNativeMP3Player');
+      return result as bool? ?? false;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Obtiene el estado del reproductor nativo de MP3
+  static Future<String> getNativeMP3PlayerStatus() async {
+    if (!_isIOS) return 'stopped';
+
+    try {
+      final result = await _channel.invokeMethod('getNativeMP3PlayerStatus');
+      return result as String? ?? 'stopped';
+    } catch (e) {
+      return 'error';
+    }
+  }
+
+  /// Obtiene la posición actual de reproducción del archivo MP3
+  static Future<Duration> getCurrentMP3Position() async {
+    if (!_isIOS) return Duration.zero;
+
+    try {
+      final result = await _channel.invokeMethod('getCurrentMP3Position');
+      final seconds = result as double? ?? 0.0;
+      return Duration(milliseconds: (seconds * 1000).round());
+    } catch (e) {
+      return Duration.zero;
+    }
+  }
+
+  /// Busca a una posición específica en el archivo MP3
+  static Future<bool> seekToMP3Position(Duration position) async {
+    if (!_isIOS) return false;
+
+    try {
+      final positionSeconds = position.inMilliseconds / 1000.0;
+      final result = await _channel.invokeMethod('seekToMP3Position', {
+        'position': positionSeconds,
+      });
+      return result as bool? ?? false;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Establece la velocidad de reproducción del archivo MP3
+  static Future<bool> setMP3PlaybackSpeed(double speed) async {
+    if (!_isIOS) return false;
+
+    try {
+      final result = await _channel.invokeMethod('setMP3PlaybackSpeed', {
+        'speed': speed,
+      });
+      return result as bool? ?? false;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Obtiene la velocidad de reproducción actual del archivo MP3
+  static Future<double> getMP3PlaybackSpeed() async {
+    if (!_isIOS) return 1.0;
+
+    try {
+      final result = await _channel.invokeMethod('getMP3PlaybackSpeed');
+      return result as double? ?? 1.0;
+    } catch (e) {
+      return 1.0;
+    }
+  }
+
+  /// Verifica si una ruta es un archivo de audio local (no iPod Library)
+  static bool isLocalAudioFile(String path) {
+    if (isIpodLibraryUrl(path)) return false;
+    
+    final extension = path.toLowerCase().split('.').last;
+    const supportedExtensions = ['mp3', 'm4a', 'wav', 'aac', 'flac', 'ogg'];
+    return supportedExtensions.contains(extension);
   }
 }
