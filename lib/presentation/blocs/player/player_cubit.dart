@@ -91,43 +91,90 @@ class PlayerCubit extends Cubit<PlayerState> with WidgetsBindingObserver {
 
   /// Maneja los cambios de estado del ciclo de vida de la app
   @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    super.didChangeAppLifecycleState(state);
+  void didChangeAppLifecycleState(AppLifecycleState lifecycleState) {
+    super.didChangeAppLifecycleState(lifecycleState);
     
-    switch (state) {
+    print('🔄 [PlayerCubit] App lifecycle changed to: $lifecycleState');
+    
+    switch (lifecycleState) {
       case AppLifecycleState.resumed:
         // La app volvió al foreground - sincronizar estado del reproductor
+        print('📱 [PlayerCubit] App resumed - syncing player state');
         _syncPlayerStateOnResume();
         break;
       case AppLifecycleState.paused:
+        print('📱 [PlayerCubit] App paused');
+        break;
       case AppLifecycleState.inactive:
       case AppLifecycleState.hidden:
       case AppLifecycleState.detached:
         // App en background o siendo cerrada
+        print('📱 [PlayerCubit] App in background/hidden/detached');
         break;
     }
   }
 
   /// Sincroniza el estado del reproductor cuando la app vuelve del background
   Future<void> _syncPlayerStateOnResume() async {
+    print('🔄 [PlayerCubit] Starting sync on resume...');
+    await _syncNativePlayerState(forceSync: true);
+  }
+
+  /// Sincroniza el estado del reproductor nativo periódicamente
+  Future<void> _syncNativePlayerStateIfNeeded() async {
+    // Solo sincronizar cada 2 segundos para no sobrecargar
+    if (_lastSyncTime != null && 
+        DateTime.now().difference(_lastSyncTime!).inMilliseconds < 2000) {
+      return;
+    }
+    
+    await _syncNativePlayerState(forceSync: false);
+  }
+
+  DateTime? _lastSyncTime;
+
+  /// Método centralizado para sincronizar el estado del reproductor nativo
+  Future<void> _syncNativePlayerState({required bool forceSync}) async {
+    if (_playerRepository is! PlayerRepositoryImpl) return;
+    
+    final repo = _playerRepository as PlayerRepositoryImpl;
+    
+    // Verificar si estamos usando reproductor nativo
+    if (!repo.isUsingNativePlayer) return;
+    
+    if (forceSync) {
+      print('🔄 [PlayerCubit] Force syncing native player state...');
+      print('🎵 [PlayerCubit] Current UI state - isPlaying: ${state.isPlaying}');
+    }
+    
     await _playerRepository.syncNativePlayerState();
+    _lastSyncTime = DateTime.now();
     
     // También actualizar el MediaItem con la información actual
     final currentSong = state.currentSong;
-    if (currentSong != null) {
-      if (_playerRepository is PlayerRepositoryImpl) {
-        _playerRepository.updateCurrentMediaItem(
-          currentSong.title,
-          currentSong.artist ?? currentSong.composer ?? 'Unknown Artist',
-          null, // TODO(dev): Agregar artwork URI si está disponible
-        );
-      }
+    if (currentSong != null && forceSync) {
+      print('🎵 [PlayerCubit] Updating MediaItem for: ${currentSong.title}');
+      repo.updateCurrentMediaItem(
+        currentSong.title,
+        currentSong.artist ?? currentSong.composer ?? 'Unknown Artist',
+        null, // TODO(dev): Agregar artwork URI si está disponible
+      );
     }
     
     // Verificar y actualizar el estado de reproducción en el UI
     final isCurrentlyPlaying = _playerRepository.isPlaying();
+    
+    if (forceSync) {
+      print('🎵 [PlayerCubit] Repository says isPlaying: $isCurrentlyPlaying');
+    }
+    
     if (state.isPlaying != isCurrentlyPlaying) {
+      if (forceSync) {
+        print('🔄 [PlayerCubit] UI state mismatch! Updating UI: ${state.isPlaying} → $isCurrentlyPlaying');
+      }
       emit(state.copyWith(isPlaying: isCurrentlyPlaying));
+    } else if (forceSync) {
+      print('✅ [PlayerCubit] UI state is in sync');
     }
   }
 
@@ -262,6 +309,9 @@ class PlayerCubit extends Cubit<PlayerState> with WidgetsBindingObserver {
       if (!_positionController!.isClosed) {
         _positionController!.add(currentPositionMs);
       }
+
+      // Sincronización continua del estado del reproductor nativo
+      await _syncNativePlayerStateIfNeeded();
 
       if (state.isPlaying) {
         final currentSong = state.currentSong;
