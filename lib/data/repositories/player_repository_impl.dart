@@ -11,6 +11,9 @@ final class PlayerRepositoryImpl extends BaseAudioHandler implements PlayerRepos
   bool _usingNativePlayer = false;
   double _playbackSpeed = 1.0;
   bool _isPaused = false;
+  
+  // Estado específico para reproducción nativa
+  bool _nativePlayerIsPlaying = false;
 
   // Simulación de estado del ecualizador (AudioPlayers no tiene soporte nativo)
   final List<double> _equalizerBands = [0.0, 0.0, 0.0]; // Bass, Mid, Treble
@@ -29,9 +32,7 @@ final class PlayerRepositoryImpl extends BaseAudioHandler implements PlayerRepos
   @override
   bool isPlaying() {
     if (_usingNativePlayer && Platform.isIOS) {
-      // For native player, we need to check async, but this is sync
-      // Return true when using native player - UI should call status check
-      return true;
+      return _nativePlayerIsPlaying;
     }
     return player.state == PlayerState.playing;
   }
@@ -56,6 +57,7 @@ final class PlayerRepositoryImpl extends BaseAudioHandler implements PlayerRepos
         final success = await AudioPlayerConverter.playWithNativeMusicPlayer(url);
         if (success) {
           _usingNativePlayer = true;
+          _nativePlayerIsPlaying = true;
         }
         _updatePlaybackState(success);
         return success;
@@ -64,6 +66,7 @@ final class PlayerRepositoryImpl extends BaseAudioHandler implements PlayerRepos
         final success = await AudioPlayerConverter.playMP3WithNativePlayer(url);
         if (success) {
           _usingNativePlayer = true;
+          _nativePlayerIsPlaying = true;
         }
         _updatePlaybackState(success);
         return success;
@@ -71,6 +74,8 @@ final class PlayerRepositoryImpl extends BaseAudioHandler implements PlayerRepos
     }
     
     // Fallback: usar AudioPlayers (Android o archivos no soportados)
+    _usingNativePlayer = false;
+    _nativePlayerIsPlaying = false;
     await player.play(DeviceFileSource(url));
     final playing = isPlaying();
     _updatePlaybackState(playing);
@@ -82,17 +87,16 @@ final class PlayerRepositoryImpl extends BaseAudioHandler implements PlayerRepos
     if (_currentUrl == null) return false;
 
     if (_usingNativePlayer && Platform.isIOS) {
-      bool playing;
+      bool success;
       if (AudioPlayerConverter.isIpodLibraryUrl(_currentUrl!)) {
-        await AudioPlayerConverter.resumeNativeMusicPlayer();
-        playing = isPlaying();
+        success = await AudioPlayerConverter.resumeNativeMusicPlayer();
       } else {
-        await AudioPlayerConverter.resumeNativeMP3Player();
-        playing = isPlaying();
+        success = await AudioPlayerConverter.resumeNativeMP3Player();
       }
-      _isPaused = !playing;
-      _updatePlaybackState(playing);
-      return playing;
+      _nativePlayerIsPlaying = success;
+      _isPaused = !success;
+      _updatePlaybackState(success);
+      return success;
     } else {
       await player.resume();
       final playing = isPlaying();
@@ -110,6 +114,7 @@ final class PlayerRepositoryImpl extends BaseAudioHandler implements PlayerRepos
       } else {
         await AudioPlayerConverter.pauseNativeMP3Player();
       }
+      _nativePlayerIsPlaying = false;
       _isPaused = true;
       _updatePlaybackState(false);
       return false;
@@ -127,30 +132,24 @@ final class PlayerRepositoryImpl extends BaseAudioHandler implements PlayerRepos
     bool finalState;
 
     if (_usingNativePlayer && Platform.isIOS) {
-      String status;
       if (AudioPlayerConverter.isIpodLibraryUrl(_currentUrl!)) {
-        status = await AudioPlayerConverter.getNativeMusicPlayerStatus();
-        if (status == 'playing') {
+        if (_nativePlayerIsPlaying) {
           await AudioPlayerConverter.pauseNativeMusicPlayer();
           finalState = false;
-        } else if (status == 'paused') {
+        } else {
           await AudioPlayerConverter.resumeNativeMusicPlayer();
           finalState = true;
-        } else {
-          finalState = status == 'playing';
         }
       } else {
-        status = await AudioPlayerConverter.getNativeMP3PlayerStatus();
-        if (status == 'playing') {
+        if (_nativePlayerIsPlaying) {
           await AudioPlayerConverter.pauseNativeMP3Player();
           finalState = false;
-        } else if (status == 'paused') {
+        } else {
           await AudioPlayerConverter.resumeNativeMP3Player();
           finalState = true;
-        } else {
-          finalState = status == 'playing';
         }
       }
+      _nativePlayerIsPlaying = finalState;
     } else if (isPlaying()) {
       await player.pause();
       finalState = isPlaying();
@@ -419,6 +418,30 @@ final class PlayerRepositoryImpl extends BaseAudioHandler implements PlayerRepos
         artUri: artUri != null ? Uri.parse(artUri) : null,
       ),
     );
+  }
+
+  /// Resincroniza el estado del reproductor nativo con AudioService
+  /// Debe llamarse cuando la app vuelve del background
+  @override
+  Future<void> syncNativePlayerState() async {
+    if (_usingNativePlayer && Platform.isIOS && _currentUrl != null) {
+      String status;
+      if (AudioPlayerConverter.isIpodLibraryUrl(_currentUrl!)) {
+        status = await AudioPlayerConverter.getNativeMusicPlayerStatus();
+      } else {
+        status = await AudioPlayerConverter.getNativeMP3PlayerStatus();
+      }
+      
+      final isCurrentlyPlaying = status == 'playing';
+      _nativePlayerIsPlaying = isCurrentlyPlaying;
+      _updatePlaybackState(isCurrentlyPlaying);
+      
+      // También actualizar el MediaItem si es necesario
+      if (_currentUrl != null) {
+        // Obtener información de la canción actual desde el PlayerCubit
+        // Este método será llamado desde el PlayerCubit que tiene esa información
+      }
+    }
   }
 
   // Cerrar el StreamController al destruir la instancia
