@@ -138,13 +138,17 @@ class Mp3FileConverter {
   /// Devuelve Map con los metadatos extraídos
   static Future<Map<String, dynamic>> _extractDetailedMetadata(File file) async {
     try {
-      final metadata = readMetadata(file);
+      final metadata = readMetadata(file, getImage: true);
+      
+      final performersText = metadata.performers.isNotEmpty ? metadata.performers.join(', ') : null;
+      final genresText = metadata.genres.isNotEmpty ? metadata.genres.join(', ') : null;
+      final yearNumber = metadata.year?.year;
       
       return {
         'title': metadata.title?.trim(),
         'artist': metadata.artist?.trim(), 
         'album': metadata.album?.trim(),
-        'year': metadata.year,
+        'year': yearNumber,
         'track': metadata.trackNumber,
         'discNumber': metadata.discNumber,
         'bitrate': metadata.bitrate,
@@ -152,8 +156,8 @@ class Mp3FileConverter {
         'duration': metadata.duration?.inMilliseconds,
         'language': metadata.language?.trim(),
         'lyrics': metadata.lyrics?.trim(),
-        'performers': metadata.performers.join(', '),
-        'genres': metadata.genres.join(', '),
+        'performers': performersText,
+        'genres': genresText,
       };
     } catch (e) {
       // Si no se pueden leer los metadatos, devolver valores nulos
