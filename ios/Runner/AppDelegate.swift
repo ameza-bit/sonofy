@@ -57,8 +57,6 @@ import AVFoundation
         self?.seekToPosition(call: call, result: result)
       case "setPlaybackSpeed":
         self?.setPlaybackSpeed(call: call, result: result)
-      case "getPlaybackSpeed":
-        self?.getPlaybackSpeed(result: result)
       case "setEqualizerBand":
         self?.setEqualizerBand(call: call, result: result)
       case "setEqualizerEnabled":
@@ -82,8 +80,6 @@ import AVFoundation
         self?.seekToMP3Position(call: call, result: result)
       case "setMP3PlaybackSpeed":
         self?.setMP3PlaybackSpeed(call: call, result: result)
-      case "getMP3PlaybackSpeed":
-        self?.getMP3PlaybackSpeed(result: result)
       case "updateNowPlayingInfo":
         self?.updateNowPlayingInfoFromFlutter(call: call, result: result)
       default:
@@ -304,17 +300,6 @@ import AVFoundation
     result(true)
   }
   
-  private func getPlaybackSpeed(result: @escaping FlutterResult) {
-    guard let player = musicPlayer else {
-      logToFlutter("❌ No music player available for speed check")
-      result(1.0)
-      return
-    }
-    
-    let currentSpeed = Double(player.currentPlaybackRate)
-    logToFlutter("📊 Current playback speed: \(currentSpeed)x")
-    result(currentSpeed)
-  }
   
   private func setEqualizerBand(call: FlutterMethodCall, result: @escaping FlutterResult) {
     logToFlutter("🎚️ Setting equalizer band")
@@ -391,18 +376,6 @@ import AVFoundation
     result(true)
   }
   
-  private func updateNowPlayingInfoForLocalFile(title: String?, artist: String?, duration: Double, currentTime: Double = 0) {
-    var nowPlayingInfo = [String: Any]()
-    nowPlayingInfo[MPMediaItemPropertyTitle] = title ?? "Unknown Track"
-    nowPlayingInfo[MPMediaItemPropertyArtist] = artist ?? "Unknown Artist"
-    nowPlayingInfo[MPMediaItemPropertyPlaybackDuration] = duration
-    nowPlayingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = currentTime
-    nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate] = audioPlayer?.isPlaying == true ? 1.0 : 0.0
-    
-    MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
-    logToFlutter("🎵 Updated Now Playing info: \(title ?? "Unknown") - \(duration)s")
-  }
-  
   private func setupRemoteCommandCenter() {
     let commandCenter = MPRemoteCommandCenter.shared()
     
@@ -425,14 +398,6 @@ import AVFoundation
     }
     
     logToFlutter("🎛️ Remote command center configured")
-  }
-  
-  private func extractTitleFromPath(_ filePath: String) -> String {
-    if let url = URL(string: filePath) {
-      let fileName = url.deletingPathExtension().lastPathComponent
-      return fileName.replacingOccurrences(of: "_", with: " ")
-    }
-    return "Unknown Track"
   }
   
   private func playMP3WithNativePlayer(call: FlutterMethodCall, result: @escaping FlutterResult) {
@@ -509,7 +474,6 @@ import AVFoundation
     }
     
     player.pause()
-    // Flutter maneja la sincronización de Now Playing Info
     logToFlutter("✅ Native MP3 player paused")
     result(true)
   }
@@ -539,7 +503,6 @@ import AVFoundation
     }
     
     let success = player.play()
-    // Flutter maneja la sincronización de Now Playing Info
     logToFlutter(success ? "✅ Native MP3 player resumed" : "❌ Failed to resume native MP3 player")
     result(success)
   }
@@ -583,7 +546,6 @@ import AVFoundation
     
     logToFlutter("⏩ Seeking MP3 to: \(positionSeconds) seconds")
     player.currentTime = positionSeconds
-    // Flutter maneja la sincronización de Now Playing Info
     logToFlutter("✅ MP3 seek completed")
     result(true)
   }
@@ -606,20 +568,8 @@ import AVFoundation
     logToFlutter("🚀 Setting MP3 speed to: \(speed)x")
     player.enableRate = true
     player.rate = Float(speed)
-    // Flutter maneja la sincronización de Now Playing Info
     logToFlutter("✅ MP3 playback speed set to \(speed)x")
     result(true)
   }
   
-  private func getMP3PlaybackSpeed(result: @escaping FlutterResult) {
-    guard let player = audioPlayer else {
-      logToFlutter("❌ No native MP3 player available for speed check")
-      result(1.0)
-      return
-    }
-    
-    let currentSpeed = Double(player.rate)
-    logToFlutter("📊 Current MP3 playback speed: \(currentSpeed)x")
-    result(currentSpeed)
-  }
 }

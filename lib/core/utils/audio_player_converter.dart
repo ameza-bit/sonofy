@@ -162,16 +162,6 @@ class AudioPlayerConverter {
     }
   }
 
-  static Future<double> getPlaybackSpeed() async {
-    if (!_isIOS) return 1.0;
-
-    try {
-      final result = await _channel.invokeMethod('getPlaybackSpeed');
-      return result as double? ?? 1.0;
-    } catch (e) {
-      return 1.0;
-    }
-  }
 
   static Future<bool> setEqualizerBand(int bandIndex, double gain) async {
     if (!_isIOS) return false;
@@ -330,18 +320,6 @@ class AudioPlayerConverter {
       return result as bool? ?? false;
     } catch (e) {
       return false;
-    }
-  }
-
-  /// Obtiene la velocidad de reproducción actual del archivo MP3
-  static Future<double> getMP3PlaybackSpeed() async {
-    if (!_isIOS) return 1.0;
-
-    try {
-      final result = await _channel.invokeMethod('getMP3PlaybackSpeed');
-      return result as double? ?? 1.0;
-    } catch (e) {
-      return 1.0;
     }
   }
 

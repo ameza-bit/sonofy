@@ -52,10 +52,8 @@ final class PlayerRepositoryImpl extends BaseAudioHandler implements PlayerRepos
     if (Platform.isIOS) {
       if (AudioPlayerConverter.isIpodLibraryUrl(url)) {
         // iPod Library URLs - usar MPMusicPlayerController
-        print('🎵 [PlayerRepo] Using iPod Library for: $url');
         final isDrmProtected = await AudioPlayerConverter.isDrmProtected(url);
         if (isDrmProtected) {
-          print('❌ [PlayerRepo] DRM protected, cannot play');
           return false;
         }
 
@@ -63,34 +61,25 @@ final class PlayerRepositoryImpl extends BaseAudioHandler implements PlayerRepos
         if (success) {
           _usingNativePlayer = true;
           _nativePlayerIsPlaying = true;
-          print('✅ [PlayerRepo] iPod Library playback started successfully');
         }
         _updatePlaybackState(success);
         return success;
       } else if (AudioPlayerConverter.isLocalAudioFile(url)) {
-        // Archivos locales de audio - usar AVAudioPlayer nativo
-        print('🎵 [PlayerRepo] Using native MP3 player for: $url');
         final success = await AudioPlayerConverter.playMP3WithNativePlayer(url);
         if (success) {
           _usingNativePlayer = true;
           _nativePlayerIsPlaying = true;
-          print('✅ [PlayerRepo] Native MP3 playback started successfully');
-        } else {
-          print('❌ [PlayerRepo] Native MP3 playback failed');
         }
         _updatePlaybackState(success);
         return success;
       }
     }
     
-    // Fallback: usar AudioPlayers (Android o archivos no soportados)
-    print('🎵 [PlayerRepo] Using AudioPlayers fallback for: $url');
     _usingNativePlayer = false;
     _nativePlayerIsPlaying = false;
     await player.play(DeviceFileSource(url));
     final playing = isPlaying();
     _updatePlaybackState(playing);
-    print('📱 [PlayerRepo] AudioPlayers playback: ${playing ? "started" : "failed"}');
     return playing;
   }
 
@@ -326,11 +315,9 @@ final class PlayerRepositoryImpl extends BaseAudioHandler implements PlayerRepos
     if (_currentUrl != null) {
       bool success;
       if (_isPaused) {
-        // Si estaba pausado, reanudar sin reiniciar
         success = await resumeTrack();
       } else {
-        // Si no había nada reproduciéndose, iniciar desde el principio
-        success = await playTrackInternal(_currentUrl!);
+        success = await playTrack(_currentUrl!);
       }
       _updatePlaybackState(success);
       if (!_eventsController.isClosed) {
@@ -341,7 +328,7 @@ final class PlayerRepositoryImpl extends BaseAudioHandler implements PlayerRepos
 
   @override
   Future<void> pause() async {
-    await pauseTrackInternal();
+    await pauseTrack();
     _updatePlaybackState(false);
     if (!_eventsController.isClosed) {
       _eventsController.add(PauseEvent());
@@ -380,27 +367,9 @@ final class PlayerRepositoryImpl extends BaseAudioHandler implements PlayerRepos
   }
 
   Future<void> _seekToPosition(Duration position) async {
-    if (_usingNativePlayer && Platform.isIOS) {
-      if (AudioPlayerConverter.isIpodLibraryUrl(_currentUrl!)) {
-        await AudioPlayerConverter.seekToPosition(position);
-        await AudioPlayerConverter.resumeNativeMusicPlayer();
-      } else {
-        await AudioPlayerConverter.seekToMP3Position(position);
-      }
-    } else {
-      await player.seek(position);
-      await player.resume();
-    }
+    await seekToPosition(position);
   }
 
-  // Métodos auxiliares para AudioService que llamarán a los métodos del repository
-  Future<bool> playTrackInternal(String url) async {
-    return playTrack(url);
-  }
-
-  Future<bool> pauseTrackInternal() async {
-    return pauseTrack();
-  }
 
   void _updatePlaybackState(bool playing) {
     playbackState.add(
@@ -444,41 +413,27 @@ final class PlayerRepositoryImpl extends BaseAudioHandler implements PlayerRepos
         isPlaying: isPlaying(),
       );
     }
-    // NO actualizar AudioService aquí para evitar conflictos
-    // Solo actualizar MediaItem cuando cambie la canción, no la posición
   }
 
   /// Resincroniza el estado del reproductor nativo con AudioService
   /// Debe llamarse cuando la app vuelve del background
   @override
   Future<void> syncNativePlayerState() async {
-    print('🔄 [PlayerRepo] Syncing native player state...');
-    print('🔍 [PlayerRepo] _usingNativePlayer: $_usingNativePlayer, iOS: ${Platform.isIOS}, _currentUrl: $_currentUrl');
-    
     if (_usingNativePlayer && Platform.isIOS && _currentUrl != null) {
       String status;
       if (AudioPlayerConverter.isIpodLibraryUrl(_currentUrl!)) {
-        print('🎵 [PlayerRepo] Checking iPod Library status...');
         status = await AudioPlayerConverter.getNativeMusicPlayerStatus();
       } else {
-        print('🎵 [PlayerRepo] Checking native MP3 status...');
         status = await AudioPlayerConverter.getNativeMP3PlayerStatus();
       }
       
-      print('📊 [PlayerRepo] Native player status: $status');
       final isCurrentlyPlaying = status == 'playing';
-      final wasPlaying = _nativePlayerIsPlaying;
-      
       _nativePlayerIsPlaying = isCurrentlyPlaying;
       _updatePlaybackState(isCurrentlyPlaying);
-      
-      print('🔄 [PlayerRepo] State sync: $wasPlaying → $isCurrentlyPlaying');
-    } else {
-      print('ℹ️ [PlayerRepo] Skipping sync - not using native player or no current URL');
     }
   }
 
-  // Cerrar el StreamController al destruir la instancia
+
   void dispose() {
     _eventsController.close();
   }
