@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:on_audio_query_pluse/on_audio_query.dart';
 import 'package:sonofy/core/services/preferences.dart';
@@ -18,7 +19,7 @@ import 'package:sonofy/presentation/blocs/player/player_state.dart';
 /// - Tres modos de repetición: none, one, all
 /// - Navegación preservando listas shuffle existentes
 /// - Auto-advance con lógica diferenciada por modo de repetición
-class PlayerCubit extends Cubit<PlayerState> {
+class PlayerCubit extends Cubit<PlayerState> with WidgetsBindingObserver {
   final PlayerRepository _playerRepository;
   final SettingsRepository _settingsRepository;
   StreamController<int>? _positionController;
@@ -30,6 +31,7 @@ class PlayerCubit extends Cubit<PlayerState> {
     _initializePositionStream();
     _initializePlaybackSpeed();
     _subscribeToPlayerEvents();
+    WidgetsBinding.instance.addObserver(this);
   }
 
   void _initializePlaybackSpeed() {
@@ -85,6 +87,95 @@ class PlayerCubit extends Cubit<PlayerState> {
           break;
       }
     });
+  }
+
+  /// Maneja los cambios de estado del ciclo de vida de la app
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState lifecycleState) {
+    super.didChangeAppLifecycleState(lifecycleState);
+    
+    print('🔄 [PlayerCubit] App lifecycle changed to: $lifecycleState');
+    
+    switch (lifecycleState) {
+      case AppLifecycleState.resumed:
+        // La app volvió al foreground - sincronizar estado del reproductor
+        print('📱 [PlayerCubit] App resumed - syncing player state');
+        _syncPlayerStateOnResume();
+        break;
+      case AppLifecycleState.paused:
+        print('📱 [PlayerCubit] App paused');
+        break;
+      case AppLifecycleState.inactive:
+      case AppLifecycleState.hidden:
+      case AppLifecycleState.detached:
+        // App en background o siendo cerrada
+        print('📱 [PlayerCubit] App in background/hidden/detached');
+        break;
+    }
+  }
+
+  /// Sincroniza el estado del reproductor cuando la app vuelve del background
+  Future<void> _syncPlayerStateOnResume() async {
+    print('🔄 [PlayerCubit] Starting sync on resume...');
+    await _syncNativePlayerState(forceSync: true);
+  }
+
+  /// Sincroniza el estado del reproductor nativo periódicamente
+  Future<void> _syncNativePlayerStateIfNeeded() async {
+    // Solo sincronizar cada 2 segundos para no sobrecargar
+    if (_lastSyncTime != null && 
+        DateTime.now().difference(_lastSyncTime!).inMilliseconds < 2000) {
+      return;
+    }
+    
+    await _syncNativePlayerState(forceSync: false);
+  }
+
+  DateTime? _lastSyncTime;
+
+  /// Método centralizado para sincronizar el estado del reproductor nativo
+  Future<void> _syncNativePlayerState({required bool forceSync}) async {
+    if (_playerRepository is! PlayerRepositoryImpl) return;
+    
+    final repo = _playerRepository as PlayerRepositoryImpl;
+    
+    // Verificar si estamos usando reproductor nativo
+    if (!repo.isUsingNativePlayer) return;
+    
+    if (forceSync) {
+      print('🔄 [PlayerCubit] Force syncing native player state...');
+      print('🎵 [PlayerCubit] Current UI state - isPlaying: ${state.isPlaying}');
+    }
+    
+    await _playerRepository.syncNativePlayerState();
+    _lastSyncTime = DateTime.now();
+    
+    // También actualizar el MediaItem con la información actual
+    final currentSong = state.currentSong;
+    if (currentSong != null && forceSync) {
+      print('🎵 [PlayerCubit] Updating MediaItem for: ${currentSong.title}');
+      repo.updateCurrentMediaItem(
+        currentSong.title,
+        currentSong.artist ?? currentSong.composer ?? 'Unknown Artist',
+        null, // TODO(dev): Agregar artwork URI si está disponible
+      );
+    }
+    
+    // Verificar y actualizar el estado de reproducción en el UI
+    final isCurrentlyPlaying = _playerRepository.isPlaying();
+    
+    if (forceSync) {
+      print('🎵 [PlayerCubit] Repository says isPlaying: $isCurrentlyPlaying');
+    }
+    
+    if (state.isPlaying != isCurrentlyPlaying) {
+      if (forceSync) {
+        print('🔄 [PlayerCubit] UI state mismatch! Updating UI: ${state.isPlaying} → $isCurrentlyPlaying');
+      }
+      emit(state.copyWith(isPlaying: isCurrentlyPlaying));
+    } else if (forceSync) {
+      print('✅ [PlayerCubit] UI state is in sync');
+    }
   }
 
   /// Establece una nueva canción y playlist para reproducir.
@@ -202,6 +293,8 @@ class PlayerCubit extends Cubit<PlayerState> {
 
   Timer? _positionTimer;
 
+  int _controlCenterUpdateCounter = 0;
+
   Future<void> _startPositionUpdates() async {
     _positionTimer?.cancel();
     _positionTimer = Timer.periodic(const Duration(milliseconds: 500), (
@@ -217,6 +310,24 @@ class PlayerCubit extends Cubit<PlayerState> {
 
       if (!_positionController!.isClosed) {
         _positionController!.add(currentPositionMs);
+      }
+
+      // Sincronización continua del estado del reproductor nativo
+      await _syncNativePlayerStateIfNeeded();
+
+      // Actualizar Control Center para archivos locales menos frecuentemente (cada 2 segundos)
+      _controlCenterUpdateCounter++;
+      if (_controlCenterUpdateCounter >= 4 && state.isPlaying && state.currentSong != null) {
+        _controlCenterUpdateCounter = 0;
+        final currentSong = state.currentSong!;
+        final duration = Duration(milliseconds: currentSong.duration ?? 0);
+        
+        await (_playerRepository as PlayerRepositoryImpl).updateNowPlayingMetadata(
+          currentSong.title,
+          currentSong.artist ?? currentSong.composer ?? 'Unknown Artist',
+          duration,
+          position,
+        );
       }
 
       if (state.isPlaying) {
@@ -650,6 +761,7 @@ class PlayerCubit extends Cubit<PlayerState> {
 
   @override
   Future<void> close() {
+    WidgetsBinding.instance.removeObserver(this);
     _positionController?.close();
     _positionTimer?.cancel();
     _sleepTimer?.cancel();
