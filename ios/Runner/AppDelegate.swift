@@ -391,18 +391,6 @@ import AVFoundation
     result(true)
   }
   
-  private func updateNowPlayingInfoForLocalFile(title: String?, artist: String?, duration: Double, currentTime: Double = 0) {
-    var nowPlayingInfo = [String: Any]()
-    nowPlayingInfo[MPMediaItemPropertyTitle] = title ?? "Unknown Track"
-    nowPlayingInfo[MPMediaItemPropertyArtist] = artist ?? "Unknown Artist"
-    nowPlayingInfo[MPMediaItemPropertyPlaybackDuration] = duration
-    nowPlayingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = currentTime
-    nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate] = audioPlayer?.isPlaying == true ? 1.0 : 0.0
-    
-    MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
-    logToFlutter("🎵 Updated Now Playing info: \(title ?? "Unknown") - \(duration)s")
-  }
-  
   private func setupRemoteCommandCenter() {
     let commandCenter = MPRemoteCommandCenter.shared()
     
@@ -425,14 +413,6 @@ import AVFoundation
     }
     
     logToFlutter("🎛️ Remote command center configured")
-  }
-  
-  private func extractTitleFromPath(_ filePath: String) -> String {
-    if let url = URL(string: filePath) {
-      let fileName = url.deletingPathExtension().lastPathComponent
-      return fileName.replacingOccurrences(of: "_", with: " ")
-    }
-    return "Unknown Track"
   }
   
   private func playMP3WithNativePlayer(call: FlutterMethodCall, result: @escaping FlutterResult) {
@@ -509,7 +489,6 @@ import AVFoundation
     }
     
     player.pause()
-    // Flutter maneja la sincronización de Now Playing Info
     logToFlutter("✅ Native MP3 player paused")
     result(true)
   }
@@ -539,7 +518,6 @@ import AVFoundation
     }
     
     let success = player.play()
-    // Flutter maneja la sincronización de Now Playing Info
     logToFlutter(success ? "✅ Native MP3 player resumed" : "❌ Failed to resume native MP3 player")
     result(success)
   }
@@ -583,7 +561,6 @@ import AVFoundation
     
     logToFlutter("⏩ Seeking MP3 to: \(positionSeconds) seconds")
     player.currentTime = positionSeconds
-    // Flutter maneja la sincronización de Now Playing Info
     logToFlutter("✅ MP3 seek completed")
     result(true)
   }
@@ -606,7 +583,6 @@ import AVFoundation
     logToFlutter("🚀 Setting MP3 speed to: \(speed)x")
     player.enableRate = true
     player.rate = Float(speed)
-    // Flutter maneja la sincronización de Now Playing Info
     logToFlutter("✅ MP3 playback speed set to \(speed)x")
     result(true)
   }

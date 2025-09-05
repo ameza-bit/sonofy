@@ -120,26 +120,20 @@ class PlayerCubit extends Cubit<PlayerState> with WidgetsBindingObserver {
     await _syncNativePlayerState(forceSync: true);
   }
 
-  /// Sincroniza el estado del reproductor nativo periódicamente
   Future<void> _syncNativePlayerStateIfNeeded() async {
-    // Solo sincronizar cada 2 segundos para no sobrecargar
     if (_lastSyncTime != null && 
         DateTime.now().difference(_lastSyncTime!).inMilliseconds < 2000) {
       return;
     }
-    
     await _syncNativePlayerState(forceSync: false);
   }
 
   DateTime? _lastSyncTime;
 
-  /// Método centralizado para sincronizar el estado del reproductor nativo
   Future<void> _syncNativePlayerState({required bool forceSync}) async {
     if (_playerRepository is! PlayerRepositoryImpl) return;
     
     final repo = _playerRepository as PlayerRepositoryImpl;
-    
-    // Verificar si estamos usando reproductor nativo
     if (!repo.isUsingNativePlayer) return;
     
     if (forceSync) {
@@ -150,18 +144,16 @@ class PlayerCubit extends Cubit<PlayerState> with WidgetsBindingObserver {
     await _playerRepository.syncNativePlayerState();
     _lastSyncTime = DateTime.now();
     
-    // También actualizar el MediaItem con la información actual
     final currentSong = state.currentSong;
     if (currentSong != null && forceSync) {
       print('🎵 [PlayerCubit] Updating MediaItem for: ${currentSong.title}');
       repo.updateCurrentMediaItem(
         currentSong.title,
         currentSong.artist ?? currentSong.composer ?? 'Unknown Artist',
-        null, // TODO(dev): Agregar artwork URI si está disponible
+        null,
       );
     }
     
-    // Verificar y actualizar el estado de reproducción en el UI
     final isCurrentlyPlaying = _playerRepository.isPlaying();
     
     if (forceSync) {
@@ -202,7 +194,6 @@ class PlayerCubit extends Cubit<PlayerState> with WidgetsBindingObserver {
         ? shufflePlaylist.indexWhere((s) => s.id == song.id)
         : 0;
 
-    // Actualizar MediaItem para AudioService
     _updateAudioServiceMediaItem(song);
 
     emit(
@@ -234,7 +225,6 @@ class PlayerCubit extends Cubit<PlayerState> with WidgetsBindingObserver {
       state.activePlaylist[nextIndex].data,
     );
 
-    // Actualizar MediaItem para AudioService
     _updateAudioServiceMediaItem(state.activePlaylist[nextIndex]);
 
     emit(state.copyWith(currentIndex: nextIndex, isPlaying: isPlaying));
@@ -275,7 +265,6 @@ class PlayerCubit extends Cubit<PlayerState> with WidgetsBindingObserver {
       state.activePlaylist[previousIndex].data,
     );
 
-    // Actualizar MediaItem para AudioService
     _updateAudioServiceMediaItem(state.activePlaylist[previousIndex]);
 
     emit(state.copyWith(currentIndex: previousIndex, isPlaying: isPlaying));
@@ -312,22 +301,11 @@ class PlayerCubit extends Cubit<PlayerState> with WidgetsBindingObserver {
         _positionController!.add(currentPositionMs);
       }
 
-      // Sincronización continua del estado del reproductor nativo
       await _syncNativePlayerStateIfNeeded();
 
-      // Actualizar Control Center para archivos locales menos frecuentemente (cada 2 segundos)
       _controlCenterUpdateCounter++;
       if (_controlCenterUpdateCounter >= 4 && state.isPlaying && state.currentSong != null) {
-        _controlCenterUpdateCounter = 0;
-        final currentSong = state.currentSong!;
-        final duration = Duration(milliseconds: currentSong.duration ?? 0);
-        
-        await (_playerRepository as PlayerRepositoryImpl).updateNowPlayingMetadata(
-          currentSong.title,
-          currentSong.artist ?? currentSong.composer ?? 'Unknown Artist',
-          duration,
-          position,
-        );
+        await _updateControlCenter(state.currentSong!, position);
       }
 
       if (state.isPlaying) {
@@ -336,34 +314,13 @@ class PlayerCubit extends Cubit<PlayerState> with WidgetsBindingObserver {
           final songDurationMs = currentSong.duration ?? 0;
           final isNearEnd = currentPositionMs >= (songDurationMs - 1000);
 
-          // Verificar si el sleep timer está esperando que termine la canción
-          if (state.isSleepTimerActive &&
-              state.sleepTimerRemaining == Duration.zero &&
-              state.waitForSongToFinish &&
-              isNearEnd) {
-            // La canción terminó y estábamos esperando - pausar ahora
-            await _playerRepository.pauseTrack();
-            emit(state.copyWith(isPlaying: false));
-            stopSleepTimer();
+          if (_shouldPauseForSleepTimer(isNearEnd)) {
+            await _pauseForSleepTimer();
             return;
           }
 
           if (isNearEnd && state.hasSelectedSong) {
-            if (state.repeatMode == RepeatMode.one) {
-              await _playerRepository.seekToPosition(Duration.zero);
-            } else if (state.repeatMode == RepeatMode.all) {
-              await nextSong();
-            } else if (state.repeatMode == RepeatMode.none) {
-              // Solo avanzar si NO es la última canción
-              if (state.currentIndex < state.activePlaylist.length - 1) {
-                await nextSong();
-              } else {
-                // Es la última canción: volver al inicio pero sin reproducir
-                await nextSong();
-                final bool isPlaying = await _playerRepository.pauseTrack();
-                emit(state.copyWith(isPlaying: isPlaying));
-              }
-            }
+            await _handleSongEnd();
           }
         }
       }
@@ -380,26 +337,13 @@ class PlayerCubit extends Cubit<PlayerState> with WidgetsBindingObserver {
   }
 
   /// Alterna entre modo shuffle activado/desactivado.
-  ///
-  /// Al activar shuffle:
-  /// - Genera nueva lista aleatoria con canción actual como primera
-  /// - Establece currentIndex = 0 (canción actual al inicio)
-  ///
-  /// Al desactivar shuffle:
-  /// - Vuelve a usar playlist original
-  /// - Recalcula currentIndex según posición en lista original
   void toggleShuffle() {
     final newShuffleState = !state.isShuffleEnabled;
 
     if (newShuffleState) {
-      // Activando shuffle: generar nueva lista shuffle y encontrar índice actual
       final currentSong = state.currentSong;
       if (currentSong != null) {
-        final newShufflePlaylist = _generateShufflePlaylist(
-          state.playlist,
-          currentSong,
-        );
-        // La canción actual siempre será el índice 0 en la nueva lista shuffle
+        final newShufflePlaylist = _generateShufflePlaylist(state.playlist, currentSong);
         const newCurrentIndex = 0;
 
         emit(
@@ -413,12 +357,9 @@ class PlayerCubit extends Cubit<PlayerState> with WidgetsBindingObserver {
         emit(state.copyWith(isShuffleEnabled: newShuffleState));
       }
     } else {
-      // Desactivando shuffle: encontrar índice en playlist original
       final currentSong = state.currentSong;
       if (currentSong != null) {
-        final newCurrentIndex = state.playlist.indexWhere(
-          (s) => s.id == currentSong.id,
-        );
+        final newCurrentIndex = state.playlist.indexWhere((s) => s.id == currentSong.id);
         emit(
           state.copyWith(
             isShuffleEnabled: newShuffleState,
@@ -434,11 +375,6 @@ class PlayerCubit extends Cubit<PlayerState> with WidgetsBindingObserver {
   }
 
   /// Alterna entre los modos de repetición en ciclo: none → one → all → none.
-  ///
-  /// Modos de repetición:
-  /// - RepeatMode.none: Reproduce secuencialmente, se detiene al final
-  /// - RepeatMode.one: Repite la canción actual indefinidamente
-  /// - RepeatMode.all: Repite toda la playlist indefinidamente
   void toggleRepeat() {
     RepeatMode newMode;
     switch (state.repeatMode) {
@@ -457,9 +393,6 @@ class PlayerCubit extends Cubit<PlayerState> with WidgetsBindingObserver {
   }
 
   /// Calcula el índice de la siguiente canción en la lista activa.
-  ///
-  /// Permite wrap-around para navegación manual (diferente del auto-advance).
-  /// El auto-advance tiene su propia lógica en _startPositionUpdates.
   int _getNextIndex() {
     final activePlaylist = state.activePlaylist;
     if (activePlaylist.length <= 1) return state.currentIndex;
@@ -467,16 +400,11 @@ class PlayerCubit extends Cubit<PlayerState> with WidgetsBindingObserver {
     if (state.currentIndex < activePlaylist.length - 1) {
       return state.currentIndex + 1;
     } else {
-      // Para RepeatMode.none, permitir wrap-around en navegación manual
-      // El auto-advance ya está manejado en _startPositionUpdates
       return 0;
     }
   }
 
   /// Calcula el índice de la canción anterior en la lista activa.
-  ///
-  /// Permite wrap-around para navegación manual (diferente del auto-advance).
-  /// El auto-advance tiene su propia lógica en _startPositionUpdates.
   int _getPreviousIndex() {
     final activePlaylist = state.activePlaylist;
     if (activePlaylist.length <= 1) return state.currentIndex;
@@ -484,8 +412,6 @@ class PlayerCubit extends Cubit<PlayerState> with WidgetsBindingObserver {
     if (state.currentIndex > 0) {
       return state.currentIndex - 1;
     } else {
-      // Para RepeatMode.none, permitir wrap-around en navegación manual
-      // El auto-advance ya está manejado en _startPositionUpdates
       return activePlaylist.length - 1;
     }
   }
@@ -749,13 +675,53 @@ class PlayerCubit extends Cubit<PlayerState> with WidgetsBindingObserver {
     Preferences.playerPreferences = preferences;
   }
 
+  Future<void> _updateControlCenter(SongModel song, Duration? position) async {
+    _controlCenterUpdateCounter = 0;
+    final duration = Duration(milliseconds: song.duration ?? 0);
+    
+    await (_playerRepository as PlayerRepositoryImpl).updateNowPlayingMetadata(
+      song.title,
+      song.artist ?? song.composer ?? 'Unknown Artist',
+      duration,
+      position,
+    );
+  }
+
+  bool _shouldPauseForSleepTimer(bool isNearEnd) {
+    return state.isSleepTimerActive &&
+        state.sleepTimerRemaining == Duration.zero &&
+        state.waitForSongToFinish &&
+        isNearEnd;
+  }
+
+  Future<void> _pauseForSleepTimer() async {
+    await _playerRepository.pauseTrack();
+    emit(state.copyWith(isPlaying: false));
+    stopSleepTimer();
+  }
+
+  Future<void> _handleSongEnd() async {
+    if (state.repeatMode == RepeatMode.one) {
+      await _playerRepository.seekToPosition(Duration.zero);
+    } else if (state.repeatMode == RepeatMode.all) {
+      await nextSong();
+    } else if (state.repeatMode == RepeatMode.none) {
+      if (state.currentIndex < state.activePlaylist.length - 1) {
+        await nextSong();
+      } else {
+        await nextSong();
+        final bool isPlaying = await _playerRepository.pauseTrack();
+        emit(state.copyWith(isPlaying: isPlaying));
+      }
+    }
+  }
+
   void _updateAudioServiceMediaItem(SongModel song) {
-    // Cast del PlayerRepository a PlayerRepositoryImpl para acceder a updateCurrentMediaItem
     final playerImpl = _playerRepository as PlayerRepositoryImpl;
     playerImpl.updateCurrentMediaItem(
       song.title,
       song.artist ?? song.composer ?? 'Unknown Artist',
-      null, // TODO(dev): Agregar artwork URI si está disponible
+      null,
     );
   }
 
