@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:on_audio_query_pluse/on_audio_query.dart';
+import 'package:audio_metadata_reader/audio_metadata_reader.dart';
 
 /// Clase utilitaria para convertir archivos de audio a objetos SongModel
 /// 
@@ -69,9 +70,9 @@ class Mp3FileConverter {
     }
   }
 
-  /// Convierte un archivo de audio individual a SongModel con duración real
+  /// Convierte un archivo de audio individual a SongModel con duración real y metadatos ID3
   /// 
-  /// Extrae metadatos incluyendo duración precisa de archivos de audio.
+  /// Extrae metadatos incluyendo duración precisa e información de ID3 tags de archivos de audio.
   /// Soporta todos los formatos principales: MP3, FLAC, WAV, AAC, OGG, M4A
   /// 
   /// [file] Archivo de audio para convertir
@@ -80,13 +81,25 @@ class Mp3FileConverter {
     final fileName = file.path.split('/').last;
     final title = fileName.split('.').first;
 
-    // Extract basic information from filename
-    final String artistName = _extractArtistFromFileName(fileName);
-    const String albumName = 'Local Files';
-    final String songTitle = title;
+    // Extract detailed metadata from ID3 tags first
+    final metadata = await _extractDetailedMetadata(file);
 
-    // Get actual duration from file metadata
-    final int durationMs = await _getActualDurationFromFile(file);
+    // Use metadata if available, fallback to filename parsing
+    final String artistName = metadata['artist'] ?? _extractArtistFromFileName(fileName);
+    final String albumName = metadata['album'] ?? 'Local Files';
+    final String songTitle = metadata['title'] ?? title;
+    final String genre = metadata['genres'] ?? 'Unknown';
+    final int? year = metadata['year'];
+    final int? trackNumber = metadata['track'];
+    final int? discNumber = metadata['discNumber'];
+    final int? bitrate = metadata['bitrate'];
+    final int? sampleRate = metadata['sampleRate'];
+    final String? language = metadata['language'];
+    final String? lyrics = metadata['lyrics'];
+    final String? performers = metadata['performers'];
+
+    // Use metadata duration if available, otherwise calculate from AudioPlayer
+    final int durationMs = metadata['duration'] ?? await _getActualDurationFromFile(file);
 
     return SongModel({
       '_id': _createPersistentIdFromPath(file.path),
@@ -98,6 +111,15 @@ class Mp3FileConverter {
       'title': songTitle,
       'artist': artistName,
       'album': albumName,
+      'genre': genre,
+      'year': year,
+      'track': trackNumber,
+      'disc_number': discNumber,
+      'bitrate': bitrate,
+      'sample_rate': sampleRate,
+      'language': language,
+      'lyrics': lyrics,
+      'performers': performers,
       '_size': file.lengthSync(),
       'duration': durationMs,
       'album_id': albumName.hashCode,
@@ -105,6 +127,38 @@ class Mp3FileConverter {
       'date_added': DateTime.now().millisecondsSinceEpoch,
       'date_modified': file.lastModifiedSync().millisecondsSinceEpoch,
     });
+  }
+
+  /// Extrae metadatos detallados del archivo usando audio_metadata_reader
+  /// 
+  /// Obtiene información completa de metadatos incluyendo título, artista, álbum,
+  /// género, año, número de pista y más campos disponibles en los tags del archivo.
+  /// 
+  /// [file] Archivo de audio para analizar
+  /// Devuelve Map con los metadatos extraídos
+  static Future<Map<String, dynamic>> _extractDetailedMetadata(File file) async {
+    try {
+      final metadata = readMetadata(file);
+      
+      return {
+        'title': metadata.title?.trim(),
+        'artist': metadata.artist?.trim(), 
+        'album': metadata.album?.trim(),
+        'year': metadata.year,
+        'track': metadata.trackNumber,
+        'discNumber': metadata.discNumber,
+        'bitrate': metadata.bitrate,
+        'sampleRate': metadata.sampleRate,
+        'duration': metadata.duration?.inMilliseconds,
+        'language': metadata.language?.trim(),
+        'lyrics': metadata.lyrics?.trim(),
+        'performers': metadata.performers.join(', '),
+        'genres': metadata.genres.join(', '),
+      };
+    } catch (e) {
+      // Si no se pueden leer los metadatos, devolver valores nulos
+      return <String, dynamic>{};
+    }
   }
 
   /// Extracts artist name from filename using common patterns
