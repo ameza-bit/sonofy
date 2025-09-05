@@ -1,3 +1,4 @@
+import 'package:audio_metadata_reader/audio_metadata_reader.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:on_audio_query_pluse/on_audio_query.dart';
@@ -31,6 +32,15 @@ class BottomPlayer extends StatelessWidget {
             final songName = currentSong?.title ?? '';
             final artistName =
                 currentSong?.artist ?? currentSong?.composer ?? '';
+
+            ImageProvider emptyImage = AssetImage(context.imagePlaceholder);
+
+            final currentSongInfo = currentSong?.getMap ?? {};
+            if (currentSongInfo.containsKey('artwork') &&
+                currentSongInfo['artwork'] is Picture) {
+              final Picture artworkData = currentSongInfo['artwork'];
+              emptyImage = MemoryImage(artworkData.bytes);
+            }
 
             return GestureDetector(
               onTap: hasSelected ? onTap : null,
@@ -87,16 +97,12 @@ class BottomPlayer extends StatelessWidget {
                                 errorBuilder: (_, _, _) => CircleAvatar(
                                   radius: isPlaying ? 24 : 20,
                                   backgroundColor: context.musicLightGrey,
-                                  backgroundImage: AssetImage(
-                                    context.imagePlaceholder,
-                                  ),
+                                  backgroundImage: emptyImage,
                                 ),
                                 nullArtworkWidget: CircleAvatar(
                                   radius: isPlaying ? 24 : 20,
                                   backgroundColor: context.musicLightGrey,
-                                  backgroundImage: AssetImage(
-                                    context.imagePlaceholder,
-                                  ),
+                                  backgroundImage: emptyImage,
                                 ),
                               ),
                             ],
