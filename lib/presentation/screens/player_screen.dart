@@ -1,3 +1,4 @@
+import 'package:audio_metadata_reader/audio_metadata_reader.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -69,6 +70,14 @@ class _PlayerScreenState extends State<PlayerScreen> {
         final songName = currentSong?.title ?? '';
         final artistName = currentSong?.artist ?? currentSong?.composer ?? '';
 
+        final emptyImage = Image.asset(
+          context.imagePlaceholder,
+          width: double.infinity,
+          height: size.height * 0.6,
+          fit: BoxFit.fitHeight,
+          colorBlendMode: BlendMode.darken,
+        );
+
         return Scaffold(
           extendBodyBehindAppBar: true,
           appBar: AppBar(
@@ -107,19 +116,25 @@ class _PlayerScreenState extends State<PlayerScreen> {
                 artworkWidth: size.width.clamp(200, 800),
                 artworkHeight: (size.height * 0.6).clamp(300, 600),
                 artworkFit: BoxFit.fitHeight,
-                errorBuilder: (_, _, _) => Image.asset(
-                  context.imagePlaceholder,
-                  width: double.infinity,
-                  height: size.height * 0.6,
-                  fit: BoxFit.fitHeight,
-                  colorBlendMode: BlendMode.darken,
-                ),
-                nullArtworkWidget: Image.asset(
-                  context.imagePlaceholder,
-                  width: double.infinity,
-                  height: size.height * 0.6,
-                  fit: BoxFit.fitHeight,
-                  colorBlendMode: BlendMode.darken,
+                errorBuilder: (_, _, _) => emptyImage,
+                nullArtworkWidget: Builder(
+                  builder: (_) {
+                    final currentSongInfo = state.currentSong?.getMap ?? {};
+                    if (currentSongInfo.containsKey('artwork') &&
+                        currentSongInfo['artwork'] is Picture) {
+                      final Picture artworkData = currentSongInfo['artwork'];
+                      return Image.memory(
+                        artworkData.bytes,
+                        width: double.infinity,
+                        height: size.height * 0.6,
+                        fit: BoxFit.fitHeight,
+                        colorBlendMode: BlendMode.darken,
+                        errorBuilder: (_, _, _) => emptyImage,
+                      );
+                    }
+
+                    return emptyImage;
+                  },
                 ),
               ),
               // Indicadores visuales

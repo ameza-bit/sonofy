@@ -1,3 +1,4 @@
+import 'package:audio_metadata_reader/audio_metadata_reader.dart';
 import 'package:flutter/material.dart';
 import 'package:on_audio_query_pluse/on_audio_query.dart';
 
@@ -57,18 +58,26 @@ class PlaylistCoverGrid extends StatelessWidget {
   Widget? _buildSingleCover() {
     if (songs.isEmpty) return null;
 
+    ImageProvider emptyImage = const AssetImage(
+      'assets/images/placeholder.png',
+    );
+
+    final currentSongInfo = songs.first.getMap;
+    if (currentSongInfo.containsKey('artwork') &&
+        currentSongInfo['artwork'] is Picture) {
+      final Picture artworkData = currentSongInfo['artwork'];
+      emptyImage = MemoryImage(artworkData.bytes);
+    }
+
     return ClipRRect(
       borderRadius: BorderRadius.circular(radius),
       child: QueryArtworkWidget(
         id: songs.first.id,
         type: ArtworkType.AUDIO,
         artworkBorder: BorderRadius.zero,
-        nullArtworkWidget: Container(
-          decoration: const BoxDecoration(
-            image: DecorationImage(
-              image: AssetImage('assets/images/placeholder.png'),
-              fit: BoxFit.cover,
-            ),
+        nullArtworkWidget: DecoratedBox(
+          decoration: BoxDecoration(
+            image: DecorationImage(image: emptyImage, fit: BoxFit.cover),
           ),
         ),
       ),

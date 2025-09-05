@@ -339,6 +339,7 @@ class AudioPlayerConverter {
     required double duration,
     required double currentTime,
     required bool isPlaying,
+    required Uint8List? artwork,
   }) async {
     if (!_isIOS) return false;
 
@@ -349,6 +350,7 @@ class AudioPlayerConverter {
         'duration': duration,
         'currentTime': currentTime,
         'isPlaying': isPlaying,
+        'artwork': artwork,
       });
       return result as bool? ?? false;
     } catch (e) {
