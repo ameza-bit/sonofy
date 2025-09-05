@@ -84,6 +84,8 @@ import AVFoundation
         self?.setMP3PlaybackSpeed(call: call, result: result)
       case "getMP3PlaybackSpeed":
         self?.getMP3PlaybackSpeed(result: result)
+      case "updateNowPlayingInfo":
+        self?.updateNowPlayingInfoFromFlutter(call: call, result: result)
       default:
         result(FlutterMethodNotImplemented)
       }
@@ -362,6 +364,77 @@ import AVFoundation
     }
   }
   
+  private func updateNowPlayingInfoFromFlutter(call: FlutterMethodCall, result: @escaping FlutterResult) {
+    logToFlutter("📱 Updating Now Playing info from Flutter")
+    
+    guard let args = call.arguments as? [String: Any] else {
+      logToFlutter("❌ Invalid arguments for updateNowPlayingInfo")
+      result(false)
+      return
+    }
+    
+    let title = args["title"] as? String ?? "Unknown Track"
+    let artist = args["artist"] as? String ?? "Unknown Artist"
+    let duration = args["duration"] as? Double ?? 0.0
+    let currentTime = args["currentTime"] as? Double ?? 0.0
+    let isPlaying = args["isPlaying"] as? Bool ?? false
+    
+    var nowPlayingInfo = [String: Any]()
+    nowPlayingInfo[MPMediaItemPropertyTitle] = title
+    nowPlayingInfo[MPMediaItemPropertyArtist] = artist
+    nowPlayingInfo[MPMediaItemPropertyPlaybackDuration] = duration
+    nowPlayingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = currentTime
+    nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate] = isPlaying ? 1.0 : 0.0
+    
+    MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
+    logToFlutter("✅ Updated Now Playing info: \(title) by \(artist) - \(currentTime)/\(duration)s")
+    result(true)
+  }
+  
+  private func updateNowPlayingInfoForLocalFile(title: String?, artist: String?, duration: Double, currentTime: Double = 0) {
+    var nowPlayingInfo = [String: Any]()
+    nowPlayingInfo[MPMediaItemPropertyTitle] = title ?? "Unknown Track"
+    nowPlayingInfo[MPMediaItemPropertyArtist] = artist ?? "Unknown Artist"
+    nowPlayingInfo[MPMediaItemPropertyPlaybackDuration] = duration
+    nowPlayingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = currentTime
+    nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate] = audioPlayer?.isPlaying == true ? 1.0 : 0.0
+    
+    MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
+    logToFlutter("🎵 Updated Now Playing info: \(title ?? "Unknown") - \(duration)s")
+  }
+  
+  private func setupRemoteCommandCenter() {
+    let commandCenter = MPRemoteCommandCenter.shared()
+    
+    commandCenter.playCommand.addTarget { [weak self] _ in
+      self?.resumeNativeMP3Player { _ in }
+      return .success
+    }
+    
+    commandCenter.pauseCommand.addTarget { [weak self] _ in
+      self?.pauseNativeMP3Player { _ in }
+      return .success
+    }
+    
+    commandCenter.changePlaybackPositionCommand.addTarget { [weak self] event in
+      if let event = event as? MPChangePlaybackPositionCommandEvent {
+        self?.audioPlayer?.currentTime = event.positionTime
+        return .success
+      }
+      return .commandFailed
+    }
+    
+    logToFlutter("🎛️ Remote command center configured")
+  }
+  
+  private func extractTitleFromPath(_ filePath: String) -> String {
+    if let url = URL(string: filePath) {
+      let fileName = url.deletingPathExtension().lastPathComponent
+      return fileName.replacingOccurrences(of: "_", with: " ")
+    }
+    return "Unknown Track"
+  }
+  
   private func playMP3WithNativePlayer(call: FlutterMethodCall, result: @escaping FlutterResult) {
     logToFlutter("🎵 Starting native MP3 playback")
     
@@ -391,7 +464,15 @@ import AVFoundation
       audioPlayer?.prepareToPlay()
       
       let success = audioPlayer?.play() ?? false
-      logToFlutter(success ? "✅ Native MP3 player started!" : "❌ Failed to start native MP3 player")
+      
+      if success {
+        // Setup remote command center and now playing info
+        setupRemoteCommandCenter()
+        // No actualizar aquí - Flutter se encarga de la sincronización continua
+        logToFlutter("✅ Native MP3 player started!")
+      } else {
+        logToFlutter("❌ Failed to start native MP3 player")
+      }
       result(success)
     } catch {
       logToFlutter("❌ Error creating AVAudioPlayer: \(error)")
@@ -428,6 +509,7 @@ import AVFoundation
     }
     
     player.pause()
+    // Flutter maneja la sincronización de Now Playing Info
     logToFlutter("✅ Native MP3 player paused")
     result(true)
   }
@@ -442,6 +524,8 @@ import AVFoundation
     
     player.stop()
     audioPlayer = nil
+    // Clear now playing info when stopped
+    MPNowPlayingInfoCenter.default().nowPlayingInfo = nil
     logToFlutter("✅ Native MP3 player stopped")
     result(true)
   }
@@ -455,6 +539,7 @@ import AVFoundation
     }
     
     let success = player.play()
+    // Flutter maneja la sincronización de Now Playing Info
     logToFlutter(success ? "✅ Native MP3 player resumed" : "❌ Failed to resume native MP3 player")
     result(success)
   }
@@ -498,6 +583,7 @@ import AVFoundation
     
     logToFlutter("⏩ Seeking MP3 to: \(positionSeconds) seconds")
     player.currentTime = positionSeconds
+    // Flutter maneja la sincronización de Now Playing Info
     logToFlutter("✅ MP3 seek completed")
     result(true)
   }
@@ -520,6 +606,7 @@ import AVFoundation
     logToFlutter("🚀 Setting MP3 speed to: \(speed)x")
     player.enableRate = true
     player.rate = Float(speed)
+    // Flutter maneja la sincronización de Now Playing Info
     logToFlutter("✅ MP3 playback speed set to \(speed)x")
     result(true)
   }

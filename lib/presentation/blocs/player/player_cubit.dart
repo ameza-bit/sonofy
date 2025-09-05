@@ -293,6 +293,8 @@ class PlayerCubit extends Cubit<PlayerState> with WidgetsBindingObserver {
 
   Timer? _positionTimer;
 
+  int _controlCenterUpdateCounter = 0;
+
   Future<void> _startPositionUpdates() async {
     _positionTimer?.cancel();
     _positionTimer = Timer.periodic(const Duration(milliseconds: 500), (
@@ -312,6 +314,21 @@ class PlayerCubit extends Cubit<PlayerState> with WidgetsBindingObserver {
 
       // Sincronización continua del estado del reproductor nativo
       await _syncNativePlayerStateIfNeeded();
+
+      // Actualizar Control Center para archivos locales menos frecuentemente (cada 2 segundos)
+      _controlCenterUpdateCounter++;
+      if (_controlCenterUpdateCounter >= 4 && state.isPlaying && state.currentSong != null) {
+        _controlCenterUpdateCounter = 0;
+        final currentSong = state.currentSong!;
+        final duration = Duration(milliseconds: currentSong.duration ?? 0);
+        
+        await (_playerRepository as PlayerRepositoryImpl).updateNowPlayingMetadata(
+          currentSong.title,
+          currentSong.artist ?? currentSong.composer ?? 'Unknown Artist',
+          duration,
+          position,
+        );
+      }
 
       if (state.isPlaying) {
         final currentSong = state.currentSong;
