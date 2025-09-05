@@ -97,6 +97,7 @@ class Mp3FileConverter {
     final String? language = metadata['language'];
     final String? lyrics = metadata['lyrics'];
     final String? performers = metadata['performers'];
+    final artwork = metadata['artwork']; // Picture object from metadata
 
     // Use metadata duration if available, otherwise calculate from AudioPlayer
     final int durationMs = metadata['duration'] ?? await _getActualDurationFromFile(file);
@@ -120,6 +121,7 @@ class Mp3FileConverter {
       'language': language,
       'lyrics': lyrics,
       'performers': performers,
+      'artwork': artwork,
       '_size': file.lengthSync(),
       'duration': durationMs,
       'album_id': albumName.hashCode,
@@ -144,6 +146,9 @@ class Mp3FileConverter {
       final genresText = metadata.genres.isNotEmpty ? metadata.genres.join(', ') : null;
       final yearNumber = metadata.year?.year;
       
+      // Extraer la primera imagen disponible (artwork/cover)
+      final artwork = metadata.pictures.isNotEmpty ? metadata.pictures.first : null;
+      
       return {
         'title': metadata.title?.trim(),
         'artist': metadata.artist?.trim(), 
@@ -158,6 +163,7 @@ class Mp3FileConverter {
         'lyrics': metadata.lyrics?.trim(),
         'performers': performersText,
         'genres': genresText,
+        'artwork': artwork,
       };
     } catch (e) {
       // Si no se pueden leer los metadatos, devolver valores nulos
