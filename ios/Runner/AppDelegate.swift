@@ -363,6 +363,7 @@ import AVFoundation
     let duration = args["duration"] as? Double ?? 0.0
     let currentTime = args["currentTime"] as? Double ?? 0.0
     let isPlaying = args["isPlaying"] as? Bool ?? false
+    let artwork = args["artwork"] as? UInt8 ?? nil
     
     var nowPlayingInfo = [String: Any]()
     nowPlayingInfo[MPMediaItemPropertyTitle] = title

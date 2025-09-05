@@ -2,16 +2,18 @@ import 'dart:async';
 import 'dart:io';
 import 'package:audio_service/audio_service.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:flutter/services.dart';
 import 'package:volume_controller/volume_controller.dart';
 import 'package:sonofy/domain/repositories/player_repository.dart';
 import 'package:sonofy/core/utils/audio_player_converter.dart';
 
-final class PlayerRepositoryImpl extends BaseAudioHandler implements PlayerRepository {
+final class PlayerRepositoryImpl extends BaseAudioHandler
+    implements PlayerRepository {
   final player = AudioPlayer();
   bool _usingNativePlayer = false;
   double _playbackSpeed = 1.0;
   bool _isPaused = false;
-  
+
   // Estado específico para reproducción nativa
   bool _nativePlayerIsPlaying = false;
 
@@ -24,7 +26,8 @@ final class PlayerRepositoryImpl extends BaseAudioHandler implements PlayerRepos
   Duration _currentPosition = Duration.zero;
 
   // Stream para comunicar eventos al PlayerCubit
-  final StreamController<PlayerEvent> _eventsController = StreamController<PlayerEvent>.broadcast();
+  final StreamController<PlayerEvent> _eventsController =
+      StreamController<PlayerEvent>.broadcast();
 
   @override
   Stream<PlayerEvent> get playerEvents => _eventsController.stream;
@@ -57,7 +60,9 @@ final class PlayerRepositoryImpl extends BaseAudioHandler implements PlayerRepos
           return false;
         }
 
-        final success = await AudioPlayerConverter.playWithNativeMusicPlayer(url);
+        final success = await AudioPlayerConverter.playWithNativeMusicPlayer(
+          url,
+        );
         if (success) {
           _usingNativePlayer = true;
           _nativePlayerIsPlaying = true;
@@ -74,7 +79,7 @@ final class PlayerRepositoryImpl extends BaseAudioHandler implements PlayerRepos
         return success;
       }
     }
-    
+
     _usingNativePlayer = false;
     _nativePlayerIsPlaying = false;
     await player.play(DeviceFileSource(url));
@@ -213,7 +218,9 @@ final class PlayerRepositoryImpl extends BaseAudioHandler implements PlayerRepos
       if (AudioPlayerConverter.isIpodLibraryUrl(_currentUrl!)) {
         return AudioPlayerConverter.getDuration();
       } else if (_currentUrl != null) {
-        final durationSeconds = await AudioPlayerConverter.getMP3Duration(_currentUrl!);
+        final durationSeconds = await AudioPlayerConverter.getMP3Duration(
+          _currentUrl!,
+        );
         return Duration(milliseconds: (durationSeconds * 1000).round());
       }
       return null;
@@ -370,7 +377,6 @@ final class PlayerRepositoryImpl extends BaseAudioHandler implements PlayerRepos
     await seekToPosition(position);
   }
 
-
   void _updatePlaybackState(bool playing) {
     playbackState.add(
       PlaybackState(
@@ -402,8 +408,16 @@ final class PlayerRepositoryImpl extends BaseAudioHandler implements PlayerRepos
   }
 
   /// Actualiza el Control Center con metadatos de la canción actual
-  Future<void> updateNowPlayingMetadata(String title, String artist, Duration? duration, Duration? currentPosition) async {
-    if (_usingNativePlayer && Platform.isIOS && AudioPlayerConverter.isLocalAudioFile(_currentUrl ?? '')) {
+  Future<void> updateNowPlayingMetadata(
+    String title,
+    String artist,
+    Duration? duration,
+    Duration? currentPosition,
+    Uint8List? artwork,
+  ) async {
+    if (_usingNativePlayer &&
+        Platform.isIOS &&
+        AudioPlayerConverter.isLocalAudioFile(_currentUrl ?? '')) {
       // Para archivos locales en iOS, usar el método nativo
       await AudioPlayerConverter.updateNowPlayingInfo(
         title: title,
@@ -411,6 +425,7 @@ final class PlayerRepositoryImpl extends BaseAudioHandler implements PlayerRepos
         duration: (duration?.inMilliseconds ?? 0) / 1000.0,
         currentTime: (currentPosition?.inMilliseconds ?? 0) / 1000.0,
         isPlaying: isPlaying(),
+        artwork: artwork,
       );
     }
   }
@@ -426,13 +441,12 @@ final class PlayerRepositoryImpl extends BaseAudioHandler implements PlayerRepos
       } else {
         status = await AudioPlayerConverter.getNativeMP3PlayerStatus();
       }
-      
+
       final isCurrentlyPlaying = status == 'playing';
       _nativePlayerIsPlaying = isCurrentlyPlaying;
       _updatePlaybackState(isCurrentlyPlaying);
     }
   }
-
 
   void dispose() {
     _eventsController.close();

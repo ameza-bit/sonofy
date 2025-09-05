@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'package:audio_metadata_reader/audio_metadata_reader.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:on_audio_query_pluse/on_audio_query.dart';
@@ -93,8 +95,7 @@ class PlayerCubit extends Cubit<PlayerState> with WidgetsBindingObserver {
   @override
   void didChangeAppLifecycleState(AppLifecycleState lifecycleState) {
     super.didChangeAppLifecycleState(lifecycleState);
-    
-    
+
     switch (lifecycleState) {
       case AppLifecycleState.resumed:
         _syncPlayerStateOnResume();
@@ -114,7 +115,7 @@ class PlayerCubit extends Cubit<PlayerState> with WidgetsBindingObserver {
   }
 
   Future<void> _syncNativePlayerStateIfNeeded() async {
-    if (_lastSyncTime != null && 
+    if (_lastSyncTime != null &&
         DateTime.now().difference(_lastSyncTime!).inMilliseconds < 2000) {
       return;
     }
@@ -125,14 +126,13 @@ class PlayerCubit extends Cubit<PlayerState> with WidgetsBindingObserver {
 
   Future<void> _syncNativePlayerState({required bool forceSync}) async {
     if (_playerRepository is! PlayerRepositoryImpl) return;
-    
+
     final repo = _playerRepository;
     if (!repo.isUsingNativePlayer) return;
-    
-    
+
     await _playerRepository.syncNativePlayerState();
     _lastSyncTime = DateTime.now();
-    
+
     final currentSong = state.currentSong;
     if (currentSong != null && forceSync) {
       repo.updateCurrentMediaItem(
@@ -141,10 +141,9 @@ class PlayerCubit extends Cubit<PlayerState> with WidgetsBindingObserver {
         null,
       );
     }
-    
+
     final isCurrentlyPlaying = _playerRepository.isPlaying();
-    
-    
+
     if (state.isPlaying != isCurrentlyPlaying) {
       emit(state.copyWith(isPlaying: isCurrentlyPlaying));
     }
@@ -284,7 +283,9 @@ class PlayerCubit extends Cubit<PlayerState> with WidgetsBindingObserver {
       await _syncNativePlayerStateIfNeeded();
 
       _controlCenterUpdateCounter++;
-      if (_controlCenterUpdateCounter >= 4 && state.isPlaying && state.currentSong != null) {
+      if (_controlCenterUpdateCounter >= 4 &&
+          state.isPlaying &&
+          state.currentSong != null) {
         await _updateControlCenter(state.currentSong!, position);
       }
 
@@ -323,7 +324,10 @@ class PlayerCubit extends Cubit<PlayerState> with WidgetsBindingObserver {
     if (newShuffleState) {
       final currentSong = state.currentSong;
       if (currentSong != null) {
-        final newShufflePlaylist = _generateShufflePlaylist(state.playlist, currentSong);
+        final newShufflePlaylist = _generateShufflePlaylist(
+          state.playlist,
+          currentSong,
+        );
         const newCurrentIndex = 0;
 
         emit(
@@ -339,7 +343,9 @@ class PlayerCubit extends Cubit<PlayerState> with WidgetsBindingObserver {
     } else {
       final currentSong = state.currentSong;
       if (currentSong != null) {
-        final newCurrentIndex = state.playlist.indexWhere((s) => s.id == currentSong.id);
+        final newCurrentIndex = state.playlist.indexWhere(
+          (s) => s.id == currentSong.id,
+        );
         emit(
           state.copyWith(
             isShuffleEnabled: newShuffleState,
@@ -658,12 +664,21 @@ class PlayerCubit extends Cubit<PlayerState> with WidgetsBindingObserver {
   Future<void> _updateControlCenter(SongModel song, Duration? position) async {
     _controlCenterUpdateCounter = 0;
     final duration = Duration(milliseconds: song.duration ?? 0);
-    
+    Uint8List? artwork;
+
+    final songMetadata = song.getMap;
+    if (songMetadata.containsKey('artwork') &&
+        songMetadata['artwork'] is Picture) {
+      final Picture picture = songMetadata['artwork'];
+      artwork = picture.bytes;
+    }
+
     await (_playerRepository as PlayerRepositoryImpl).updateNowPlayingMetadata(
       song.title,
       song.artist ?? song.composer ?? 'Unknown Artist',
       duration,
       position,
+      artwork,
     );
   }
 
