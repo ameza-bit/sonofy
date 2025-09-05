@@ -29,6 +29,8 @@ class SongInfoOption extends StatelessWidget {
       _showSongInfo(context, song);
 
   static void _showSongInfo(BuildContext context, SongModel song) {
+    final songInfo = song.getMap;
+
     modalView(
       context,
       title: context.tr('options.song_info'),
