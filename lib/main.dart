@@ -62,7 +62,7 @@ Future<void> main() async {
   );
 
   // Conectar ecualizador con reproductor para sincronización
-  equalizerRepository.setPlayerRepository(playerRepository);
+  equalizerRepository.playerRepository = playerRepository;
 
   // Inicializar carpeta Music en iOS
   if (songsRepository is SongsRepositoryImpl) {

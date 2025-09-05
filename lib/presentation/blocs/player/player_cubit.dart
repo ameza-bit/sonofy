@@ -94,29 +94,22 @@ class PlayerCubit extends Cubit<PlayerState> with WidgetsBindingObserver {
   void didChangeAppLifecycleState(AppLifecycleState lifecycleState) {
     super.didChangeAppLifecycleState(lifecycleState);
     
-    print('🔄 [PlayerCubit] App lifecycle changed to: $lifecycleState');
     
     switch (lifecycleState) {
       case AppLifecycleState.resumed:
-        // La app volvió al foreground - sincronizar estado del reproductor
-        print('📱 [PlayerCubit] App resumed - syncing player state');
         _syncPlayerStateOnResume();
         break;
       case AppLifecycleState.paused:
-        print('📱 [PlayerCubit] App paused');
         break;
       case AppLifecycleState.inactive:
       case AppLifecycleState.hidden:
       case AppLifecycleState.detached:
-        // App en background o siendo cerrada
-        print('📱 [PlayerCubit] App in background/hidden/detached');
         break;
     }
   }
 
   /// Sincroniza el estado del reproductor cuando la app vuelve del background
   Future<void> _syncPlayerStateOnResume() async {
-    print('🔄 [PlayerCubit] Starting sync on resume...');
     await _syncNativePlayerState(forceSync: true);
   }
 
@@ -133,20 +126,15 @@ class PlayerCubit extends Cubit<PlayerState> with WidgetsBindingObserver {
   Future<void> _syncNativePlayerState({required bool forceSync}) async {
     if (_playerRepository is! PlayerRepositoryImpl) return;
     
-    final repo = _playerRepository as PlayerRepositoryImpl;
+    final repo = _playerRepository;
     if (!repo.isUsingNativePlayer) return;
     
-    if (forceSync) {
-      print('🔄 [PlayerCubit] Force syncing native player state...');
-      print('🎵 [PlayerCubit] Current UI state - isPlaying: ${state.isPlaying}');
-    }
     
     await _playerRepository.syncNativePlayerState();
     _lastSyncTime = DateTime.now();
     
     final currentSong = state.currentSong;
     if (currentSong != null && forceSync) {
-      print('🎵 [PlayerCubit] Updating MediaItem for: ${currentSong.title}');
       repo.updateCurrentMediaItem(
         currentSong.title,
         currentSong.artist ?? currentSong.composer ?? 'Unknown Artist',
@@ -156,17 +144,9 @@ class PlayerCubit extends Cubit<PlayerState> with WidgetsBindingObserver {
     
     final isCurrentlyPlaying = _playerRepository.isPlaying();
     
-    if (forceSync) {
-      print('🎵 [PlayerCubit] Repository says isPlaying: $isCurrentlyPlaying');
-    }
     
     if (state.isPlaying != isCurrentlyPlaying) {
-      if (forceSync) {
-        print('🔄 [PlayerCubit] UI state mismatch! Updating UI: ${state.isPlaying} → $isCurrentlyPlaying');
-      }
       emit(state.copyWith(isPlaying: isCurrentlyPlaying));
-    } else if (forceSync) {
-      print('✅ [PlayerCubit] UI state is in sync');
     }
   }
 
