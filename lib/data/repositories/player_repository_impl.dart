@@ -432,6 +432,22 @@ final class PlayerRepositoryImpl extends BaseAudioHandler implements PlayerRepos
     );
   }
 
+  /// Actualiza el Control Center con metadatos de la canción actual
+  Future<void> updateNowPlayingMetadata(String title, String artist, Duration? duration, Duration? currentPosition) async {
+    if (_usingNativePlayer && Platform.isIOS && AudioPlayerConverter.isLocalAudioFile(_currentUrl ?? '')) {
+      // Para archivos locales en iOS, usar el método nativo
+      await AudioPlayerConverter.updateNowPlayingInfo(
+        title: title,
+        artist: artist,
+        duration: (duration?.inMilliseconds ?? 0) / 1000.0,
+        currentTime: (currentPosition?.inMilliseconds ?? 0) / 1000.0,
+        isPlaying: isPlaying(),
+      );
+    }
+    // También actualizar AudioService para notificaciones
+    updateCurrentMediaItem(title, artist, null);
+  }
+
   /// Resincroniza el estado del reproductor nativo con AudioService
   /// Debe llamarse cuando la app vuelve del background
   @override

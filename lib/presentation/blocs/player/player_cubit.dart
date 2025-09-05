@@ -313,6 +313,19 @@ class PlayerCubit extends Cubit<PlayerState> with WidgetsBindingObserver {
       // Sincronización continua del estado del reproductor nativo
       await _syncNativePlayerStateIfNeeded();
 
+      // Actualizar Control Center para archivos locales con posición actual
+      if (state.isPlaying && state.currentSong != null) {
+        final currentSong = state.currentSong!;
+        final duration = Duration(milliseconds: currentSong.duration ?? 0);
+        
+        await (_playerRepository as PlayerRepositoryImpl).updateNowPlayingMetadata(
+          currentSong.title,
+          currentSong.artist ?? currentSong.composer ?? 'Unknown Artist',
+          duration,
+          position,
+        );
+      }
+
       if (state.isPlaying) {
         final currentSong = state.currentSong;
         if (currentSong != null && currentPositionMs > 0) {

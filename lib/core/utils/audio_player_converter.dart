@@ -353,4 +353,28 @@ class AudioPlayerConverter {
     const supportedExtensions = ['mp3', 'm4a', 'wav', 'aac', 'flac', 'ogg'];
     return supportedExtensions.contains(extension);
   }
+
+  /// Actualiza la información del Control Center con metadatos desde Flutter
+  static Future<bool> updateNowPlayingInfo({
+    required String title,
+    required String artist,
+    required double duration,
+    required double currentTime,
+    required bool isPlaying,
+  }) async {
+    if (!_isIOS) return false;
+
+    try {
+      final result = await _channel.invokeMethod('updateNowPlayingInfo', {
+        'title': title,
+        'artist': artist,
+        'duration': duration,
+        'currentTime': currentTime,
+        'isPlaying': isPlaying,
+      });
+      return result as bool? ?? false;
+    } catch (e) {
+      return false;
+    }
+  }
 }

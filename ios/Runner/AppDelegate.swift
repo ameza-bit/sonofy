@@ -84,6 +84,8 @@ import AVFoundation
         self?.setMP3PlaybackSpeed(call: call, result: result)
       case "getMP3PlaybackSpeed":
         self?.getMP3PlaybackSpeed(result: result)
+      case "updateNowPlayingInfo":
+        self?.updateNowPlayingInfoFromFlutter(call: call, result: result)
       default:
         result(FlutterMethodNotImplemented)
       }
@@ -362,6 +364,33 @@ import AVFoundation
     }
   }
   
+  private func updateNowPlayingInfoFromFlutter(call: FlutterMethodCall, result: @escaping FlutterResult) {
+    logToFlutter("📱 Updating Now Playing info from Flutter")
+    
+    guard let args = call.arguments as? [String: Any] else {
+      logToFlutter("❌ Invalid arguments for updateNowPlayingInfo")
+      result(false)
+      return
+    }
+    
+    let title = args["title"] as? String ?? "Unknown Track"
+    let artist = args["artist"] as? String ?? "Unknown Artist"
+    let duration = args["duration"] as? Double ?? 0.0
+    let currentTime = args["currentTime"] as? Double ?? 0.0
+    let isPlaying = args["isPlaying"] as? Bool ?? false
+    
+    var nowPlayingInfo = [String: Any]()
+    nowPlayingInfo[MPMediaItemPropertyTitle] = title
+    nowPlayingInfo[MPMediaItemPropertyArtist] = artist
+    nowPlayingInfo[MPMediaItemPropertyPlaybackDuration] = duration
+    nowPlayingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = currentTime
+    nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate] = isPlaying ? 1.0 : 0.0
+    
+    MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
+    logToFlutter("✅ Updated Now Playing info: \(title) by \(artist) - \(currentTime)/\(duration)s")
+    result(true)
+  }
+  
   private func updateNowPlayingInfoForLocalFile(title: String?, artist: String?, duration: Double, currentTime: Double = 0) {
     var nowPlayingInfo = [String: Any]()
     nowPlayingInfo[MPMediaItemPropertyTitle] = title ?? "Unknown Track"
@@ -399,9 +428,11 @@ import AVFoundation
   }
   
   private func extractTitleFromPath(_ filePath: String) -> String {
-    let url = URL(fileURLWithPath: filePath)
-    let fileName = url.deletingPathExtension().lastPathComponent
-    return fileName.replacingOccurrences(of: "_", with: " ")
+    if let url = URL(string: filePath) {
+      let fileName = url.deletingPathExtension().lastPathComponent
+      return fileName.replacingOccurrences(of: "_", with: " ")
+    }
+    return "Unknown Track"
   }
   
   private func playMP3WithNativePlayer(call: FlutterMethodCall, result: @escaping FlutterResult) {
