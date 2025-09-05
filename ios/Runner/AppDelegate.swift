@@ -363,7 +363,7 @@ import AVFoundation
     let duration = args["duration"] as? Double ?? 0.0
     let currentTime = args["currentTime"] as? Double ?? 0.0
     let isPlaying = args["isPlaying"] as? Bool ?? false
-    let artwork = args["artwork"] as? UInt8 ?? nil
+    let artworkData = args["artwork"] as? FlutterStandardTypedData
     
     var nowPlayingInfo = [String: Any]()
     nowPlayingInfo[MPMediaItemPropertyTitle] = title
@@ -371,6 +371,15 @@ import AVFoundation
     nowPlayingInfo[MPMediaItemPropertyPlaybackDuration] = duration
     nowPlayingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = currentTime
     nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate] = isPlaying ? 1.0 : 0.0
+    
+    // Convertir artwork de Uint8List a MPMediaItemArtwork
+    if let artworkData = artworkData,
+       let image = UIImage(data: artworkData.data) {
+      let artwork = MPMediaItemArtwork(boundsSize: image.size) { _ in
+        return image
+      }
+      nowPlayingInfo[MPMediaItemPropertyArtwork] = artwork
+    }
     
     MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
     logToFlutter("✅ Updated Now Playing info: \(title) by \(artist) - \(currentTime)/\(duration)s")
