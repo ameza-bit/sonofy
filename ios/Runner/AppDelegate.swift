@@ -57,8 +57,6 @@ import AVFoundation
         self?.seekToPosition(call: call, result: result)
       case "setPlaybackSpeed":
         self?.setPlaybackSpeed(call: call, result: result)
-      case "getPlaybackSpeed":
-        self?.getPlaybackSpeed(result: result)
       case "setEqualizerBand":
         self?.setEqualizerBand(call: call, result: result)
       case "setEqualizerEnabled":
@@ -82,8 +80,6 @@ import AVFoundation
         self?.seekToMP3Position(call: call, result: result)
       case "setMP3PlaybackSpeed":
         self?.setMP3PlaybackSpeed(call: call, result: result)
-      case "getMP3PlaybackSpeed":
-        self?.getMP3PlaybackSpeed(result: result)
       case "updateNowPlayingInfo":
         self?.updateNowPlayingInfoFromFlutter(call: call, result: result)
       default:
@@ -304,17 +300,6 @@ import AVFoundation
     result(true)
   }
   
-  private func getPlaybackSpeed(result: @escaping FlutterResult) {
-    guard let player = musicPlayer else {
-      logToFlutter("❌ No music player available for speed check")
-      result(1.0)
-      return
-    }
-    
-    let currentSpeed = Double(player.currentPlaybackRate)
-    logToFlutter("📊 Current playback speed: \(currentSpeed)x")
-    result(currentSpeed)
-  }
   
   private func setEqualizerBand(call: FlutterMethodCall, result: @escaping FlutterResult) {
     logToFlutter("🎚️ Setting equalizer band")
@@ -587,15 +572,4 @@ import AVFoundation
     result(true)
   }
   
-  private func getMP3PlaybackSpeed(result: @escaping FlutterResult) {
-    guard let player = audioPlayer else {
-      logToFlutter("❌ No native MP3 player available for speed check")
-      result(1.0)
-      return
-    }
-    
-    let currentSpeed = Double(player.rate)
-    logToFlutter("📊 Current MP3 playback speed: \(currentSpeed)x")
-    result(currentSpeed)
-  }
 }
