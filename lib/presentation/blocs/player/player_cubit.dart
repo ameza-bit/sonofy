@@ -261,8 +261,6 @@ class PlayerCubit extends Cubit<PlayerState> with WidgetsBindingObserver {
 
   Timer? _positionTimer;
 
-  int _controlCenterUpdateCounter = 0;
-
   Future<void> _startPositionUpdates() async {
     _positionTimer?.cancel();
     _positionTimer = Timer.periodic(const Duration(milliseconds: 500), (
@@ -282,10 +280,7 @@ class PlayerCubit extends Cubit<PlayerState> with WidgetsBindingObserver {
 
       await _syncNativePlayerStateIfNeeded();
 
-      _controlCenterUpdateCounter++;
-      if (_controlCenterUpdateCounter >= 4 &&
-          state.isPlaying &&
-          state.currentSong != null) {
+      if (state.isPlaying && state.currentSong != null) {
         await _updateControlCenter(state.currentSong!, position);
       }
 
@@ -662,7 +657,6 @@ class PlayerCubit extends Cubit<PlayerState> with WidgetsBindingObserver {
   }
 
   Future<void> _updateControlCenter(SongModel song, Duration? position) async {
-    _controlCenterUpdateCounter = 0;
     final duration = Duration(milliseconds: song.duration ?? 0);
     Uint8List? artwork;
 
