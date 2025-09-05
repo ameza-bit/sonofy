@@ -444,8 +444,8 @@ final class PlayerRepositoryImpl extends BaseAudioHandler implements PlayerRepos
         isPlaying: isPlaying(),
       );
     }
-    // También actualizar AudioService para notificaciones
-    updateCurrentMediaItem(title, artist, null);
+    // NO actualizar AudioService aquí para evitar conflictos
+    // Solo actualizar MediaItem cuando cambie la canción, no la posición
   }
 
   /// Resincroniza el estado del reproductor nativo con AudioService

@@ -468,13 +468,7 @@ import AVFoundation
       if success {
         // Setup remote command center and now playing info
         setupRemoteCommandCenter()
-        if let player = audioPlayer {
-          updateNowPlayingInfoForLocalFile(
-            title: extractTitleFromPath(filePath),
-            artist: "Local File",
-            duration: player.duration
-          )
-        }
+        // No actualizar aquí - Flutter se encarga de la sincronización continua
         logToFlutter("✅ Native MP3 player started!")
       } else {
         logToFlutter("❌ Failed to start native MP3 player")
@@ -515,12 +509,7 @@ import AVFoundation
     }
     
     player.pause()
-    // Update now playing info to reflect paused state
-    if var nowPlayingInfo = MPNowPlayingInfoCenter.default().nowPlayingInfo {
-      nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate] = 0.0
-      nowPlayingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = player.currentTime
-      MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
-    }
+    // Flutter maneja la sincronización de Now Playing Info
     logToFlutter("✅ Native MP3 player paused")
     result(true)
   }
@@ -550,14 +539,7 @@ import AVFoundation
     }
     
     let success = player.play()
-    if success {
-      // Update now playing info to reflect playing state
-      if var nowPlayingInfo = MPNowPlayingInfoCenter.default().nowPlayingInfo {
-        nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate] = 1.0
-        nowPlayingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = player.currentTime
-        MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
-      }
-    }
+    // Flutter maneja la sincronización de Now Playing Info
     logToFlutter(success ? "✅ Native MP3 player resumed" : "❌ Failed to resume native MP3 player")
     result(success)
   }
@@ -601,13 +583,7 @@ import AVFoundation
     
     logToFlutter("⏩ Seeking MP3 to: \(positionSeconds) seconds")
     player.currentTime = positionSeconds
-    
-    // Update now playing info with new position
-    if var nowPlayingInfo = MPNowPlayingInfoCenter.default().nowPlayingInfo {
-      nowPlayingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = positionSeconds
-      MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
-    }
-    
+    // Flutter maneja la sincronización de Now Playing Info
     logToFlutter("✅ MP3 seek completed")
     result(true)
   }
@@ -630,14 +606,7 @@ import AVFoundation
     logToFlutter("🚀 Setting MP3 speed to: \(speed)x")
     player.enableRate = true
     player.rate = Float(speed)
-    
-    // Update now playing info with new playback rate
-    if var nowPlayingInfo = MPNowPlayingInfoCenter.default().nowPlayingInfo {
-      nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate] = player.isPlaying ? Float(speed) : 0.0
-      nowPlayingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = player.currentTime
-      MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
-    }
-    
+    // Flutter maneja la sincronización de Now Playing Info
     logToFlutter("✅ MP3 playback speed set to \(speed)x")
     result(true)
   }
