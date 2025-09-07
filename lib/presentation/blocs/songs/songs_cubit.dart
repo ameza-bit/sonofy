@@ -182,25 +182,29 @@ class SongsCubit extends Cubit<SongsState> {
 
       final localSongs = <SongModel>[];
       int loadedCount = 0;
+      const int batchSize = 10;
 
-      // Usar Stream para carga progresiva
+      // Usar Stream para carga progresiva con batch updates
       await for (final song in _getLocalSongsUseCase.callStream()) {
         localSongs.add(song);
         loadedCount++;
 
-        // Combinar con canciones del dispositivo
-        final allSongs = <SongModel>[];
-        allSongs.addAll(state.deviceSongs);
-        allSongs.addAll(localSongs);
+        // Emitir estado solo cada 10 canciones o al final
+        if (loadedCount % batchSize == 0 || loadedCount == totalFiles) {
+          // Combinar con canciones del dispositivo
+          final allSongs = <SongModel>[];
+          allSongs.addAll(state.deviceSongs);
+          allSongs.addAll(localSongs);
 
-        emit(
-          state.copyWith(
-            songs: _applySorting(allSongs),
-            localSongs: localSongs,
-            loadedCount: loadedCount,
-            isLoadingProgressive: loadedCount < totalFiles,
-          ),
-        );
+          emit(
+            state.copyWith(
+              songs: _applySorting(allSongs),
+              localSongs: localSongs,
+              loadedCount: loadedCount,
+              isLoadingProgressive: loadedCount < totalFiles,
+            ),
+          );
+        }
       }
 
       // Finalizar carga

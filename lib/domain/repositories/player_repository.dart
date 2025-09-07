@@ -34,5 +34,8 @@ abstract class PlayerRepository {
   Future<bool> setVolume(double volume);
   Future<double> getVolume();
 
+  /// Resincroniza el estado del reproductor nativo con AudioService
+  Future<void> syncNativePlayerState();
+
   Stream<PlayerEvent> get playerEvents;
 }

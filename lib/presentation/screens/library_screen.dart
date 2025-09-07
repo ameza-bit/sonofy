@@ -73,7 +73,10 @@ class _LibraryScreenState extends State<LibraryScreen> {
                 const Spacer(),
                 const SizedBox(width: 12),
                 IconButton(
-                  icon: const Icon(FontAwesomeIcons.lightEllipsisStrokeVertical, size: 20.0),
+                  icon: const Icon(
+                    FontAwesomeIcons.lightEllipsisStrokeVertical,
+                    size: 20.0,
+                  ),
                   onPressed: OptionsModal(context).library,
                 ),
               ] else ...[
@@ -90,9 +93,15 @@ class _LibraryScreenState extends State<LibraryScreen> {
                     style: const TextStyle(fontSize: 16),
                     decoration: InputDecoration(
                       hintText: 'Buscar canciones, playlists, artistas...',
-                      hintStyle: TextStyle(color: Theme.of(context).hintColor, fontSize: 14),
+                      hintStyle: TextStyle(
+                        color: Theme.of(context).hintColor,
+                        fontSize: 14,
+                      ),
                       border: InputBorder.none,
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 12,
+                      ),
                     ),
                     onChanged: (query) {
                       context.read<SongsCubit>().filterSongs(query);
@@ -114,7 +123,10 @@ class _LibraryScreenState extends State<LibraryScreen> {
                 ),
                 const SizedBox(width: 12),
                 IconButton(
-                  icon: const Icon(FontAwesomeIcons.lightEllipsisStrokeVertical, size: 20.0),
+                  icon: const Icon(
+                    FontAwesomeIcons.lightEllipsisStrokeVertical,
+                    size: 20.0,
+                  ),
                   onPressed: OptionsModal(context).library,
                 ),
               ],
@@ -128,7 +140,9 @@ class _LibraryScreenState extends State<LibraryScreen> {
                   return const Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Expanded(child: Center(child: CircularProgressIndicator())),
+                      Expanded(
+                        child: Center(child: CircularProgressIndicator()),
+                      ),
                       SizedBox(height: AppSpacing.bottomSheetHeight),
                     ],
                   );
@@ -142,8 +156,17 @@ class _LibraryScreenState extends State<LibraryScreen> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             spacing: 16.0,
                             children: [
-                              Icon(FontAwesomeIcons.lightMusic, size: 64, color: Theme.of(context).iconTheme.color),
-                              Text(context.tr('library.empty'), style: TextStyle(fontSize: context.scaleText(18))),
+                              Icon(
+                                FontAwesomeIcons.lightMusic,
+                                size: 64,
+                                color: Theme.of(context).iconTheme.color,
+                              ),
+                              Text(
+                                context.tr('library.empty'),
+                                style: TextStyle(
+                                  fontSize: context.scaleText(18),
+                                ),
+                              ),
                             ],
                           ),
                         ),
@@ -155,7 +178,12 @@ class _LibraryScreenState extends State<LibraryScreen> {
 
                 final orderedSongs = state.songs;
                 return ListView.builder(
-                  itemCount: orderedSongs.length + 3, // +1 para header, +1 para progreso, +1 para espacio final
+                  itemCount:
+                      orderedSongs.length +
+                      3, // +1 para header, +1 para progreso, +1 para espacio final
+                  addAutomaticKeepAlives: false,
+                  addRepaintBoundaries: false,
+                  cacheExtent: 250,
                   itemBuilder: (context, index) {
                     if (index == 0) {
                       // Título
@@ -175,12 +203,19 @@ class _LibraryScreenState extends State<LibraryScreen> {
                     } else if (index == 1 && state.isLoadingProgressive) {
                       // Indicador de progreso
                       return Container(
-                        margin: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 8.0),
+                        margin: const EdgeInsets.symmetric(
+                          horizontal: 24.0,
+                          vertical: 8.0,
+                        ),
                         padding: const EdgeInsets.all(16.0),
                         decoration: BoxDecoration(
                           color: Theme.of(context).cardColor,
                           borderRadius: BorderRadius.circular(12.0),
-                          border: Border.all(color: Theme.of(context).dividerColor.withValues(alpha: 0.1)),
+                          border: Border.all(
+                            color: Theme.of(
+                              context,
+                            ).dividerColor.withValues(alpha: 0.1),
+                          ),
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -190,19 +225,27 @@ class _LibraryScreenState extends State<LibraryScreen> {
                                 SizedBox(
                                   width: 20,
                                   height: 20,
-                                  child: CircularProgressIndicator(strokeWidth: 2, value: state.progressPercent),
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    value: state.progressPercent,
+                                  ),
                                 ),
                                 const SizedBox(width: 12),
                                 Text(
                                   'Cargando canciones...',
-                                  style: TextStyle(fontSize: context.scaleText(14), fontWeight: FontWeight.w500),
+                                  style: TextStyle(
+                                    fontSize: context.scaleText(14),
+                                    fontWeight: FontWeight.w500,
+                                  ),
                                 ),
                                 const Spacer(),
                                 Text(
                                   '${state.loadedCount}/${state.totalCount}',
                                   style: TextStyle(
                                     fontSize: context.scaleText(12),
-                                    color: Theme.of(context).textTheme.bodySmall?.color,
+                                    color: Theme.of(
+                                      context,
+                                    ).textTheme.bodySmall?.color,
                                   ),
                                 ),
                               ],
@@ -210,7 +253,9 @@ class _LibraryScreenState extends State<LibraryScreen> {
                             const SizedBox(height: 8),
                             LinearProgressIndicator(
                               value: state.progressPercent,
-                              backgroundColor: Theme.of(context).dividerColor.withValues(alpha: 0.2),
+                              backgroundColor: Theme.of(
+                                context,
+                              ).dividerColor.withValues(alpha: 0.2),
                               borderRadius: BorderRadius.circular(2),
                             ),
                           ],
@@ -218,22 +263,32 @@ class _LibraryScreenState extends State<LibraryScreen> {
                       );
                     } else if (index == orderedSongs.length + 2) {
                       // Espacio final
-                      return const SizedBox(height: AppSpacing.bottomSheetHeight);
+                      return const SizedBox(
+                        height: AppSpacing.bottomSheetHeight,
+                      );
                     } else {
                       // Canción
-                      final songIndex = state.isLoadingProgressive ? index - 2 : index - 1;
+                      final songIndex = state.isLoadingProgressive
+                          ? index - 2
+                          : index - 1;
                       if (songIndex >= 0 && songIndex < orderedSongs.length) {
                         return AnimatedContainer(
                           duration: const Duration(milliseconds: 300),
                           curve: Curves.easeInOut,
                           child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 24.0,
+                            ),
                             child: SongCard(
                               playlist: orderedSongs,
                               song: orderedSongs[songIndex],
-                              onTap: () => context.pushNamed(PlayerScreen.routeName),
+                              onTap: () =>
+                                  context.pushNamed(PlayerScreen.routeName),
                               onLongPress: () =>
-                                  OptionsModal(context).songLibraryContext(orderedSongs[songIndex], orderedSongs),
+                                  OptionsModal(context).songLibraryContext(
+                                    orderedSongs[songIndex],
+                                    orderedSongs,
+                                  ),
                             ),
                           ),
                         );
@@ -246,7 +301,9 @@ class _LibraryScreenState extends State<LibraryScreen> {
             ),
           ),
           resizeToAvoidBottomInset: false,
-          bottomSheet: BottomPlayer(onTap: () => context.pushNamed(PlayerScreen.routeName)),
+          bottomSheet: BottomPlayer(
+            onTap: () => context.pushNamed(PlayerScreen.routeName),
+          ),
         ),
       ),
     );

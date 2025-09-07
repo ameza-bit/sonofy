@@ -8,6 +8,9 @@ import AVFoundation
   private var musicPlayer: MPMusicPlayerController?
   private var audioEngine: AVAudioEngine?
   private var equalizerNode: AVAudioUnitEQ?
+  
+  // AVAudioPlayer para reproducción nativa de archivos MP3 locales
+  private var audioPlayer: AVAudioPlayer?
   override func application(
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
@@ -54,12 +57,31 @@ import AVFoundation
         self?.seekToPosition(call: call, result: result)
       case "setPlaybackSpeed":
         self?.setPlaybackSpeed(call: call, result: result)
-      case "getPlaybackSpeed":
-        self?.getPlaybackSpeed(result: result)
       case "setEqualizerBand":
         self?.setEqualizerBand(call: call, result: result)
       case "setEqualizerEnabled":
         self?.setEqualizerEnabled(call: call, result: result)
+      // Métodos para reproducción nativa de MP3
+      case "playMP3WithNativePlayer":
+        self?.playMP3WithNativePlayer(call: call, result: result)
+      case "getMP3Duration":
+        self?.getMP3Duration(call: call, result: result)
+      case "pauseNativeMP3Player":
+        self?.pauseNativeMP3Player(result: result)
+      case "stopNativeMP3Player":
+        self?.stopNativeMP3Player(result: result)
+      case "resumeNativeMP3Player":
+        self?.resumeNativeMP3Player(result: result)
+      case "getNativeMP3PlayerStatus":
+        self?.getNativeMP3PlayerStatus(result: result)
+      case "getCurrentMP3Position":
+        self?.getCurrentMP3Position(result: result)
+      case "seekToMP3Position":
+        self?.seekToMP3Position(call: call, result: result)
+      case "setMP3PlaybackSpeed":
+        self?.setMP3PlaybackSpeed(call: call, result: result)
+      case "updateNowPlayingInfo":
+        self?.updateNowPlayingInfoFromFlutter(call: call, result: result)
       default:
         result(FlutterMethodNotImplemented)
       }
@@ -278,17 +300,6 @@ import AVFoundation
     result(true)
   }
   
-  private func getPlaybackSpeed(result: @escaping FlutterResult) {
-    guard let player = musicPlayer else {
-      logToFlutter("❌ No music player available for speed check")
-      result(1.0)
-      return
-    }
-    
-    let currentSpeed = Double(player.currentPlaybackRate)
-    logToFlutter("📊 Current playback speed: \(currentSpeed)x")
-    result(currentSpeed)
-  }
   
   private func setEqualizerBand(call: FlutterMethodCall, result: @escaping FlutterResult) {
     logToFlutter("🎚️ Setting equalizer band")
@@ -322,4 +333,253 @@ import AVFoundation
     logToFlutter("🎚️ Equalizer \(enabled ? "enabled" : "disabled") (simulated)")
     result(true)
   }
+  
+  // ==========================================
+  // MÉTODOS PARA REPRODUCCIÓN NATIVA DE MP3
+  // ==========================================
+  
+  private func setupAudioSession() {
+    do {
+      let audioSession = AVAudioSession.sharedInstance()
+      try audioSession.setCategory(.playback, mode: .default)
+      try audioSession.setActive(true)
+      logToFlutter("🔊 Audio session configured for playback")
+    } catch {
+      logToFlutter("❌ Failed to setup audio session: \(error)")
+    }
+  }
+  
+  private func updateNowPlayingInfoFromFlutter(call: FlutterMethodCall, result: @escaping FlutterResult) {
+    logToFlutter("📱 Updating Now Playing info from Flutter")
+    
+    guard let args = call.arguments as? [String: Any] else {
+      logToFlutter("❌ Invalid arguments for updateNowPlayingInfo")
+      result(false)
+      return
+    }
+    
+    let title = args["title"] as? String ?? "Unknown Track"
+    let artist = args["artist"] as? String ?? "Unknown Artist"
+    let duration = args["duration"] as? Double ?? 0.0
+    let currentTime = args["currentTime"] as? Double ?? 0.0
+    let isPlaying = args["isPlaying"] as? Bool ?? false
+    let artworkData = args["artwork"] as? FlutterStandardTypedData
+    
+    var nowPlayingInfo = [String: Any]()
+    nowPlayingInfo[MPMediaItemPropertyTitle] = title
+    nowPlayingInfo[MPMediaItemPropertyArtist] = artist
+    nowPlayingInfo[MPMediaItemPropertyPlaybackDuration] = duration
+    nowPlayingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = currentTime
+    nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate] = isPlaying ? 1.0 : 0.0
+    
+    // Convertir artwork de Uint8List a MPMediaItemArtwork
+    if let artworkData = artworkData,
+       let image = UIImage(data: artworkData.data) {
+      let artwork = MPMediaItemArtwork(boundsSize: image.size) { _ in
+        return image
+      }
+      nowPlayingInfo[MPMediaItemPropertyArtwork] = artwork
+    }
+    
+    MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
+    logToFlutter("✅ Updated Now Playing info: \(title) by \(artist) - \(currentTime)/\(duration)s")
+    result(true)
+  }
+  
+  private func setupRemoteCommandCenter() {
+    let commandCenter = MPRemoteCommandCenter.shared()
+    
+    commandCenter.playCommand.addTarget { [weak self] _ in
+      self?.resumeNativeMP3Player { _ in }
+      return .success
+    }
+    
+    commandCenter.pauseCommand.addTarget { [weak self] _ in
+      self?.pauseNativeMP3Player { _ in }
+      return .success
+    }
+    
+    commandCenter.changePlaybackPositionCommand.addTarget { [weak self] event in
+      if let event = event as? MPChangePlaybackPositionCommandEvent {
+        self?.audioPlayer?.currentTime = event.positionTime
+        return .success
+      }
+      return .commandFailed
+    }
+    
+    logToFlutter("🎛️ Remote command center configured")
+  }
+  
+  private func playMP3WithNativePlayer(call: FlutterMethodCall, result: @escaping FlutterResult) {
+    logToFlutter("🎵 Starting native MP3 playback")
+    
+    guard let args = call.arguments as? [String: Any],
+          let filePath = args["filePath"] as? String else {
+      logToFlutter("❌ Invalid arguments for MP3 player")
+      result(false)
+      return
+    }
+    
+    logToFlutter("🔍 Playing MP3 file: \(filePath)")
+    
+    // Setup audio session
+    setupAudioSession()
+    
+    // Stop any existing playback
+    audioPlayer?.stop()
+    
+    guard let url = URL(string: filePath) else {
+      logToFlutter("❌ Invalid file path for MP3")
+      result(false)
+      return
+    }
+    
+    do {
+      audioPlayer = try AVAudioPlayer(contentsOf: url)
+      audioPlayer?.prepareToPlay()
+      
+      let success = audioPlayer?.play() ?? false
+      
+      if success {
+        // Setup remote command center and now playing info
+        setupRemoteCommandCenter()
+        // No actualizar aquí - Flutter se encarga de la sincronización continua
+        logToFlutter("✅ Native MP3 player started!")
+      } else {
+        logToFlutter("❌ Failed to start native MP3 player")
+      }
+      result(success)
+    } catch {
+      logToFlutter("❌ Error creating AVAudioPlayer: \(error)")
+      result(false)
+    }
+  }
+  
+  private func getMP3Duration(call: FlutterMethodCall, result: @escaping FlutterResult) {
+    guard let args = call.arguments as? [String: Any],
+          let filePath = args["filePath"] as? String,
+          let url = URL(string: filePath) else {
+      logToFlutter("❌ Invalid arguments for MP3 duration")
+      result(0.0)
+      return
+    }
+    
+    do {
+      let tempPlayer = try AVAudioPlayer(contentsOf: url)
+      let duration = tempPlayer.duration
+      logToFlutter("⏱️ MP3 Duration: \(duration) seconds")
+      result(duration)
+    } catch {
+      logToFlutter("❌ Error getting MP3 duration: \(error)")
+      result(0.0)
+    }
+  }
+  
+  private func pauseNativeMP3Player(result: @escaping FlutterResult) {
+    logToFlutter("⏸️ Pausing native MP3 player")
+    guard let player = audioPlayer else {
+      logToFlutter("❌ No native MP3 player available")
+      result(false)
+      return
+    }
+    
+    player.pause()
+    logToFlutter("✅ Native MP3 player paused")
+    result(true)
+  }
+  
+  private func stopNativeMP3Player(result: @escaping FlutterResult) {
+    logToFlutter("⏹️ Stopping native MP3 player")
+    guard let player = audioPlayer else {
+      logToFlutter("❌ No native MP3 player available")
+      result(false)
+      return
+    }
+    
+    player.stop()
+    audioPlayer = nil
+    // Clear now playing info when stopped
+    MPNowPlayingInfoCenter.default().nowPlayingInfo = nil
+    logToFlutter("✅ Native MP3 player stopped")
+    result(true)
+  }
+  
+  private func resumeNativeMP3Player(result: @escaping FlutterResult) {
+    logToFlutter("▶️ Resuming native MP3 player")
+    guard let player = audioPlayer else {
+      logToFlutter("❌ No native MP3 player available")
+      result(false)
+      return
+    }
+    
+    let success = player.play()
+    logToFlutter(success ? "✅ Native MP3 player resumed" : "❌ Failed to resume native MP3 player")
+    result(success)
+  }
+  
+  private func getNativeMP3PlayerStatus(result: @escaping FlutterResult) {
+    guard let player = audioPlayer else {
+      result("stopped")
+      return
+    }
+    
+    let status = player.isPlaying ? "playing" : "paused"
+    logToFlutter("📊 Native MP3 player status: \(status)")
+    result(status)
+  }
+  
+  private func getCurrentMP3Position(result: @escaping FlutterResult) {
+    guard let player = audioPlayer else {
+      result(0.0)
+      return
+    }
+    
+    let currentTime = player.currentTime
+    logToFlutter("⏱️ Current MP3 position: \(currentTime) seconds")
+    result(currentTime)
+  }
+  
+  private func seekToMP3Position(call: FlutterMethodCall, result: @escaping FlutterResult) {
+    logToFlutter("⏩ Seeking MP3 to position")
+    guard let player = audioPlayer else {
+      logToFlutter("❌ No native MP3 player available for seek")
+      result(false)
+      return
+    }
+    
+    guard let args = call.arguments as? [String: Any],
+          let positionSeconds = args["position"] as? Double else {
+      logToFlutter("❌ Invalid seek position arguments for MP3")
+      result(false)
+      return
+    }
+    
+    logToFlutter("⏩ Seeking MP3 to: \(positionSeconds) seconds")
+    player.currentTime = positionSeconds
+    logToFlutter("✅ MP3 seek completed")
+    result(true)
+  }
+  
+  private func setMP3PlaybackSpeed(call: FlutterMethodCall, result: @escaping FlutterResult) {
+    logToFlutter("🚀 Setting MP3 playback speed")
+    guard let player = audioPlayer else {
+      logToFlutter("❌ No native MP3 player available for speed control")
+      result(false)
+      return
+    }
+    
+    guard let args = call.arguments as? [String: Any],
+          let speed = args["speed"] as? Double else {
+      logToFlutter("❌ Invalid speed arguments for MP3")
+      result(false)
+      return
+    }
+    
+    logToFlutter("🚀 Setting MP3 speed to: \(speed)x")
+    player.enableRate = true
+    player.rate = Float(speed)
+    logToFlutter("✅ MP3 playback speed set to \(speed)x")
+    result(true)
+  }
+  
 }

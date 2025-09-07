@@ -30,6 +30,8 @@ class SongCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<SettingsCubit, SettingsState>(
+      buildWhen: (previous, current) =>
+          previous.settings.primaryColor != current.settings.primaryColor,
       builder: (context, state) {
         final primaryColor = state.settings.primaryColor;
 
@@ -51,6 +53,9 @@ class SongCard extends StatelessWidget {
                 spacing: 12,
                 children: [
                   BlocBuilder<PlayerCubit, PlayerState>(
+                    buildWhen: (previous, current) =>
+                        previous.isPlaying != current.isPlaying ||
+                        previous.currentSong?.id != current.currentSong?.id,
                     builder: (context, state) {
                       final bool isPlaying =
                           state.isPlaying && state.currentSong?.id == song.id;

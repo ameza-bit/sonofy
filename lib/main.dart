@@ -62,7 +62,7 @@ Future<void> main() async {
   );
 
   // Conectar ecualizador con reproductor para sincronización
-  equalizerRepository.setPlayerRepository(playerRepository);
+  equalizerRepository.playerRepository = playerRepository;
 
   // Inicializar carpeta Music en iOS
   if (songsRepository is SongsRepositoryImpl) {
@@ -81,24 +81,46 @@ Future<void> main() async {
   }
 
   // Use Cases para playlists
-  final GetAllPlaylistsUseCase getAllPlaylistsUseCase = GetAllPlaylistsUseCase(playlistRepository);
-  final CreatePlaylistUseCase createPlaylistUseCase = CreatePlaylistUseCase(playlistRepository);
-  final DeletePlaylistUseCase deletePlaylistUseCase = DeletePlaylistUseCase(playlistRepository);
-  final UpdatePlaylistUseCase updatePlaylistUseCase = UpdatePlaylistUseCase(playlistRepository);
-  final AddSongToPlaylistUseCase addSongToPlaylistUseCase = AddSongToPlaylistUseCase(playlistRepository);
-  final RemoveSongFromPlaylistUseCase removeSongFromPlaylistUseCase = RemoveSongFromPlaylistUseCase(playlistRepository);
-  final ReorderSongsInPlaylistUseCase reorderSongsInPlaylistUseCase = ReorderSongsInPlaylistUseCase(playlistRepository);
+  final GetAllPlaylistsUseCase getAllPlaylistsUseCase = GetAllPlaylistsUseCase(
+    playlistRepository,
+  );
+  final CreatePlaylistUseCase createPlaylistUseCase = CreatePlaylistUseCase(
+    playlistRepository,
+  );
+  final DeletePlaylistUseCase deletePlaylistUseCase = DeletePlaylistUseCase(
+    playlistRepository,
+  );
+  final UpdatePlaylistUseCase updatePlaylistUseCase = UpdatePlaylistUseCase(
+    playlistRepository,
+  );
+  final AddSongToPlaylistUseCase addSongToPlaylistUseCase =
+      AddSongToPlaylistUseCase(playlistRepository);
+  final RemoveSongFromPlaylistUseCase removeSongFromPlaylistUseCase =
+      RemoveSongFromPlaylistUseCase(playlistRepository);
+  final ReorderSongsInPlaylistUseCase reorderSongsInPlaylistUseCase =
+      ReorderSongsInPlaylistUseCase(playlistRepository);
 
   runApp(
     MultiBlocProvider(
       providers: [
         BlocProvider<SettingsCubit>(
-          create: (context) => SettingsCubit(settingsRepository, selectMusicFolderUseCase, getSongsFromFolderUseCase),
+          create: (context) => SettingsCubit(
+            settingsRepository,
+            selectMusicFolderUseCase,
+            getSongsFromFolderUseCase,
+          ),
         ),
         BlocProvider<SongsCubit>(
-          create: (context) => SongsCubit(songsRepository, getLocalSongsUseCase, settingsRepository),
+          create: (context) => SongsCubit(
+            songsRepository,
+            getLocalSongsUseCase,
+            settingsRepository,
+          ),
         ),
-        BlocProvider<PlayerCubit>(create: (context) => PlayerCubit(playerRepository, settingsRepository)),
+        BlocProvider<PlayerCubit>(
+          create: (context) =>
+              PlayerCubit(playerRepository, settingsRepository),
+        ),
         BlocProvider<PlaylistsCubit>(
           create: (context) => PlaylistsCubit(
             getAllPlaylistsUseCase,
@@ -110,7 +132,9 @@ Future<void> main() async {
             reorderSongsInPlaylistUseCase,
           ),
         ),
-        BlocProvider<EqualizerCubit>(create: (context) => EqualizerCubit(equalizerRepository)),
+        BlocProvider<EqualizerCubit>(
+          create: (context) => EqualizerCubit(equalizerRepository),
+        ),
       ],
       child: EasyLocalization(
         supportedLocales: const [Locale('es'), Locale('en')],
@@ -129,7 +153,10 @@ class MainApp extends StatelessWidget {
   Widget build(BuildContext context) {
     final routerConfig = AppRoutes.getGoRoutes(navigatorKey);
     if (ResponsiveMeasures.isMobile) {
-      SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
+      SystemChrome.setPreferredOrientations([
+        DeviceOrientation.portraitUp,
+        DeviceOrientation.portraitDown,
+      ]);
     } else {
       SystemChrome.setPreferredOrientations([
         DeviceOrientation.portraitUp,
@@ -152,16 +179,18 @@ class MainApp extends StatelessWidget {
           debugShowCheckedModeBanner: false,
           title: 'Sonofy',
           routerConfig: routerConfig,
-          theme: MainTheme.createLightTheme(state.settings.primaryColor).copyWith(
-            textTheme: MainTheme.createLightTheme(
-              state.settings.primaryColor,
-            ).textTheme.apply(fontSizeFactor: state.settings.fontSize),
-          ),
-          darkTheme: MainTheme.createDarkTheme(state.settings.primaryColor).copyWith(
-            textTheme: MainTheme.createDarkTheme(
-              state.settings.primaryColor,
-            ).textTheme.apply(fontSizeFactor: state.settings.fontSize),
-          ),
+          theme: MainTheme.createLightTheme(state.settings.primaryColor)
+              .copyWith(
+                textTheme: MainTheme.createLightTheme(
+                  state.settings.primaryColor,
+                ).textTheme.apply(fontSizeFactor: state.settings.fontSize),
+              ),
+          darkTheme: MainTheme.createDarkTheme(state.settings.primaryColor)
+              .copyWith(
+                textTheme: MainTheme.createDarkTheme(
+                  state.settings.primaryColor,
+                ).textTheme.apply(fontSizeFactor: state.settings.fontSize),
+              ),
           themeMode: state.settings.themeMode,
           localizationsDelegates: context.localizationDelegates,
           supportedLocales: context.supportedLocales,
