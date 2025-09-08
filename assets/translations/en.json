@@ -171,7 +171,6 @@
   },
   "player": {
     "now_playing": "Now Playing",
-    "lyrics": "Lyrics",
     "playlist": "Playlist",
     "no_song_selected": "No song selected",
     "share_text": "🎵 Listening to: {title} by {artist} from {album} 🎵",
@@ -197,6 +196,13 @@
       "range_description": "Enter a value between 1 and 180 minutes",
       "waiting_for_song_end": "Waiting for Song to End",
       "will_pause_after_song": "Music will pause when the current song finishes"
+    },
+    "lyrics": {
+      "title": "Lyrics",
+      "no_song": "No song selected",
+      "no_lyrics": "No lyrics available",
+      "invalid_lyrics": "Invalid lyrics format",
+      "error": "Error loading lyrics"
     }
   },
   "reorder": {

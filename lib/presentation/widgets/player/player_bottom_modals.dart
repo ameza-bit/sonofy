@@ -82,7 +82,7 @@ class PlayerBottomModals extends StatelessWidget {
                             currentSong,
                           ).hasLyrics) {
                             return bottomButton(
-                              label: context.tr('player.lyrics'),
+                              label: context.tr('player.lyrics.title'),
                               onTap: () => LyricsModal.show(context),
                             );
                           }

@@ -171,7 +171,6 @@
   },
   "player": {
     "now_playing": "Sonando",
-    "lyrics": "Letras",
     "playlist": "Reproducción",
     "no_song_selected": "No hay canción seleccionada",
     "share_text": "🎵 Escuchando: {title} por {artist} del álbum {album} 🎵",
@@ -197,6 +196,13 @@
       "range_description": "Ingresa un valor entre 1 y 180 minutos",
       "waiting_for_song_end": "Esperando que Termine la Canción",
       "will_pause_after_song": "La música se pausará cuando termine la canción actual"
+    },
+    "lyrics": {
+      "title": "Letras",
+      "no_song": "No hay canción seleccionada",
+      "no_lyrics": "No hay letras disponibles",
+      "invalid_lyrics": "El formato de las letras no es válido",
+      "error": "Error al cargar las letras"
     }
   },
   "reorder": {

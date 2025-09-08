@@ -14,7 +14,7 @@ class LyricsModal extends StatelessWidget {
   static void show(BuildContext context) {
     modalView(
       context,
-      title: context.tr('player.lyrics'),
+      title: context.tr('player.lyrics.title'),
       maxHeight: 0.85,
       showPlayer: true,
       children: [const LyricsModal()],
@@ -28,7 +28,7 @@ class LyricsModal extends StatelessWidget {
     return input.replaceAllMapped(tagExp, (match) {
       final tag = match.group(1)!.toLowerCase();
 
-      // Lista de etiquetas válidas en tu regex
+      // Lista de etiquetas válidas en el regex
       const allowedTags = [
         'ti',
         'ar',
@@ -60,7 +60,7 @@ class LyricsModal extends StatelessWidget {
           if (song == null) {
             return Center(
               child: Text(
-                context.tr('player.no_lyrics'),
+                context.tr('player.lyrics.no_song'),
                 style: TextStyle(fontSize: context.scaleText(16)),
               ),
             );
@@ -70,7 +70,7 @@ class LyricsModal extends StatelessWidget {
           if (lyrics.isEmpty) {
             return Center(
               child: Text(
-                context.tr('player.no_lyrics'),
+                context.tr('player.lyrics.no_lyrics'),
                 style: TextStyle(fontSize: context.scaleText(16)),
               ),
             );
@@ -80,7 +80,7 @@ class LyricsModal extends StatelessWidget {
           if (!fixedLrc.isValidLrc) {
             return Center(
               child: Text(
-                context.tr('player.no_lyrics'),
+                context.tr('player.lyrics.invalid_lyrics'),
                 style: TextStyle(fontSize: context.scaleText(16)),
               ),
             );
@@ -101,7 +101,7 @@ class LyricsModal extends StatelessWidget {
                         (line) => line.timestamp <= currentPosition,
                         orElse: () => LrcLine(
                           timestamp: Duration.zero,
-                          lyrics: context.tr('player.no_lyrics'),
+                          lyrics: context.tr('player.lyrics.error'),
                           type: LrcTypes.simple,
                         ),
                       )
@@ -109,23 +109,6 @@ class LyricsModal extends StatelessWidget {
                   style: TextStyle(fontSize: context.scaleText(16)),
                 ),
               );
-
-              // return ListView(
-              //   children: [
-              //     for (int i = 0; i < parsedLrc.lyrics.length; i++) ...[
-              //       ListTile(
-              //         title: Text(
-              //           parsedLrc.lyrics[i].lyrics,
-              //           textAlign: TextAlign.center,
-              //           style: TextStyle(fontSize: context.scaleText(16)),
-              //         ),
-              //         onTap: () {
-              //           // Handle lyric tap
-              //         },
-              //       ),
-              //     ],
-              //   ],
-              // );
             },
           );
         },
