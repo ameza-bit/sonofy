@@ -124,6 +124,16 @@ class _AppearanceSectionState extends State<AppearanceSection> {
                 ),
               ),
             ),
+            SectionItem(
+              icon: FontAwesomeIcons.lightTextSize,
+              title: context.tr('settings.hide_controls'),
+              iconColor: primaryColor,
+              trailing: Switch(
+                value: state.settings.hideControls,
+                activeColor: primaryColor,
+                onChanged: context.read<SettingsCubit>().updateHideControls,
+              ),
+            ),
           ],
         );
       },
