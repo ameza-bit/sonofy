@@ -1,8 +1,10 @@
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sonofy/core/extensions/theme_extensions.dart';
+import 'package:sonofy/data/models/song_metadata.dart';
+import 'package:sonofy/presentation/blocs/player/player_cubit.dart';
+import 'package:sonofy/presentation/blocs/player/player_state.dart';
 import 'package:sonofy/presentation/blocs/settings/settings_cubit.dart';
 import 'package:sonofy/presentation/blocs/settings/settings_state.dart';
 import 'package:sonofy/presentation/widgets/common/font_awesome/font_awesome_flutter.dart';
@@ -18,12 +20,16 @@ class PlayerBottomModals extends StatelessWidget {
       builder: (context, state) {
         final primaryColor = state.settings.primaryColor;
 
-        Widget bottomButton({required String label, required VoidCallback onTap}) {
+        Widget bottomButton({
+          required String label,
+          required VoidCallback onTap,
+        }) {
           return Expanded(
             child: GestureDetector(
               onTap: onTap,
               onVerticalDragEnd: (details) {
-                if (details.primaryVelocity != null && details.primaryVelocity! < 0) {
+                if (details.primaryVelocity != null &&
+                    details.primaryVelocity! < 0) {
                   onTap.call();
                 }
               },
@@ -32,7 +38,11 @@ class PlayerBottomModals extends StatelessWidget {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(FontAwesomeIcons.lightChevronUp, color: primaryColor, size: 12),
+                    Icon(
+                      FontAwesomeIcons.lightChevronUp,
+                      color: primaryColor,
+                      size: 12,
+                    ),
                     Text(
                       label,
                       textAlign: TextAlign.center,
@@ -50,16 +60,40 @@ class PlayerBottomModals extends StatelessWidget {
           child: SizedBox(
             width: double.infinity,
             child: ClipRRect(
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(100.0)),
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(100.0),
+              ),
               child: Material(
                 color: Theme.of(context).cardColor,
                 child: SafeArea(
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      if (kDebugMode)
-                        bottomButton(label: context.tr('player.lyrics'), onTap: () => LyricsModal.show(context)),
-                      bottomButton(label: context.tr('player.playlist'), onTap: () => PlaylistModal.show(context)),
+                      BlocBuilder<PlayerCubit, PlayerState>(
+                        buildWhen: (previous, current) =>
+                            previous.currentSong != current.currentSong,
+                        builder: (context, state) {
+                          final currentSong = state.currentSong;
+                          if (currentSong == null) {
+                            return const SizedBox.shrink();
+                          }
+
+                          if (SongMetadata.fromSongModel(
+                            currentSong,
+                          ).hasLyrics) {
+                            return bottomButton(
+                              label: context.tr('player.lyrics'),
+                              onTap: () => LyricsModal.show(context),
+                            );
+                          }
+
+                          return const SizedBox.shrink();
+                        },
+                      ),
+                      bottomButton(
+                        label: context.tr('player.playlist'),
+                        onTap: () => PlaylistModal.show(context),
+                      ),
                     ],
                   ),
                 ),

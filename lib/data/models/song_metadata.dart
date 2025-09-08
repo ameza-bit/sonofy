@@ -101,4 +101,6 @@ class SongMetadata {
       ),
     );
   }
+
+  bool get hasLyrics => lyrics.isNotEmpty;
 }
