@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:on_audio_query_pluse/on_audio_query.dart';
 import 'package:sonofy/core/utils/duration_minutes.dart';
+import 'package:sonofy/data/models/song_metadata.dart';
 import 'package:sonofy/presentation/views/modal_view.dart';
 import 'package:sonofy/presentation/widgets/common/font_awesome/font_awesome_flutter.dart';
 import 'package:sonofy/presentation/widgets/common/section_card.dart';
@@ -29,6 +30,8 @@ class SongInfoOption extends StatelessWidget {
       _showSongInfo(context, song);
 
   static void _showSongInfo(BuildContext context, SongModel song) {
+    final SongMetadata metadata = SongMetadata.fromSongModel(song);
+
     modalView(
       context,
       title: context.tr('options.song_info'),
@@ -36,31 +39,22 @@ class SongInfoOption extends StatelessWidget {
         SectionCard(
           title: context.tr('song.details'),
           children: [
-            _InfoItem(
-              label: context.tr('song.title'),
-              value: song.title,
-            ),
-            _InfoItem(
-              label: context.tr('song.artist'),
-              value: song.artist ?? context.tr('common.unknown'),
-            ),
-            _InfoItem(
-              label: context.tr('song.album'),
-              value: song.album ?? context.tr('common.unknown'),
-            ),
+            _InfoItem(label: context.tr('song.title'), value: metadata.title),
+            _InfoItem(label: context.tr('song.artist'), value: metadata.artist),
+            _InfoItem(label: context.tr('song.album'), value: metadata.album),
             _InfoItem(
               label: context.tr('song.duration'),
               value: DurationMinutes.format(song.duration ?? 0),
             ),
-            if (song.genre?.isNotEmpty ?? false)
+            if (metadata.genres.isNotEmpty)
               _InfoItem(
                 label: context.tr('song.genre'),
-                value: song.genre!,
+                value: metadata.genres.join(', '),
               ),
-            if (song.composer?.isNotEmpty ?? false)
+            if (metadata.composer.isNotEmpty)
               _InfoItem(
                 label: context.tr('song.composer'),
-                value: song.composer!,
+                value: metadata.composer,
               ),
             _InfoItem(
               label: context.tr('song.file_size'),
