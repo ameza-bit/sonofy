@@ -1,7 +1,10 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:sonofy/core/constants/app_constants.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sonofy/core/extensions/theme_extensions.dart';
+import 'package:sonofy/data/models/song_metadata.dart';
+import 'package:sonofy/presentation/blocs/player/player_cubit.dart';
+import 'package:sonofy/presentation/blocs/player/player_state.dart';
 import 'package:sonofy/presentation/views/modal_view.dart';
 
 class LyricsModal extends StatelessWidget {
@@ -20,28 +23,48 @@ class LyricsModal extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Expanded(
-      child: Column(
-        children: [
-          Expanded(
-            child: ListView(
-              children: [
-                for (int i = 0; i < 10; i++) ...[
-                  ListTile(
-                    title: Text(
-                      'Lyric $i',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: context.scaleText(16)),
-                    ),
-                    onTap: () {
-                      // Handle lyric tap
-                    },
+      child: BlocBuilder<PlayerCubit, PlayerState>(
+        buildWhen: (previous, current) =>
+            previous.currentSong != current.currentSong,
+        builder: (context, state) {
+          final song = state.currentSong;
+          if (song == null) {
+            return Center(
+              child: Text(
+                context.tr('player.no_lyrics'),
+                style: TextStyle(fontSize: context.scaleText(16)),
+              ),
+            );
+          }
+
+          final lyrics = SongMetadata.fromSongModel(song).lyrics;
+          if (lyrics.isEmpty) {
+            return Center(
+              child: Text(
+                context.tr('player.no_lyrics'),
+                style: TextStyle(fontSize: context.scaleText(16)),
+              ),
+            );
+          }
+
+          final lyricsLines = lyrics.split('\n');
+          return ListView(
+            children: [
+              for (int i = 0; i < lyricsLines.length; i++) ...[
+                ListTile(
+                  title: Text(
+                    lyricsLines[i],
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: context.scaleText(16)),
                   ),
-                ],
+                  onTap: () {
+                    // Handle lyric tap
+                  },
+                ),
               ],
-            ),
-          ),
-          const SizedBox(height: AppSpacing.bottomSheetHeight),
-        ],
+            ],
+          );
+        },
       ),
     );
   }
