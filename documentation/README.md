@@ -56,21 +56,23 @@
 - 🔀 **NUEVO**: Modo aleatorio (shuffle) inteligente con canción actual al inicio
 - 🔁 **MEJORADO**: Modos de repetición con auto-advance inteligente (uno, todos, ninguno)
 - 🍎 **NUEVO**: Soporte nativo para URLs iPod Library (iOS)
-- 🎵 **NUEVO**: Reproductor dual (AudioPlayers + MPMusicPlayerController)
-- 🔒 **NUEVO**: Verificación automática de protección DRM
+- 🎵 **MEJORADO**: Reproductor dual multiplataforma (iOS: MPMusicPlayerController + AudioPlayers, Android: NativeMediaService + AudioPlayers)
+- 🤖 **NUEVO**: MediaSession nativo Android con controles automáticos del sistema
+- 🔒 **NUEVO**: Verificación automática de protección DRM (iOS)
 - 📋 **NUEVO**: Sistema completo de gestión de playlists
 - 🔄 **NUEVO**: Sistema de ordenamiento personalizable (10 opciones)
 - 🚀 **NUEVO**: Control de velocidad de reproducción nativo (0.5x-2.0x)
 
 ### Gestión de Biblioteca Híbrida
 - 📁 **iOS**: Escaneo automático + selección manual de carpetas (FilePicker)
-- 🤖 **Android**: Escaneo automático completo (on_audio_query_pluse)
+- 🤖 **Android**: Escaneo automático completo (on_audio_query_pluse) + reproductor nativo
 - 📋 Lista organizada de canciones con fuentes combinadas
 - 🔍 Búsqueda de canciones (próximamente)
 - 📱 Reproductor mini en la interfaz principal
 - 🎯 Experiencia optimizada por plataforma
 - 🍎 **NUEVO**: Integración completa con biblioteca nativa de iOS
-- 🔄 **NUEVO**: Sistema dual de reproducción inteligente
+- 🤖 **NUEVO**: MediaSession nativo Android para archivos locales
+- 🔄 **MEJORADO**: Sistema dual de reproducción inteligente multiplataforma
 - 📊 **NUEVO**: Ordenamiento avanzado con persistencia automática
 - 🚀 **NUEVO**: Control de velocidad multiplataforma con persistencia
 
@@ -100,7 +102,10 @@
 | Gestión de Estado | flutter_bloc | ^9.1.1 |
 | Navegación | go_router | ^16.1.0 |
 | Audio | audioplayers | ^6.5.0 |
+| Audio Nativo Android | NativeMediaService + MediaPlayer | - |
+| Audio Nativo iOS | MPMusicPlayerController | - |
 | Metadata Musical | on_audio_query_pluse | ^2.9.4 |
+| MediaSession Android | androidx.media:media | 1.4.3 |
 | Selección de Archivos | file_picker | ^10.3.1 (Solo iOS) |
 | Internacionalización | easy_localization | ^3.0.8 |
 | Persistencia | shared_preferences | ^2.5.3 |
@@ -146,11 +151,33 @@ Para consultas técnicas o reportar problemas, por favor revisa la documentació
 
 ---
 
-**Versión de Documentación**: 3.4.0  
-**Última Actualización**: Agosto 2024 - Sistema de Shuffle Inteligente  
+**Versión de Documentación**: 4.0.0  
+**Última Actualización**: Septiembre 2024 - MediaSession Nativo Android  
 **Mantenedor**: Equipo de Desarrollo Sonofy
 
-## 🆕 Novedades v3.4.0 - Sistema de Shuffle Inteligente
+## 🆕 Novedades v4.0.0 - MediaSession Nativo Android
+
+### Sistema MediaSession Completo
+- **🤖 NativeMediaService**: Servicio nativo MediaPlayer con integración MediaSession
+- **📱 Controles automáticos**: Panel de notificaciones igual que Spotify/YouTube Music
+- **🎛️ Service Binding**: Comunicación bidireccional MainActivity ↔ MediaService
+- **🔔 Foreground Service**: Reproducción sin interrupciones en background
+- **🎧 Controles físicos**: Auriculares Bluetooth y botones físicos del dispositivo
+- **🚗 Android Auto**: Compatibilidad automática para controles de vehículo
+
+### Eliminación de audio_service
+- **❌ Retirada audio_service**: Eliminación completa de la dependencia externa
+- **✅ MediaSession nativo**: Implementación directa con AndroidX MediaCompat
+- **⚡ Performance mejorada**: Menos overhead, comunicación más eficiente
+- **🛡️ Mayor estabilidad**: Control total sobre el comportamiento del reproductor
+
+### Arquitectura Dual Mejorada
+- **🍎 iOS**: MPMusicPlayerController + AudioPlayers (sin cambios)
+- **🤖 Android**: NativeMediaService + AudioPlayers para máxima compatibilidad
+- **🔄 Switching inteligente**: Detección automática de tipo de archivo
+- **📊 Estado sincronizado**: Comunicación perfecta entre reproductores nativos y Flutter
+
+## 🔄 Historial v3.4.0 - Sistema de Shuffle Inteligente
 
 ### Shuffle Revolucionario
 - **🎯 Canción Actual al Inicio**: Al activar shuffle, la canción reproduciéndose se coloca como primera

@@ -170,10 +170,80 @@ case "getPlaybackSpeed":       // Obtener velocidad actual
 - Música en SD cards
 - Archivos descargados de cualquier fuente
 
+#### Reproductor Nativo Android MediaSession
+**Nueva funcionalidad**: Soporte completo para MediaSession nativo de Android usando `NativeMediaService`.
+
+##### Arquitectura MediaSession de Sistema
+```kotlin
+// NativeMediaService - Sistema MediaSession Android
+class NativeMediaService : Service(), MediaPlayer.OnPreparedListener {
+    private var mediaSession: MediaSessionCompat? = null
+    private var mediaPlayer: MediaPlayer? = null
+    
+    private fun initializeMediaSession() {
+        mediaSession = MediaSessionCompat(this, TAG).apply {
+            setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS or 
+                    MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS)
+            
+            setCallback(object : MediaSessionCompat.Callback() {
+                override fun onPlay() { resumePlayback() }
+                override fun onPause() { pausePlayback() }
+                override fun onSkipToNext() { onNextCallback?.invoke() }
+                override fun onSkipToPrevious() { onPreviousCallback?.invoke() }
+            })
+        }
+    }
+}
+```
+
+##### Funcionalidades del MediaService Nativo
+- **✅ Reproducir/pausar/parar** archivos locales con MediaPlayer
+- **✅ Controles automáticos del sistema** en panel de notificaciones
+- **✅ Integración MediaSession** completa con callbacks bidireccionales
+- **✅ Foreground Service** para reproducción en background
+- **✅ Control desde auriculares** Bluetooth y físicos
+- **✅ Android Auto compatible** con controles de vehículo
+- **✅ Metadata personalizable** (título, artista, artwork)
+- **✅ Service binding** con MainActivity
+
+##### Method Channels Android Implementados
+```kotlin
+// MainActivity.kt - Métodos nativos Android
+case "playTrack":           // Iniciar reproducción via MediaService
+case "pauseTrack":          // Pausar via MediaService  
+case "resumeTrack":         // Reanudar via MediaService
+case "stopTrack":           // Detener via MediaService
+case "seekToPosition":      // Cambiar posición via MediaService
+case "getCurrentPosition":  // Posición actual desde MediaService
+case "getDuration":         // Duración total desde MediaService
+case "isPlaying":           // Estado actual desde MediaService
+case "setPlaybackSpeed":    // Control de velocidad via MediaService
+case "updateNotification":  // Actualizar metadata en MediaSession
+case "bindMediaService":    // Conectar con NativeMediaService
+```
+
 #### Implementación Técnica
 
 ```dart
-// SongsRepositoryImpl - Android
+// PlayerRepositoryImpl - Android con MediaService
+@override
+Future<bool> playTrack(String url) async {
+  if (Platform.isAndroid && NativeAudioPlayer.isLocalAudioFile(url)) {
+    // Usar MediaService nativo para archivos locales
+    final success = await NativeAudioPlayer.playTrack(url);
+    if (success) {
+      _usingNativeAndroidPlayer = true;
+      _nativePlayerIsPlaying = true;
+    }
+    return success;
+  } else {
+    // Fallback a AudioPlayers para URLs remotas
+    await player.play(DeviceFileSource(url));
+    return isPlaying();
+  }
+}
+
+// SongsRepositoryImpl - Android (sin cambios)
 @override
 Future<String?> selectMusicFolder() async {
   if (Platform.isIOS) {
@@ -251,6 +321,9 @@ Future<bool> play(String url) async {
 
 #### Dependencias Android
 - **on_audio_query_pluse**: Único método de acceso a música
+- **androidx.media:media**: MediaSessionCompat y NotificationCompat para controles nativos
+- **NativeMediaService**: Service de MediaPlayer con integración MediaSession
+- **NativeAudioPlayer**: Interfaz Flutter-Android para Method Channels  
 - ~~file_picker~~: No utilizado
 - ~~Mp3FileConverter~~: No necesario (metadatos vienen de on_audio_query)
 - ~~MPMusicPlayerController~~: No disponible en Android
@@ -440,10 +513,14 @@ group('Android Music Tests', () {
 | **Use Cases locales** | ✅ Funcionales | ❌ Retornan vacío |
 | **URLs iPod Library** | ✅ Soporte nativo completo | ❌ Tratadas como archivos regulares |
 | **MPMusicPlayerController** | ✅ Reproductor nativo | ❌ No disponible |
-| **Method Channels** | ✅ 9 métodos implementados | ❌ Todos retornan false |
+| **Method Channels** | ✅ 9 métodos implementados | ✅ 11 métodos implementados |
+| **MediaSession nativo** | ❌ No aplicable | ✅ MediaSessionCompat completo |
+| **Service binding** | ❌ No aplicable | ✅ MainActivity ↔ NativeMediaService |
+| **Foreground Service** | ❌ No aplicable | ✅ Reproducción en background |
+| **Controles del sistema** | ✅ Control Center nativo | ✅ Panel notificaciones + auriculares |
 | **Verificación DRM** | ✅ Automática | ❌ No aplicable |
-| **Control de posición** | ✅ Dual (AudioPlayers + nativo) | ✅ Solo AudioPlayers |
-| **Arquitectura de reproducción** | 🔄 Dual (nativo + AudioPlayers) | 📱 Única (AudioPlayers) |
+| **Control de posición** | ✅ Dual (AudioPlayers + nativo) | ✅ Dual (AudioPlayers + MediaService) |
+| **Arquitectura de reproducción** | 🔄 Dual (nativo + AudioPlayers) | 🔄 Dual (MediaService + AudioPlayers) |
 | **Complejidad UX** | Media (más opciones) | Baja (automático) |
 | **Flexibilidad** | Alta | Baja |
 | **Simplicidad** | Media | Alta |
@@ -469,4 +546,16 @@ group('Android Music Tests', () {
 | **Switching automático** | ✅ Dual player | ✅ AudioPlayers único | iOS detecta reproductor activo |
 | **Method Channels** | ✅ setPlaybackSpeed/getPlaybackSpeed | ❌ N/A | Solo relevante para reproductor nativo |
 
-Esta implementación híbrida aprovecha las fortalezas de cada plataforma mientras mantiene la arquitectura limpia y el código mantenible. La nueva integración de iPod Library en iOS proporciona soporte nativo completo para la biblioteca de música del dispositivo, y ahora incluye control total de velocidad de reproducción, manteniendo la simplicidad en Android.
+### 🆕 Nuevas Capacidades v4.0.0 - MediaSession Nativo Android
+
+| Característica | iOS | Android | Notas |
+|----------------|-----|---------|-------|
+| **MediaSession integrado** | ❌ N/A | ✅ MediaSessionCompat | Android usa sistema nativo de controles |
+| **Controles automáticos** | ✅ Control Center | ✅ Panel notificaciones | Aparecen automáticamente al reproducir |
+| **Service binding** | ❌ N/A | ✅ MainActivity ↔ Service | Comunicación bidireccional Flutter-Android |
+| **Foreground Service** | ❌ N/A | ✅ NativeMediaService | Reproducción en background sin interrupciones |
+| **Callbacks bidireccionales** | ✅ Method Channels | ✅ Method Channels + Service | Eventos del sistema hacia Flutter |
+| **Android Auto compatible** | ❌ N/A | ✅ MediaSession | Funciona automáticamente en vehículos |
+| **Controles físicos** | ✅ Auriculares | ✅ Auriculares + botones | Soporte completo para hardware |
+
+Esta implementación híbrida aprovecha las fortalezas de cada plataforma mientras mantiene la arquitectura limpia y el código mantenible. La nueva integración de iPod Library en iOS proporciona soporte nativo completo para la biblioteca de música del dispositivo con control total de velocidad de reproducción. En Android, el nuevo sistema MediaSession proporciona una experiencia nativa completa con controles automáticos del sistema, similar a aplicaciones como Spotify o YouTube Music, manteniendo la simplicidad característica de la plataforma.

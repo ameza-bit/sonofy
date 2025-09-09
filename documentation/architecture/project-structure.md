@@ -5,6 +5,9 @@
 ```
 sonofy/
 ├── android/                 # Configuración específica de Android
+│   └── app/src/main/kotlin/com/axolotlsoftware/sonofy/
+│       ├── MainActivity.kt         # Actividad principal con Method Channels
+│       └── NativeMediaService.kt   # Servicio nativo MediaSession
 ├── assets/                  # Recursos estáticos
 │   ├── fonts/              # Fuentes personalizadas
 │   ├── images/             # Imágenes de la aplicación
@@ -62,14 +65,16 @@ core/
 ├── transitions/
 │   └── player_transition.dart   # Transiciones personalizadas
 └── utils/
-    ├── card_width.dart          # Utilidades para ancho de tarjetas
-    ├── device_platform.dart     # Detección de plataforma
-    ├── duration_minutes.dart    # Formateo de duración
-    ├── mp3_file_converter.dart  # Conversor de archivos MP3 a SongModel
-    ├── page_transition.dart     # Transiciones entre páginas
-    ├── responsive_layout.dart   # Utilidades de diseño responsivo
-    ├── toast.dart              # Utilidades para notificaciones
-    └── validators.dart         # Validadores de formularios
+    ├── audio_player_converter.dart  # Interfaz para reproductor nativo iOS
+    ├── card_width.dart              # Utilidades para ancho de tarjetas
+    ├── device_platform.dart         # Detección de plataforma
+    ├── duration_minutes.dart        # Formateo de duración
+    ├── mp3_file_converter.dart      # Conversor de archivos MP3 a SongModel
+    ├── native_audio_player.dart     # Interfaz para reproductor nativo Android
+    ├── page_transition.dart         # Transiciones entre páginas
+    ├── responsive_layout.dart       # Utilidades de diseño responsivo
+    ├── toast.dart                   # Utilidades para notificaciones
+    └── validators.dart             # Validadores de formularios
 ```
 
 ## 💾 Detalle de la Carpeta `data/`
@@ -238,4 +243,40 @@ La estructura permite fácil identificación de componentes por funcionalidad:
 - Inicialización de servicios
 - Configuración de internacionalización
 
-Esta estructura modular facilita el mantenimiento, testing y escalabilidad del proyecto, permitiendo que múltiples desarrolladores trabajen simultáneamente sin conflictos.
+## 🤖 Arquitectura Nativa Android
+
+### Servicios Nativos
+```
+android/app/src/main/kotlin/com/axolotlsoftware/sonofy/
+├── MainActivity.kt          # Actividad principal
+│   ├── Service Connection   # Binding con NativeMediaService
+│   ├── Method Channels     # Comunicación Flutter ↔ Kotlin
+│   └── Callback Setup      # Eventos del sistema hacia Flutter
+└── NativeMediaService.kt    # Servicio MediaSession
+    ├── MediaPlayer         # Reproductor nativo Android
+    ├── MediaSessionCompat  # Integración con sistema de controles
+    ├── NotificationManager # Notificaciones automáticas
+    └── Foreground Service  # Reproducción en background
+```
+
+### Integración Flutter-Android
+```dart
+// Flujo de comunicación bidireccional
+Flutter App (UI) 
+    ↕ Method Channels
+MainActivity.kt (Activity)
+    ↕ Service Binding  
+NativeMediaService.kt (Service)
+    ↕ MediaSession Callbacks
+Android System (Notificaciones/Controles)
+```
+
+### Funcionalidades Nativas
+- **🎵 MediaPlayer nativo**: Reproductor optimizado para archivos locales
+- **📱 MediaSession**: Integración completa con controles del sistema
+- **🔔 Foreground Service**: Reproducción sin interrupciones en background
+- **🎛️ Controles automáticos**: Panel de notificaciones y auriculares
+- **🚗 Android Auto**: Compatible automáticamente vía MediaSession
+- **⚡ Service Binding**: Comunicación eficiente entre Activity y Service
+
+Esta estructura modular facilita el mantenimiento, testing y escalabilidad del proyecto, permitiendo que múltiples desarrolladores trabajen simultáneamente sin conflictos. La nueva arquitectura nativa de Android proporciona una experiencia de usuario comparable a aplicaciones de música comerciales.
