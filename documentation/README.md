@@ -58,6 +58,9 @@
 - 🍎 **NUEVO**: Soporte nativo para URLs iPod Library (iOS)
 - 🎵 **MEJORADO**: Reproductor dual multiplataforma (iOS: MPMusicPlayerController + AudioPlayers, Android: NativeMediaService + AudioPlayers)
 - 🤖 **NUEVO**: MediaSession nativo Android con controles automáticos del sistema
+- 🎧 **NUEVO**: Pausa automática al desconectar auriculares (Android)
+- 📞 **NUEVO**: Gestión inteligente de Audio Focus para interrupciones
+- ⚡ **NUEVO**: Sincronización de estado bidireccional Flutter ↔ Android
 - 🔒 **NUEVO**: Verificación automática de protección DRM (iOS)
 - 📋 **NUEVO**: Sistema completo de gestión de playlists
 - 🔄 **NUEVO**: Sistema de ordenamiento personalizable (10 opciones)
@@ -106,6 +109,7 @@
 | Audio Nativo iOS | MPMusicPlayerController | - |
 | Metadata Musical | on_audio_query_pluse | ^2.9.4 |
 | MediaSession Android | androidx.media:media | 1.4.3 |
+| Audio Focus Android | AudioManager + BroadcastReceiver | - |
 | Selección de Archivos | file_picker | ^10.3.1 (Solo iOS) |
 | Internacionalización | easy_localization | ^3.0.8 |
 | Persistencia | shared_preferences | ^2.5.3 |
@@ -151,11 +155,31 @@ Para consultas técnicas o reportar problemas, por favor revisa la documentació
 
 ---
 
-**Versión de Documentación**: 4.0.0  
-**Última Actualización**: Septiembre 2024 - MediaSession Nativo Android  
+**Versión de Documentación**: 4.1.0  
+**Última Actualización**: Septiembre 2024 - Pausa Automática y Audio Focus  
 **Mantenedor**: Equipo de Desarrollo Sonofy
 
-## 🆕 Novedades v4.0.0 - MediaSession Nativo Android
+## 🆕 Novedades v4.1.0 - Pausa Automática y Audio Focus Inteligente
+
+### Pausa Automática por Desconexión de Auriculares
+- **🎧 Detección automática**: Pausa inmediata al desconectar auriculares (cable/Bluetooth)
+- **🔄 Sin reanudación**: Al reconectar no reanuda automáticamente (mejor UX)
+- **⚡ Sincronización perfecta**: Estado siempre coherente entre sistema y Flutter
+- **📱 BroadcastReceiver**: Implementación nativa con `ACTION_AUDIO_BECOMING_NOISY`
+
+### Gestión Inteligente de Audio Focus
+- **🎵 AudioManager integrado**: Solicitud y abandono automático de audio focus
+- **📞 Interrupciones inteligentes**: Manejo de llamadas y notificaciones
+- **🔊 Audio ducking**: Reducción temporal de volumen cuando es apropiado
+- **🎛️ Recuperación automática**: Restauración de volumen al recuperar focus
+
+### Sincronización de Estado Bidireccional
+- **↔️ Flutter ↔ Android**: Estado siempre sincronizado en tiempo real
+- **🔄 Callbacks inmediatos**: Actualización instantánea desde controles nativos
+- **✅ Un solo toque**: Eliminado problema de doble toque play/pause
+- **🛡️ Robustez**: Verificación previa antes de cada operación
+
+## 🔄 Historial v4.0.0 - MediaSession Nativo Android
 
 ### Sistema MediaSession Completo
 - **🤖 NativeMediaService**: Servicio nativo MediaPlayer con integración MediaSession

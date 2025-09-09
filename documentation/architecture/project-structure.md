@@ -256,19 +256,24 @@ android/app/src/main/kotlin/com/axolotlsoftware/sonofy/
     ├── MediaPlayer         # Reproductor nativo Android
     ├── MediaSessionCompat  # Integración con sistema de controles
     ├── NotificationManager # Notificaciones automáticas
-    └── Foreground Service  # Reproducción en background
+    ├── Foreground Service  # Reproducción en background
+    ├── BroadcastReceiver   # Gestión automática de auriculares
+    ├── AudioManager        # Audio Focus para interrupciones
+    └── State Sync          # Sincronización bidireccional de estado
 ```
 
 ### Integración Flutter-Android
 ```dart
-// Flujo de comunicación bidireccional
+// Flujo de comunicación bidireccional completo
 Flutter App (UI) 
-    ↕ Method Channels
+    ↕ Method Channels + Callbacks
 MainActivity.kt (Activity)
     ↕ Service Binding  
 NativeMediaService.kt (Service)
-    ↕ MediaSession Callbacks
-Android System (Notificaciones/Controles)
+    ├─ MediaSession Callbacks → Android System (Controles)
+    ├─ BroadcastReceiver → Auriculares (Desconexión)
+    ├─ AudioManager → Sistema (Interrupciones)
+    └─ State Sync → Flutter (Sincronización)
 ```
 
 ### Funcionalidades Nativas
@@ -278,5 +283,8 @@ Android System (Notificaciones/Controles)
 - **🎛️ Controles automáticos**: Panel de notificaciones y auriculares
 - **🚗 Android Auto**: Compatible automáticamente vía MediaSession
 - **⚡ Service Binding**: Comunicación eficiente entre Activity y Service
+- **🎧 Gestión de auriculares**: BroadcastReceiver para desconexiones automáticas
+- **📞 Audio Focus**: AudioManager.OnAudioFocusChangeListener para interrupciones
+- **🔄 Sincronización de estado**: Bidireccional Flutter ↔ Android en tiempo real
 
-Esta estructura modular facilita el mantenimiento, testing y escalabilidad del proyecto, permitiendo que múltiples desarrolladores trabajen simultáneamente sin conflictos. La nueva arquitectura nativa de Android proporciona una experiencia de usuario comparable a aplicaciones de música comerciales.
+Esta estructura modular facilita el mantenimiento, testing y escalabilidad del proyecto, permitiendo que múltiples desarrolladores trabajen simultáneamente sin conflictos. La nueva arquitectura nativa de Android con gestión automática de auriculares, Audio Focus inteligente y sincronización de estado bidireccional proporciona una experiencia de usuario profesional comparable a aplicaciones como Spotify, YouTube Music y Apple Music.

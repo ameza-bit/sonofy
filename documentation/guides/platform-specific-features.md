@@ -205,6 +205,9 @@ class NativeMediaService : Service(), MediaPlayer.OnPreparedListener {
 - **✅ Android Auto compatible** con controles de vehículo
 - **✅ Metadata personalizable** (título, artista, artwork)
 - **✅ Service binding** con MainActivity
+- **🎧 Pausa automática** al desconectar auriculares
+- **📞 Audio Focus inteligente** para interrupciones del sistema
+- **⚡ Sincronización de estado** bidireccional Flutter ↔ Android
 
 ##### Method Channels Android Implementados
 ```kotlin
@@ -220,6 +223,84 @@ case "isPlaying":           // Estado actual desde MediaService
 case "setPlaybackSpeed":    // Control de velocidad via MediaService
 case "updateNotification":  // Actualizar metadata en MediaSession
 case "bindMediaService":    // Conectar con NativeMediaService
+```
+
+##### Gestión Automática de Auriculares
+```kotlin
+// NativeMediaService - BroadcastReceiver para auriculares
+private fun setupHeadsetReceiver() {
+    headsetReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            when (intent?.action) {
+                AudioManager.ACTION_AUDIO_BECOMING_NOISY -> {
+                    // Auriculares desconectados - pausar automáticamente
+                    if (isPlaying()) {
+                        pausePlayback()
+                        onPauseCallback?.invoke() // Notifica a Flutter
+                    }
+                }
+                Intent.ACTION_HEADSET_PLUG -> {
+                    val state = intent.getIntExtra("state", -1)
+                    when (state) {
+                        0 -> pausePlayback() // Desconectado
+                        1 -> { /* Conectado - no reanudar automáticamente */ }
+                    }
+                }
+            }
+        }
+    }
+}
+```
+
+##### Audio Focus Inteligente
+```kotlin
+// NativeMediaService - AudioManager.OnAudioFocusChangeListener
+override fun onAudioFocusChange(focusChange: Int) {
+    when (focusChange) {
+        AudioManager.AUDIOFOCUS_LOSS -> {
+            // Otra app toma control permanente (ej: Spotify)
+            pausePlayback()
+            abandonAudioFocus()
+        }
+        AudioManager.AUDIOFOCUS_LOSS_TRANSIENT -> {
+            // Interruption temporal (llamada, notificación)
+            pausePlayback()
+        }
+        AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK -> {
+            // Reducir volumen temporalmente
+            mediaPlayer?.setVolume(0.3f, 0.3f)
+        }
+        AudioManager.AUDIOFOCUS_GAIN -> {
+            // Recuperar control - restaurar volumen
+            mediaPlayer?.setVolume(1.0f, 1.0f)
+        }
+    }
+}
+```
+
+##### Sincronización de Estado Bidireccional
+```dart
+// PlayerRepositoryImpl - Sincronización automática
+void _setupAndroidMediaHandlers() {
+  NativeAudioPlayer.setupMediaButtonHandlers(
+    onPlay: () {
+      _nativePlayerIsPlaying = true; // ✅ Sincronización inmediata
+      _eventsController.add(PlayEvent());
+    },
+    onPause: () {
+      _nativePlayerIsPlaying = false; // ✅ Sincronización inmediata  
+      _eventsController.add(PauseEvent());
+    }
+  );
+}
+
+// Verificación previa antes de operaciones
+Future<void> _syncAndroidPlayerState() async {
+  final actualState = await NativeAudioPlayer.syncPlaybackState();
+  if (_nativePlayerIsPlaying != actualState) {
+    _nativePlayerIsPlaying = actualState; // ✅ Corrección automática
+  }
+}
 ```
 
 #### Implementación Técnica
@@ -518,6 +599,10 @@ group('Android Music Tests', () {
 | **Service binding** | ❌ No aplicable | ✅ MainActivity ↔ NativeMediaService |
 | **Foreground Service** | ❌ No aplicable | ✅ Reproducción en background |
 | **Controles del sistema** | ✅ Control Center nativo | ✅ Panel notificaciones + auriculares |
+| **Pausa automática auriculares** | ❌ Sistema iOS maneja | ✅ BroadcastReceiver implementado |
+| **Audio Focus management** | ❌ Sistema iOS maneja | ✅ AudioManager.OnAudioFocusChangeListener |
+| **Sincronización de estado** | ✅ Method Channels | ✅ Bidireccional Flutter ↔ Android |
+| **Interrupciones del sistema** | ✅ Automáticas iOS | ✅ Audio Focus + ducking inteligente |
 | **Verificación DRM** | ✅ Automática | ❌ No aplicable |
 | **Control de posición** | ✅ Dual (AudioPlayers + nativo) | ✅ Dual (AudioPlayers + MediaService) |
 | **Arquitectura de reproducción** | 🔄 Dual (nativo + AudioPlayers) | 🔄 Dual (MediaService + AudioPlayers) |
@@ -546,7 +631,20 @@ group('Android Music Tests', () {
 | **Switching automático** | ✅ Dual player | ✅ AudioPlayers único | iOS detecta reproductor activo |
 | **Method Channels** | ✅ setPlaybackSpeed/getPlaybackSpeed | ❌ N/A | Solo relevante para reproductor nativo |
 
-### 🆕 Nuevas Capacidades v4.0.0 - MediaSession Nativo Android
+### 🆕 Nuevas Capacidades v4.1.0 - Pausa Automática y Audio Focus
+
+| Característica | iOS | Android | Notas |
+|----------------|-----|---------|-------|
+| **Pausa automática auriculares** | ✅ Sistema iOS nativo | ✅ BroadcastReceiver implementado | Android detecta desconexión cable/Bluetooth |
+| **Sin reanudación automática** | ✅ Comportamiento iOS | ✅ Mejor UX implementada | Usuario controla cuándo reanudar |
+| **Audio Focus management** | ✅ Sistema iOS automático | ✅ AudioManager.OnAudioFocusChangeListener | Manejo de interrupciones inteligente |
+| **Audio ducking** | ✅ iOS automático | ✅ Reducción volumen 30% | Notificaciones no interrumpen completamente |
+| **Sincronización bidireccional** | ✅ Method Channels | ✅ Callbacks + verificación previa | Estado siempre coherente |
+| **Problema doble-toque** | ❌ No aplicable | ✅ Completamente resuelto | Un solo toque para play/pause |
+| **Interrupciones llamadas** | ✅ iOS automático | ✅ AUDIOFOCUS_LOSS_TRANSIENT | Pausa durante llamadas |
+| **Recuperación post-llamada** | ✅ iOS automático | ✅ Restauración volumen | No reanuda automáticamente |
+
+### 🔄 Historial v4.0.0 - MediaSession Nativo Android
 
 | Característica | iOS | Android | Notas |
 |----------------|-----|---------|-------|
