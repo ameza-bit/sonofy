@@ -192,40 +192,46 @@ class _LyricsListViewState extends State<_LyricsListView> {
         final isCurrentLine = index == widget.currentIndex;
         final isPastLine = index < widget.currentIndex;
 
-        return AnimatedContainer(
-          key: index < _itemKeys.length ? _itemKeys[index] : null,
-          duration: const Duration(milliseconds: 300),
-          margin: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 16.0),
-          padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 20.0),
-          decoration: BoxDecoration(
-            color: isCurrentLine
-                ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.1)
-                : Colors.transparent,
-            borderRadius: BorderRadius.circular(12.0),
-            border: isCurrentLine
-                ? Border.all(
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.primary.withValues(alpha: 0.3),
-                  )
-                : null,
-          ),
-          child: Text(
-            line.lyrics.isNotEmpty ? line.lyrics : '♪',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: context.scaleText(isCurrentLine ? 18 : 16),
-              fontWeight: isCurrentLine ? FontWeight.bold : FontWeight.w400,
+        return InkWell(
+          onTap: () => context.read<PlayerCubit>().seekTo(line.timestamp),
+          child: AnimatedContainer(
+            key: index < _itemKeys.length ? _itemKeys[index] : null,
+            duration: const Duration(milliseconds: 300),
+            margin: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 16.0),
+            padding: const EdgeInsets.symmetric(
+              vertical: 16.0,
+              horizontal: 20.0,
+            ),
+            decoration: BoxDecoration(
               color: isCurrentLine
-                  ? Theme.of(context).colorScheme.primary
-                  : isPastLine
-                  ? Theme.of(
-                      context,
-                    ).textTheme.bodyMedium?.color?.withValues(alpha: 0.6)
-                  : Theme.of(
-                      context,
-                    ).textTheme.bodyMedium?.color?.withValues(alpha: 0.8),
-              height: 1.4,
+                  ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.1)
+                  : Colors.transparent,
+              borderRadius: BorderRadius.circular(12.0),
+              border: isCurrentLine
+                  ? Border.all(
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.primary.withValues(alpha: 0.3),
+                    )
+                  : null,
+            ),
+            child: Text(
+              line.lyrics.isNotEmpty ? line.lyrics : '♪',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: context.scaleText(isCurrentLine ? 18 : 16),
+                fontWeight: isCurrentLine ? FontWeight.bold : FontWeight.w400,
+                color: isCurrentLine
+                    ? Theme.of(context).colorScheme.primary
+                    : isPastLine
+                    ? Theme.of(
+                        context,
+                      ).textTheme.bodyMedium?.color?.withValues(alpha: 0.6)
+                    : Theme.of(
+                        context,
+                      ).textTheme.bodyMedium?.color?.withValues(alpha: 0.8),
+                height: 1.4,
+              ),
             ),
           ),
         );
