@@ -116,10 +116,7 @@ class _LyricsListView extends StatefulWidget {
   final Lrc parsedLrc;
   final int currentIndex;
 
-  const _LyricsListView({
-    required this.parsedLrc,
-    required this.currentIndex,
-  });
+  const _LyricsListView({required this.parsedLrc, required this.currentIndex});
 
   @override
   State<_LyricsListView> createState() => _LyricsListViewState();
@@ -128,13 +125,20 @@ class _LyricsListView extends StatefulWidget {
 class _LyricsListViewState extends State<_LyricsListView> {
   late ScrollController _scrollController;
   int? _previousIndex;
+  final List<GlobalKey> _itemKeys = [];
 
   @override
   void initState() {
     super.initState();
     _scrollController = ScrollController();
     _previousIndex = widget.currentIndex;
-    
+
+    // Crear keys para cada item
+    _itemKeys.clear();
+    for (int i = 0; i < widget.parsedLrc.lyrics.length; i++) {
+      _itemKeys.add(GlobalKey());
+    }
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _scrollToCurrentLine();
     });
@@ -149,7 +153,7 @@ class _LyricsListViewState extends State<_LyricsListView> {
   @override
   void didUpdateWidget(_LyricsListView oldWidget) {
     super.didUpdateWidget(oldWidget);
-    
+
     if (widget.currentIndex != _previousIndex) {
       _scrollToCurrentLine();
       _previousIndex = widget.currentIndex;
@@ -158,16 +162,22 @@ class _LyricsListViewState extends State<_LyricsListView> {
 
   void _scrollToCurrentLine() {
     if (_scrollController.hasClients && widget.currentIndex >= 0) {
-      const itemHeight = 64.0;
-      final targetOffset = widget.currentIndex * itemHeight;
-      final maxScroll = _scrollController.position.maxScrollExtent;
-      final clampedOffset = targetOffset.clamp(0.0, maxScroll);
-      
-      _scrollController.animateTo(
-        clampedOffset,
-        duration: const Duration(milliseconds: 500),
-        curve: Curves.easeInOut,
-      );
+      final previousLineIndex = widget.currentIndex > 0
+          ? widget.currentIndex - 1
+          : 0;
+
+      // Usar ensureVisible para scroll preciso
+      if (previousLineIndex < _itemKeys.length) {
+        final context = _itemKeys[previousLineIndex].currentContext;
+        if (context != null) {
+          Scrollable.ensureVisible(
+            context,
+            duration: const Duration(milliseconds: 500),
+            curve: Curves.easeInOut,
+          );
+          return;
+        }
+      }
     }
   }
 
@@ -176,22 +186,17 @@ class _LyricsListViewState extends State<_LyricsListView> {
     return ListView.builder(
       controller: _scrollController,
       itemCount: widget.parsedLrc.lyrics.length,
-      padding: const EdgeInsets.symmetric(vertical: 16.0),
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
       itemBuilder: (context, index) {
         final line = widget.parsedLrc.lyrics[index];
         final isCurrentLine = index == widget.currentIndex;
         final isPastLine = index < widget.currentIndex;
-        
+
         return AnimatedContainer(
+          key: index < _itemKeys.length ? _itemKeys[index] : null,
           duration: const Duration(milliseconds: 300),
-          margin: const EdgeInsets.symmetric(
-            vertical: 4.0,
-            horizontal: 16.0,
-          ),
-          padding: const EdgeInsets.symmetric(
-            vertical: 16.0,
-            horizontal: 20.0,
-          ),
+          margin: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 16.0),
+          padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 20.0),
           decoration: BoxDecoration(
             color: isCurrentLine
                 ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.1)
@@ -199,7 +204,9 @@ class _LyricsListViewState extends State<_LyricsListView> {
             borderRadius: BorderRadius.circular(12.0),
             border: isCurrentLine
                 ? Border.all(
-                    color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.primary.withValues(alpha: 0.3),
                   )
                 : null,
           ),
@@ -208,14 +215,16 @@ class _LyricsListViewState extends State<_LyricsListView> {
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: context.scaleText(isCurrentLine ? 18 : 16),
-              fontWeight: isCurrentLine
-                  ? FontWeight.bold
-                  : FontWeight.w400,
+              fontWeight: isCurrentLine ? FontWeight.bold : FontWeight.w400,
               color: isCurrentLine
                   ? Theme.of(context).colorScheme.primary
                   : isPastLine
-                  ? Theme.of(context).textTheme.bodyMedium?.color?.withValues(alpha: 0.6)
-                  : Theme.of(context).textTheme.bodyMedium?.color?.withValues(alpha: 0.8),
+                  ? Theme.of(
+                      context,
+                    ).textTheme.bodyMedium?.color?.withValues(alpha: 0.6)
+                  : Theme.of(
+                      context,
+                    ).textTheme.bodyMedium?.color?.withValues(alpha: 0.8),
               height: 1.4,
             ),
           ),
