@@ -20,7 +20,6 @@ class LyricsModal extends StatefulWidget {
       context,
       title: context.tr('player.lyrics.title'),
       maxHeight: 0.85,
-      showPlayer: false,
       children: [const LyricsModal()],
     );
   }
@@ -50,9 +49,18 @@ class _LyricsModalState extends State<LyricsModal> {
       if (currentIndex != -1) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (_scrollController.hasClients) {
-            final targetOffset = currentIndex * 80.0; // Estimated item height
+            // Scroll to show the current line centered in viewport
+            final viewportHeight = _scrollController.position.viewportDimension;
+            final estimatedItemHeight =
+                60.0; // More reasonable estimate for variable heights
+            final targetOffset =
+                (currentIndex * estimatedItemHeight) - (viewportHeight / 2);
+
             _scrollController.animateTo(
-              targetOffset,
+              targetOffset.clamp(
+                0.0,
+                _scrollController.position.maxScrollExtent,
+              ),
               duration: const Duration(milliseconds: 300),
               curve: Curves.easeInOut,
             );
@@ -144,8 +152,6 @@ class _LyricsModalState extends State<LyricsModal> {
                             vertical: AppSpacing.lg,
                           ),
                           itemCount: parsedLrc.lyrics.length + 1,
-                          itemExtent:
-                              80.0, // Fixed height for better performance
                           itemBuilder: (context, index) {
                             if (index == parsedLrc.lyrics.length) {
                               return const SizedBox(
