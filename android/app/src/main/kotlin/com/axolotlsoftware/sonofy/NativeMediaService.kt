@@ -1,10 +1,13 @@
 package com.axolotlsoftware.sonofy
 
 import android.app.*
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.media.AudioManager
 import android.media.MediaPlayer
 import android.os.Binder
 import android.os.Build
@@ -15,7 +18,7 @@ import android.support.v4.media.session.PlaybackStateCompat
 import android.util.Log
 import java.io.IOException
 
-class NativeMediaService : Service(), MediaPlayer.OnPreparedListener, MediaPlayer.OnCompletionListener, MediaPlayer.OnErrorListener {
+class NativeMediaService : Service(), MediaPlayer.OnPreparedListener, MediaPlayer.OnCompletionListener, MediaPlayer.OnErrorListener, AudioManager.OnAudioFocusChangeListener {
     companion object {
         private const val TAG = "NativeMediaService"
         private const val NOTIFICATION_ID = 1
@@ -31,6 +34,8 @@ class NativeMediaService : Service(), MediaPlayer.OnPreparedListener, MediaPlaye
     private var mediaPlayer: MediaPlayer? = null
     private var mediaSession: MediaSessionCompat? = null
     private var notificationManager: NotificationManager? = null
+    private var audioManager: AudioManager? = null
+    private var headsetReceiver: BroadcastReceiver? = null
     
     // Current track info
     private var currentTitle = "Unknown Track"
@@ -54,8 +59,10 @@ class NativeMediaService : Service(), MediaPlayer.OnPreparedListener, MediaPlaye
         instance = this
         Log.d(TAG, "NativeMediaService created")
         
+        audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
         createNotificationChannel()
         initializeMediaSession()
+        setupHeadsetReceiver()
     }
 
     override fun onBind(intent: Intent): IBinder = binder
@@ -68,6 +75,8 @@ class NativeMediaService : Service(), MediaPlayer.OnPreparedListener, MediaPlaye
     override fun onDestroy() {
         super.onDestroy()
         instance = null
+        unregisterHeadsetReceiver()
+        abandonAudioFocus()
         releaseMediaPlayer()
         releaseMediaSession()
         Log.d(TAG, "NativeMediaService destroyed")
@@ -141,6 +150,11 @@ class NativeMediaService : Service(), MediaPlayer.OnPreparedListener, MediaPlaye
         try {
             Log.d(TAG, "Playing track: $filePath")
             
+            // Solicitar foco de audio antes de reproducir
+            if (!requestAudioFocus()) {
+                Log.w(TAG, "Failed to gain audio focus, but continuing anyway")
+            }
+            
             releaseMediaPlayer()
             
             mediaPlayer = MediaPlayer().apply {
@@ -154,6 +168,7 @@ class NativeMediaService : Service(), MediaPlayer.OnPreparedListener, MediaPlaye
             return true
         } catch (e: IOException) {
             Log.e(TAG, "Error preparing media player", e)
+            abandonAudioFocus()
             return false
         }
     }
@@ -190,6 +205,7 @@ class NativeMediaService : Service(), MediaPlayer.OnPreparedListener, MediaPlaye
             isPlaying = false
             updatePlaybackState()
             stopForeground(true)
+            abandonAudioFocus()
             true
         } catch (e: Exception) {
             Log.e(TAG, "Error stopping playback", e)
@@ -341,6 +357,114 @@ class NativeMediaService : Service(), MediaPlayer.OnPreparedListener, MediaPlaye
     private fun releaseMediaPlayer() {
         mediaPlayer?.release()
         mediaPlayer = null
+    }
+
+    private fun setupHeadsetReceiver() {
+        headsetReceiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context?, intent: Intent?) {
+                when (intent?.action) {
+                    AudioManager.ACTION_AUDIO_BECOMING_NOISY -> {
+                        // Se desconectaron los auriculares
+                        Log.d(TAG, "Headphones disconnected, pausing playback")
+                        if (isPlaying()) {
+                            pausePlayback()
+                            onPauseCallback?.invoke()
+                        }
+                    }
+                    Intent.ACTION_HEADSET_PLUG -> {
+                        // Información adicional sobre la conexión/desconexión de auriculares
+                        val state = intent.getIntExtra("state", -1)
+                        when (state) {
+                            0 -> {
+                                // Auriculares desconectados
+                                Log.d(TAG, "Headset unplugged, pausing playback")
+                                if (isPlaying()) {
+                                    pausePlayback()
+                                    onPauseCallback?.invoke()
+                                }
+                            }
+                            1 -> {
+                                // Auriculares conectados
+                                Log.d(TAG, "Headset plugged in")
+                                // No reanudar automáticamente, el usuario debe hacerlo manualmente
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
+        val intentFilter = IntentFilter().apply {
+            addAction(AudioManager.ACTION_AUDIO_BECOMING_NOISY)
+            addAction(Intent.ACTION_HEADSET_PLUG)
+        }
+        
+        try {
+            registerReceiver(headsetReceiver, intentFilter)
+            Log.d(TAG, "Headset receiver registered successfully")
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to register headset receiver", e)
+        }
+    }
+    
+    private fun unregisterHeadsetReceiver() {
+        headsetReceiver?.let { 
+            try {
+                unregisterReceiver(it)
+                Log.d(TAG, "Headset receiver unregistered successfully")
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to unregister headset receiver", e)
+            }
+        }
+        headsetReceiver = null
+    }
+
+    // AudioManager.OnAudioFocusChangeListener
+    override fun onAudioFocusChange(focusChange: Int) {
+        when (focusChange) {
+            AudioManager.AUDIOFOCUS_LOSS -> {
+                // Pérdida permanente del foco de audio (otra app reproductor música)
+                Log.d(TAG, "Audio focus lost permanently, stopping playback")
+                if (isPlaying()) {
+                    pausePlayback()
+                    onPauseCallback?.invoke()
+                }
+                abandonAudioFocus()
+            }
+            AudioManager.AUDIOFOCUS_LOSS_TRANSIENT -> {
+                // Pérdida temporal del foco (notificación, llamada)
+                Log.d(TAG, "Audio focus lost temporarily, pausing playback")
+                if (isPlaying()) {
+                    pausePlayback()
+                    onPauseCallback?.invoke()
+                }
+            }
+            AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK -> {
+                // Pérdida temporal pero podemos seguir reproduciendo a bajo volumen
+                Log.d(TAG, "Audio focus lost temporarily, ducking volume")
+                mediaPlayer?.setVolume(0.3f, 0.3f)
+            }
+            AudioManager.AUDIOFOCUS_GAIN -> {
+                // Recuperamos el foco de audio
+                Log.d(TAG, "Audio focus gained")
+                mediaPlayer?.setVolume(1.0f, 1.0f)
+                // No reanudar automáticamente - el usuario debe hacerlo
+            }
+        }
+    }
+
+    private fun requestAudioFocus(): Boolean {
+        val result = audioManager?.requestAudioFocus(
+            this,
+            AudioManager.STREAM_MUSIC,
+            AudioManager.AUDIOFOCUS_GAIN
+        ) ?: AudioManager.AUDIOFOCUS_REQUEST_FAILED
+        
+        return result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED
+    }
+
+    private fun abandonAudioFocus() {
+        audioManager?.abandonAudioFocus(this)
     }
 
     private fun releaseMediaSession() {
