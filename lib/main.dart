@@ -4,7 +4,6 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:audio_service/audio_service.dart';
 import 'package:sonofy/core/enums/language.dart';
 import 'package:sonofy/core/routes/app_routes.dart';
 import 'package:sonofy/core/services/preferences.dart';
@@ -50,16 +49,6 @@ Future<void> main() async {
   final PlaylistRepository playlistRepository = PlaylistRepositoryImpl();
   final EqualizerRepositoryImpl equalizerRepository = EqualizerRepositoryImpl();
 
-  // Inicializar AudioService con nuestro PlayerRepositoryImpl como AudioHandler
-  await AudioService.init(
-    builder: () => playerRepositoryImpl,
-    config: const AudioServiceConfig(
-      androidNotificationChannelId: 'com.sonofy.app.channel.audio',
-      androidNotificationChannelName: 'Sonofy Audio playback',
-      androidNotificationOngoing: true,
-      androidNotificationIcon: 'mipmap/notification_icon',
-    ),
-  );
 
   // Conectar ecualizador con reproductor para sincronización
   equalizerRepository.playerRepository = playerRepository;

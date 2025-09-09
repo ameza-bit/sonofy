@@ -1,29 +1,27 @@
 import 'dart:async';
 import 'dart:io';
-import 'package:audio_service/audio_service.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/services.dart';
 import 'package:volume_controller/volume_controller.dart';
 import 'package:sonofy/domain/repositories/player_repository.dart';
 import 'package:sonofy/core/utils/audio_player_converter.dart';
+import 'package:sonofy/core/utils/native_audio_player.dart';
 
-final class PlayerRepositoryImpl extends BaseAudioHandler
-    implements PlayerRepository {
+final class PlayerRepositoryImpl implements PlayerRepository {
   final player = AudioPlayer();
   bool _usingNativePlayer = false;
   double _playbackSpeed = 1.0;
-  bool _isPaused = false;
 
   // Estado específico para reproducción nativa
   bool _nativePlayerIsPlaying = false;
+  bool _usingNativeAndroidPlayer = false;
 
   // Simulación de estado del ecualizador (AudioPlayers no tiene soporte nativo)
   final List<double> _equalizerBands = [0.0, 0.0, 0.0]; // Bass, Mid, Treble
   bool _equalizerEnabled = false;
 
-  // Estado actual para AudioService
+  // Estado actual
   String? _currentUrl;
-  Duration _currentPosition = Duration.zero;
 
   // Stream para comunicar eventos al PlayerCubit
   final StreamController<PlayerEvent> _eventsController =
@@ -35,6 +33,9 @@ final class PlayerRepositoryImpl extends BaseAudioHandler
   @override
   bool isPlaying() {
     if (_usingNativePlayer && Platform.isIOS) {
+      return _nativePlayerIsPlaying;
+    }
+    if (_usingNativeAndroidPlayer && Platform.isAndroid) {
       return _nativePlayerIsPlaying;
     }
     return player.state == PlayerState.playing;
@@ -49,8 +50,9 @@ final class PlayerRepositoryImpl extends BaseAudioHandler
     await player.stop();
     await AudioPlayerConverter.stopNativeMusicPlayer();
     await AudioPlayerConverter.stopNativeMP3Player();
+    await NativeAudioPlayer.stopTrack();
     _usingNativePlayer = false;
-    _isPaused = false;
+    _usingNativeAndroidPlayer = false;
 
     if (Platform.isIOS) {
       if (AudioPlayerConverter.isIpodLibraryUrl(url)) {
@@ -67,7 +69,6 @@ final class PlayerRepositoryImpl extends BaseAudioHandler
           _usingNativePlayer = true;
           _nativePlayerIsPlaying = true;
         }
-        _updatePlaybackState(success);
         return success;
       } else if (AudioPlayerConverter.isLocalAudioFile(url)) {
         final success = await AudioPlayerConverter.playMP3WithNativePlayer(url);
@@ -75,16 +76,24 @@ final class PlayerRepositoryImpl extends BaseAudioHandler
           _usingNativePlayer = true;
           _nativePlayerIsPlaying = true;
         }
-        _updatePlaybackState(success);
+        return success;
+      }
+    } else if (Platform.isAndroid) {
+      if (NativeAudioPlayer.isLocalAudioFile(url)) {
+        final success = await NativeAudioPlayer.playTrack(url);
+        if (success) {
+          _usingNativeAndroidPlayer = true;
+          _nativePlayerIsPlaying = true;
+        }
         return success;
       }
     }
 
     _usingNativePlayer = false;
+    _usingNativeAndroidPlayer = false;
     _nativePlayerIsPlaying = false;
     await player.play(DeviceFileSource(url));
     final playing = isPlaying();
-    _updatePlaybackState(playing);
     return playing;
   }
 
@@ -100,14 +109,14 @@ final class PlayerRepositoryImpl extends BaseAudioHandler
         success = await AudioPlayerConverter.resumeNativeMP3Player();
       }
       _nativePlayerIsPlaying = success;
-      _isPaused = !success;
-      _updatePlaybackState(success);
+      return success;
+    } else if (_usingNativeAndroidPlayer && Platform.isAndroid) {
+      final success = await NativeAudioPlayer.resumeTrack();
+      _nativePlayerIsPlaying = success;
       return success;
     } else {
       await player.resume();
       final playing = isPlaying();
-      _isPaused = !playing;
-      _updatePlaybackState(playing);
       return playing;
     }
   }
@@ -121,15 +130,15 @@ final class PlayerRepositoryImpl extends BaseAudioHandler
         await AudioPlayerConverter.pauseNativeMP3Player();
       }
       _nativePlayerIsPlaying = false;
-      _isPaused = true;
-      _updatePlaybackState(false);
+      return false;
+    } else if (_usingNativeAndroidPlayer && Platform.isAndroid) {
+      await NativeAudioPlayer.pauseTrack();
+      _nativePlayerIsPlaying = false;
       return false;
     } else {
       await player.pause();
-      _isPaused = true;
     }
     final playing = isPlaying();
-    _updatePlaybackState(playing);
     return playing;
   }
 
@@ -156,6 +165,15 @@ final class PlayerRepositoryImpl extends BaseAudioHandler
         }
       }
       _nativePlayerIsPlaying = finalState;
+    } else if (_usingNativeAndroidPlayer && Platform.isAndroid) {
+      if (_nativePlayerIsPlaying) {
+        await NativeAudioPlayer.pauseTrack();
+        finalState = false;
+      } else {
+        await NativeAudioPlayer.resumeTrack();
+        finalState = true;
+      }
+      _nativePlayerIsPlaying = finalState;
     } else if (isPlaying()) {
       await player.pause();
       finalState = isPlaying();
@@ -164,13 +182,11 @@ final class PlayerRepositoryImpl extends BaseAudioHandler
       finalState = isPlaying();
     }
 
-    _updatePlaybackState(finalState);
     return finalState;
   }
 
   @override
   Future<bool> seekToPosition(Duration position) async {
-    _currentPosition = position;
 
     if (_usingNativePlayer && Platform.isIOS) {
       bool playing;
@@ -182,14 +198,16 @@ final class PlayerRepositoryImpl extends BaseAudioHandler
         await AudioPlayerConverter.seekToMP3Position(position);
         playing = isPlaying();
       }
-      _updatePlaybackState(playing);
+      return playing;
+    } else if (_usingNativeAndroidPlayer && Platform.isAndroid) {
+      await NativeAudioPlayer.seekToPosition(position);
+      final playing = isPlaying();
       return playing;
     } else {
       await player.seek(position);
       await player.resume();
     }
     final playing = isPlaying();
-    _updatePlaybackState(playing);
     return playing;
   }
 
@@ -202,13 +220,12 @@ final class PlayerRepositoryImpl extends BaseAudioHandler
       } else {
         position = await AudioPlayerConverter.getCurrentMP3Position();
       }
+    } else if (_usingNativeAndroidPlayer && Platform.isAndroid) {
+      position = await NativeAudioPlayer.getCurrentPosition();
     } else {
       position = await player.getCurrentPosition();
     }
 
-    if (position != null) {
-      _currentPosition = position;
-    }
     return position;
   }
 
@@ -224,6 +241,8 @@ final class PlayerRepositoryImpl extends BaseAudioHandler
         return Duration(milliseconds: (durationSeconds * 1000).round());
       }
       return null;
+    } else if (_usingNativeAndroidPlayer && Platform.isAndroid) {
+      return NativeAudioPlayer.getDuration();
     } else {
       return player.getDuration();
     }
@@ -239,6 +258,8 @@ final class PlayerRepositoryImpl extends BaseAudioHandler
       } else {
         return AudioPlayerConverter.setMP3PlaybackSpeed(speed);
       }
+    } else if (_usingNativeAndroidPlayer && Platform.isAndroid) {
+      return NativeAudioPlayer.setPlaybackSpeed(speed);
     } else {
       await player.setPlaybackRate(speed);
       return true;
@@ -316,96 +337,6 @@ final class PlayerRepositoryImpl extends BaseAudioHandler
     }
   }
 
-  // AudioService BaseAudioHandler methods - estos se llaman desde las notificaciones
-  @override
-  Future<void> play() async {
-    if (_currentUrl != null) {
-      bool success;
-      if (_isPaused) {
-        success = await resumeTrack();
-      } else {
-        success = await playTrack(_currentUrl!);
-      }
-      _updatePlaybackState(success);
-      if (!_eventsController.isClosed) {
-        _eventsController.add(PlayEvent());
-      }
-    }
-  }
-
-  @override
-  Future<void> pause() async {
-    await pauseTrack();
-    _updatePlaybackState(false);
-    if (!_eventsController.isClosed) {
-      _eventsController.add(PauseEvent());
-    }
-  }
-
-  @override
-  Future<void> skipToNext() async {
-    // Este método será llamado desde la notificación
-    // El PlayerCubit manejará la lógica de navegación
-    _updatePlaybackState(isPlaying());
-    if (!_eventsController.isClosed) {
-      _eventsController.add(NextEvent());
-    }
-  }
-
-  @override
-  Future<void> skipToPrevious() async {
-    // Este método será llamado desde la notificación
-    // El PlayerCubit manejará la lógica de navegación
-    _updatePlaybackState(isPlaying());
-    if (!_eventsController.isClosed) {
-      _eventsController.add(PreviousEvent());
-    }
-  }
-
-  @override
-  Future<void> seek(Duration position) async {
-    // Llama al método seek del repository (que retorna bool)
-    await _seekToPosition(position);
-    _currentPosition = position;
-    _updatePlaybackState(isPlaying());
-    if (!_eventsController.isClosed) {
-      _eventsController.add(SeekEvent(position));
-    }
-  }
-
-  Future<void> _seekToPosition(Duration position) async {
-    await seekToPosition(position);
-  }
-
-  void _updatePlaybackState(bool playing) {
-    playbackState.add(
-      PlaybackState(
-        controls: [
-          MediaControl.skipToPrevious,
-          if (playing) MediaControl.pause else MediaControl.play,
-          MediaControl.skipToNext,
-        ],
-        systemActions: const {MediaAction.seek},
-        androidCompactActionIndices: const [0, 1, 2],
-        processingState: AudioProcessingState.ready,
-        playing: playing,
-        updatePosition: _currentPosition,
-        speed: _playbackSpeed,
-      ),
-    );
-  }
-
-  void updateCurrentMediaItem(String title, String artist, String? artUri) {
-    mediaItem.add(
-      MediaItem(
-        id: _currentUrl ?? '',
-        album: '',
-        title: title,
-        artist: artist,
-        artUri: artUri != null ? Uri.parse(artUri) : null,
-      ),
-    );
-  }
 
   /// Actualiza el Control Center con metadatos de la canción actual
   Future<void> updateNowPlayingMetadata(
@@ -430,7 +361,7 @@ final class PlayerRepositoryImpl extends BaseAudioHandler
     }
   }
 
-  /// Resincroniza el estado del reproductor nativo con AudioService
+  /// Resincroniza el estado del reproductor nativo
   /// Debe llamarse cuando la app vuelve del background
   @override
   Future<void> syncNativePlayerState() async {
@@ -444,7 +375,9 @@ final class PlayerRepositoryImpl extends BaseAudioHandler
 
       final isCurrentlyPlaying = status == 'playing';
       _nativePlayerIsPlaying = isCurrentlyPlaying;
-      _updatePlaybackState(isCurrentlyPlaying);
+    } else if (_usingNativeAndroidPlayer && Platform.isAndroid) {
+      final isCurrentlyPlaying = await NativeAudioPlayer.isPlaying();
+      _nativePlayerIsPlaying = isCurrentlyPlaying;
     }
   }
 
