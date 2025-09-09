@@ -8,6 +8,8 @@ import 'package:sonofy/core/extensions/color_extensions.dart';
 import 'package:sonofy/core/extensions/theme_extensions.dart';
 import 'package:sonofy/presentation/blocs/player/player_cubit.dart';
 import 'package:sonofy/presentation/blocs/player/player_state.dart';
+import 'package:sonofy/presentation/blocs/settings/settings_cubit.dart';
+import 'package:sonofy/presentation/blocs/settings/settings_state.dart';
 import 'package:sonofy/presentation/widgets/common/font_awesome/font_awesome_flutter.dart';
 import 'package:sonofy/presentation/widgets/library/bottom_clipper_container.dart';
 import 'package:sonofy/presentation/widgets/options/options_modal.dart';
@@ -289,7 +291,11 @@ class _PlayerScreenState extends State<PlayerScreen> {
                                 color: context.musicLightGrey,
                               ),
                             ),
-                            const SizedBox(height: 30),
+                            BlocBuilder<SettingsCubit, SettingsState>(
+                              builder: (context, state) => SizedBox(
+                                height: state.settings.hideControls ? 0 : 30,
+                              ),
+                            ),
                             const PlayerControl(),
                           ],
                         ),

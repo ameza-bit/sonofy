@@ -47,6 +47,10 @@ class SettingsCubit extends Cubit<SettingsState> {
     _updateSetting(state.settings.copyWith(fontSize: fontSize));
   }
 
+  void updateHideControls(bool hideControls) {
+    _updateSetting(state.settings.copyWith(hideControls: hideControls));
+  }
+
   void updateLanguage(Language language) {
     _updateSetting(state.settings.copyWith(language: language));
   }
