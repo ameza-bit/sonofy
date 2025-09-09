@@ -162,6 +162,18 @@ class NativeAudioPlayer {
     }
   }
 
+  /// Sincroniza el estado actual del MediaService
+  static Future<bool> syncPlaybackState() async {
+    if (!_isAndroid) return false;
+
+    try {
+      final result = await _channel.invokeMethod('isPlaying');
+      return result as bool? ?? false;
+    } catch (e) {
+      return false;
+    }
+  }
+
   /// Establece la velocidad de reproducción
   static Future<bool> setPlaybackSpeed(double speed) async {
     if (!_isAndroid) return false;

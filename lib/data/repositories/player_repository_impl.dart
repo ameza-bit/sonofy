@@ -32,11 +32,15 @@ final class PlayerRepositoryImpl implements PlayerRepository {
     if (Platform.isAndroid) {
       NativeAudioPlayer.setupMediaButtonHandlers(
         onPlay: () {
+          // Sincronizar estado cuando se recibe evento de play nativo
+          _nativePlayerIsPlaying = true;
           if (!_eventsController.isClosed) {
             _eventsController.add(PlayEvent());
           }
         },
         onPause: () {
+          // Sincronizar estado cuando se recibe evento de pause nativo
+          _nativePlayerIsPlaying = false;
           if (!_eventsController.isClosed) {
             _eventsController.add(PauseEvent());
           }
@@ -52,6 +56,8 @@ final class PlayerRepositoryImpl implements PlayerRepository {
           }
         },
         onStop: () {
+          // Sincronizar estado cuando se recibe evento de stop nativo
+          _nativePlayerIsPlaying = false;
           if (!_eventsController.isClosed) {
             _eventsController.add(PauseEvent());
           }
@@ -82,6 +88,21 @@ final class PlayerRepositoryImpl implements PlayerRepository {
 
   /// Getter para verificar si se está usando el reproductor nativo
   bool get isUsingNativePlayer => _usingNativePlayer;
+
+  /// Sincroniza el estado del reproductor nativo Android con Flutter
+  Future<void> _syncAndroidPlayerState() async {
+    if (_usingNativeAndroidPlayer && Platform.isAndroid) {
+      try {
+        final actualState = await NativeAudioPlayer.syncPlaybackState();
+        if (_nativePlayerIsPlaying != actualState) {
+          // Estado desincronizado detectado, sincronizando...
+          _nativePlayerIsPlaying = actualState;
+        }
+      } catch (e) {
+        // Error en sincronización, mantener estado actual
+      }
+    }
+  }
 
   @override
   Future<bool> playTrack(String url) async {
@@ -155,6 +176,8 @@ final class PlayerRepositoryImpl implements PlayerRepository {
       _nativePlayerIsPlaying = success;
       return success;
     } else if (_usingNativeAndroidPlayer && Platform.isAndroid) {
+      // Sincronizar estado antes de reanudar
+      await _syncAndroidPlayerState();
       final success = await NativeAudioPlayer.resumeTrack();
       _nativePlayerIsPlaying = success;
       return success;
@@ -176,6 +199,8 @@ final class PlayerRepositoryImpl implements PlayerRepository {
       _nativePlayerIsPlaying = false;
       return false;
     } else if (_usingNativeAndroidPlayer && Platform.isAndroid) {
+      // Sincronizar estado antes de pausar
+      await _syncAndroidPlayerState();
       await NativeAudioPlayer.pauseTrack();
       _nativePlayerIsPlaying = false;
       return false;
@@ -210,6 +235,8 @@ final class PlayerRepositoryImpl implements PlayerRepository {
       }
       _nativePlayerIsPlaying = finalState;
     } else if (_usingNativeAndroidPlayer && Platform.isAndroid) {
+      // Sincronizar estado antes de toggle
+      await _syncAndroidPlayerState();
       if (_nativePlayerIsPlaying) {
         await NativeAudioPlayer.pauseTrack();
         finalState = false;
@@ -428,8 +455,8 @@ final class PlayerRepositoryImpl implements PlayerRepository {
       final isCurrentlyPlaying = status == 'playing';
       _nativePlayerIsPlaying = isCurrentlyPlaying;
     } else if (_usingNativeAndroidPlayer && Platform.isAndroid) {
-      final isCurrentlyPlaying = await NativeAudioPlayer.isPlaying();
-      _nativePlayerIsPlaying = isCurrentlyPlaying;
+      // Usar el nuevo método de sincronización
+      await _syncAndroidPlayerState();
     }
   }
 
