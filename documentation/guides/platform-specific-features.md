@@ -170,10 +170,161 @@ case "getPlaybackSpeed":       // Obtener velocidad actual
 - Música en SD cards
 - Archivos descargados de cualquier fuente
 
+#### Reproductor Nativo Android MediaSession
+**Nueva funcionalidad**: Soporte completo para MediaSession nativo de Android usando `NativeMediaService`.
+
+##### Arquitectura MediaSession de Sistema
+```kotlin
+// NativeMediaService - Sistema MediaSession Android
+class NativeMediaService : Service(), MediaPlayer.OnPreparedListener {
+    private var mediaSession: MediaSessionCompat? = null
+    private var mediaPlayer: MediaPlayer? = null
+    
+    private fun initializeMediaSession() {
+        mediaSession = MediaSessionCompat(this, TAG).apply {
+            setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS or 
+                    MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS)
+            
+            setCallback(object : MediaSessionCompat.Callback() {
+                override fun onPlay() { resumePlayback() }
+                override fun onPause() { pausePlayback() }
+                override fun onSkipToNext() { onNextCallback?.invoke() }
+                override fun onSkipToPrevious() { onPreviousCallback?.invoke() }
+            })
+        }
+    }
+}
+```
+
+##### Funcionalidades del MediaService Nativo
+- **✅ Reproducir/pausar/parar** archivos locales con MediaPlayer
+- **✅ Controles automáticos del sistema** en panel de notificaciones
+- **✅ Integración MediaSession** completa con callbacks bidireccionales
+- **✅ Foreground Service** para reproducción en background
+- **✅ Control desde auriculares** Bluetooth y físicos
+- **✅ Android Auto compatible** con controles de vehículo
+- **✅ Metadata personalizable** (título, artista, artwork)
+- **✅ Service binding** con MainActivity
+- **🎧 Pausa automática** al desconectar auriculares
+- **📞 Audio Focus inteligente** para interrupciones del sistema
+- **⚡ Sincronización de estado** bidireccional Flutter ↔ Android
+
+##### Method Channels Android Implementados
+```kotlin
+// MainActivity.kt - Métodos nativos Android
+case "playTrack":           // Iniciar reproducción via MediaService
+case "pauseTrack":          // Pausar via MediaService  
+case "resumeTrack":         // Reanudar via MediaService
+case "stopTrack":           // Detener via MediaService
+case "seekToPosition":      // Cambiar posición via MediaService
+case "getCurrentPosition":  // Posición actual desde MediaService
+case "getDuration":         // Duración total desde MediaService
+case "isPlaying":           // Estado actual desde MediaService
+case "setPlaybackSpeed":    // Control de velocidad via MediaService
+case "updateNotification":  // Actualizar metadata en MediaSession
+case "bindMediaService":    // Conectar con NativeMediaService
+```
+
+##### Gestión Automática de Auriculares
+```kotlin
+// NativeMediaService - BroadcastReceiver para auriculares
+private fun setupHeadsetReceiver() {
+    headsetReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            when (intent?.action) {
+                AudioManager.ACTION_AUDIO_BECOMING_NOISY -> {
+                    // Auriculares desconectados - pausar automáticamente
+                    if (isPlaying()) {
+                        pausePlayback()
+                        onPauseCallback?.invoke() // Notifica a Flutter
+                    }
+                }
+                Intent.ACTION_HEADSET_PLUG -> {
+                    val state = intent.getIntExtra("state", -1)
+                    when (state) {
+                        0 -> pausePlayback() // Desconectado
+                        1 -> { /* Conectado - no reanudar automáticamente */ }
+                    }
+                }
+            }
+        }
+    }
+}
+```
+
+##### Audio Focus Inteligente
+```kotlin
+// NativeMediaService - AudioManager.OnAudioFocusChangeListener
+override fun onAudioFocusChange(focusChange: Int) {
+    when (focusChange) {
+        AudioManager.AUDIOFOCUS_LOSS -> {
+            // Otra app toma control permanente (ej: Spotify)
+            pausePlayback()
+            abandonAudioFocus()
+        }
+        AudioManager.AUDIOFOCUS_LOSS_TRANSIENT -> {
+            // Interruption temporal (llamada, notificación)
+            pausePlayback()
+        }
+        AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK -> {
+            // Reducir volumen temporalmente
+            mediaPlayer?.setVolume(0.3f, 0.3f)
+        }
+        AudioManager.AUDIOFOCUS_GAIN -> {
+            // Recuperar control - restaurar volumen
+            mediaPlayer?.setVolume(1.0f, 1.0f)
+        }
+    }
+}
+```
+
+##### Sincronización de Estado Bidireccional
+```dart
+// PlayerRepositoryImpl - Sincronización automática
+void _setupAndroidMediaHandlers() {
+  NativeAudioPlayer.setupMediaButtonHandlers(
+    onPlay: () {
+      _nativePlayerIsPlaying = true; // ✅ Sincronización inmediata
+      _eventsController.add(PlayEvent());
+    },
+    onPause: () {
+      _nativePlayerIsPlaying = false; // ✅ Sincronización inmediata  
+      _eventsController.add(PauseEvent());
+    }
+  );
+}
+
+// Verificación previa antes de operaciones
+Future<void> _syncAndroidPlayerState() async {
+  final actualState = await NativeAudioPlayer.syncPlaybackState();
+  if (_nativePlayerIsPlaying != actualState) {
+    _nativePlayerIsPlaying = actualState; // ✅ Corrección automática
+  }
+}
+```
+
 #### Implementación Técnica
 
 ```dart
-// SongsRepositoryImpl - Android
+// PlayerRepositoryImpl - Android con MediaService
+@override
+Future<bool> playTrack(String url) async {
+  if (Platform.isAndroid && NativeAudioPlayer.isLocalAudioFile(url)) {
+    // Usar MediaService nativo para archivos locales
+    final success = await NativeAudioPlayer.playTrack(url);
+    if (success) {
+      _usingNativeAndroidPlayer = true;
+      _nativePlayerIsPlaying = true;
+    }
+    return success;
+  } else {
+    // Fallback a AudioPlayers para URLs remotas
+    await player.play(DeviceFileSource(url));
+    return isPlaying();
+  }
+}
+
+// SongsRepositoryImpl - Android (sin cambios)
 @override
 Future<String?> selectMusicFolder() async {
   if (Platform.isIOS) {
@@ -251,6 +402,9 @@ Future<bool> play(String url) async {
 
 #### Dependencias Android
 - **on_audio_query_pluse**: Único método de acceso a música
+- **androidx.media:media**: MediaSessionCompat y NotificationCompat para controles nativos
+- **NativeMediaService**: Service de MediaPlayer con integración MediaSession
+- **NativeAudioPlayer**: Interfaz Flutter-Android para Method Channels  
 - ~~file_picker~~: No utilizado
 - ~~Mp3FileConverter~~: No necesario (metadatos vienen de on_audio_query)
 - ~~MPMusicPlayerController~~: No disponible en Android
@@ -440,10 +594,18 @@ group('Android Music Tests', () {
 | **Use Cases locales** | ✅ Funcionales | ❌ Retornan vacío |
 | **URLs iPod Library** | ✅ Soporte nativo completo | ❌ Tratadas como archivos regulares |
 | **MPMusicPlayerController** | ✅ Reproductor nativo | ❌ No disponible |
-| **Method Channels** | ✅ 9 métodos implementados | ❌ Todos retornan false |
+| **Method Channels** | ✅ 9 métodos implementados | ✅ 11 métodos implementados |
+| **MediaSession nativo** | ❌ No aplicable | ✅ MediaSessionCompat completo |
+| **Service binding** | ❌ No aplicable | ✅ MainActivity ↔ NativeMediaService |
+| **Foreground Service** | ❌ No aplicable | ✅ Reproducción en background |
+| **Controles del sistema** | ✅ Control Center nativo | ✅ Panel notificaciones + auriculares |
+| **Pausa automática auriculares** | ❌ Sistema iOS maneja | ✅ BroadcastReceiver implementado |
+| **Audio Focus management** | ❌ Sistema iOS maneja | ✅ AudioManager.OnAudioFocusChangeListener |
+| **Sincronización de estado** | ✅ Method Channels | ✅ Bidireccional Flutter ↔ Android |
+| **Interrupciones del sistema** | ✅ Automáticas iOS | ✅ Audio Focus + ducking inteligente |
 | **Verificación DRM** | ✅ Automática | ❌ No aplicable |
-| **Control de posición** | ✅ Dual (AudioPlayers + nativo) | ✅ Solo AudioPlayers |
-| **Arquitectura de reproducción** | 🔄 Dual (nativo + AudioPlayers) | 📱 Única (AudioPlayers) |
+| **Control de posición** | ✅ Dual (AudioPlayers + nativo) | ✅ Dual (AudioPlayers + MediaService) |
+| **Arquitectura de reproducción** | 🔄 Dual (nativo + AudioPlayers) | 🔄 Dual (MediaService + AudioPlayers) |
 | **Complejidad UX** | Media (más opciones) | Baja (automático) |
 | **Flexibilidad** | Alta | Baja |
 | **Simplicidad** | Media | Alta |
@@ -469,4 +631,29 @@ group('Android Music Tests', () {
 | **Switching automático** | ✅ Dual player | ✅ AudioPlayers único | iOS detecta reproductor activo |
 | **Method Channels** | ✅ setPlaybackSpeed/getPlaybackSpeed | ❌ N/A | Solo relevante para reproductor nativo |
 
-Esta implementación híbrida aprovecha las fortalezas de cada plataforma mientras mantiene la arquitectura limpia y el código mantenible. La nueva integración de iPod Library en iOS proporciona soporte nativo completo para la biblioteca de música del dispositivo, y ahora incluye control total de velocidad de reproducción, manteniendo la simplicidad en Android.
+### 🆕 Nuevas Capacidades v4.1.0 - Pausa Automática y Audio Focus
+
+| Característica | iOS | Android | Notas |
+|----------------|-----|---------|-------|
+| **Pausa automática auriculares** | ✅ Sistema iOS nativo | ✅ BroadcastReceiver implementado | Android detecta desconexión cable/Bluetooth |
+| **Sin reanudación automática** | ✅ Comportamiento iOS | ✅ Mejor UX implementada | Usuario controla cuándo reanudar |
+| **Audio Focus management** | ✅ Sistema iOS automático | ✅ AudioManager.OnAudioFocusChangeListener | Manejo de interrupciones inteligente |
+| **Audio ducking** | ✅ iOS automático | ✅ Reducción volumen 30% | Notificaciones no interrumpen completamente |
+| **Sincronización bidireccional** | ✅ Method Channels | ✅ Callbacks + verificación previa | Estado siempre coherente |
+| **Problema doble-toque** | ❌ No aplicable | ✅ Completamente resuelto | Un solo toque para play/pause |
+| **Interrupciones llamadas** | ✅ iOS automático | ✅ AUDIOFOCUS_LOSS_TRANSIENT | Pausa durante llamadas |
+| **Recuperación post-llamada** | ✅ iOS automático | ✅ Restauración volumen | No reanuda automáticamente |
+
+### 🔄 Historial v4.0.0 - MediaSession Nativo Android
+
+| Característica | iOS | Android | Notas |
+|----------------|-----|---------|-------|
+| **MediaSession integrado** | ❌ N/A | ✅ MediaSessionCompat | Android usa sistema nativo de controles |
+| **Controles automáticos** | ✅ Control Center | ✅ Panel notificaciones | Aparecen automáticamente al reproducir |
+| **Service binding** | ❌ N/A | ✅ MainActivity ↔ Service | Comunicación bidireccional Flutter-Android |
+| **Foreground Service** | ❌ N/A | ✅ NativeMediaService | Reproducción en background sin interrupciones |
+| **Callbacks bidireccionales** | ✅ Method Channels | ✅ Method Channels + Service | Eventos del sistema hacia Flutter |
+| **Android Auto compatible** | ❌ N/A | ✅ MediaSession | Funciona automáticamente en vehículos |
+| **Controles físicos** | ✅ Auriculares | ✅ Auriculares + botones | Soporte completo para hardware |
+
+Esta implementación híbrida aprovecha las fortalezas de cada plataforma mientras mantiene la arquitectura limpia y el código mantenible. La nueva integración de iPod Library en iOS proporciona soporte nativo completo para la biblioteca de música del dispositivo con control total de velocidad de reproducción. En Android, el nuevo sistema MediaSession proporciona una experiencia nativa completa con controles automáticos del sistema, similar a aplicaciones como Spotify o YouTube Music, manteniendo la simplicidad característica de la plataforma.

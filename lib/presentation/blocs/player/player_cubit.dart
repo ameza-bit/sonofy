@@ -133,14 +133,7 @@ class PlayerCubit extends Cubit<PlayerState> with WidgetsBindingObserver {
     await _playerRepository.syncNativePlayerState();
     _lastSyncTime = DateTime.now();
 
-    final currentSong = state.currentSong;
-    if (currentSong != null && forceSync) {
-      repo.updateCurrentMediaItem(
-        currentSong.title,
-        currentSong.artist ?? currentSong.composer ?? 'Unknown Artist',
-        null,
-      );
-    }
+    // Ya no necesitamos updateCurrentMediaItem - era específico de AudioService
 
     final isCurrentlyPlaying = _playerRepository.isPlaying();
 
@@ -173,7 +166,6 @@ class PlayerCubit extends Cubit<PlayerState> with WidgetsBindingObserver {
         ? shufflePlaylist.indexWhere((s) => s.id == song.id)
         : 0;
 
-    _updateAudioServiceMediaItem(song);
 
     emit(
       state.copyWith(
@@ -204,7 +196,6 @@ class PlayerCubit extends Cubit<PlayerState> with WidgetsBindingObserver {
       state.activePlaylist[nextIndex].data,
     );
 
-    _updateAudioServiceMediaItem(state.activePlaylist[nextIndex]);
 
     emit(state.copyWith(currentIndex: nextIndex, isPlaying: isPlaying));
   }
@@ -244,7 +235,6 @@ class PlayerCubit extends Cubit<PlayerState> with WidgetsBindingObserver {
       state.activePlaylist[previousIndex].data,
     );
 
-    _updateAudioServiceMediaItem(state.activePlaylist[previousIndex]);
 
     emit(state.copyWith(currentIndex: previousIndex, isPlaying: isPlaying));
   }
@@ -705,14 +695,6 @@ class PlayerCubit extends Cubit<PlayerState> with WidgetsBindingObserver {
     }
   }
 
-  void _updateAudioServiceMediaItem(SongModel song) {
-    final playerImpl = _playerRepository as PlayerRepositoryImpl;
-    playerImpl.updateCurrentMediaItem(
-      song.title,
-      song.artist ?? song.composer ?? 'Unknown Artist',
-      null,
-    );
-  }
 
   @override
   Future<void> close() {
