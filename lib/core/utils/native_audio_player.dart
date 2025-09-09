@@ -3,8 +3,59 @@ import 'package:flutter/services.dart';
 
 class NativeAudioPlayer {
   static const MethodChannel _channel = MethodChannel('native_audio_player');
+  static Function()? _onPlay;
+  static Function()? _onPause;
+  static Function()? _onNext;
+  static Function()? _onPrevious;
+  static Function()? _onStop;
+  static Function(int)? _onSeek;
 
   static bool get _isAndroid => Platform.isAndroid;
+
+  /// Configura los callbacks para los botones de medios
+  static Future<void> setupMediaButtonHandlers({
+    Function()? onPlay,
+    Function()? onPause,
+    Function()? onNext,
+    Function()? onPrevious,
+    Function()? onStop,
+    Function(int)? onSeek,
+  }) async {
+    if (!_isAndroid) return;
+
+    _onPlay = onPlay;
+    _onPause = onPause;
+    _onNext = onNext;
+    _onPrevious = onPrevious;
+    _onStop = onStop;
+    _onSeek = onSeek;
+
+    _channel.setMethodCallHandler((call) async {
+      switch (call.method) {
+        case 'onMediaButtonPlay':
+          _onPlay?.call();
+          break;
+        case 'onMediaButtonPause':
+          _onPause?.call();
+          break;
+        case 'onMediaButtonNext':
+          _onNext?.call();
+          break;
+        case 'onMediaButtonPrevious':
+          _onPrevious?.call();
+          break;
+        case 'onMediaButtonStop':
+          _onStop?.call();
+          break;
+        case 'onMediaButtonSeek':
+          final position = call.arguments as int? ?? 0;
+          _onSeek?.call(position);
+          break;
+      }
+    });
+
+    await _channel.invokeMethod('setupMediaButtonHandlers');
+  }
 
   /// Reproduce un archivo de audio usando el reproductor nativo de Android
   static Future<bool> playTrack(String url) async {
@@ -148,6 +199,40 @@ class NativeAudioPlayer {
       return result as double? ?? 1.0;
     } catch (e) {
       return 1.0;
+    }
+  }
+
+  /// Actualiza la notificación de medios nativa
+  static Future<bool> updateNotification({
+    required String title,
+    required String artist,
+    required bool isPlaying,
+    Uint8List? artwork,
+  }) async {
+    if (!_isAndroid) return false;
+
+    try {
+      final result = await _channel.invokeMethod('updateNotification', {
+        'title': title,
+        'artist': artist,
+        'isPlaying': isPlaying,
+        'artwork': artwork,
+      });
+      return result as bool? ?? false;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Oculta la notificación de medios nativa
+  static Future<bool> hideNotification() async {
+    if (!_isAndroid) return false;
+
+    try {
+      final result = await _channel.invokeMethod('hideNotification');
+      return result as bool? ?? false;
+    } catch (e) {
+      return false;
     }
   }
 

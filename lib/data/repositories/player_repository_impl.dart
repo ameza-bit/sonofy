@@ -27,6 +27,45 @@ final class PlayerRepositoryImpl implements PlayerRepository {
   final StreamController<PlayerEvent> _eventsController =
       StreamController<PlayerEvent>.broadcast();
 
+  // Configurar handlers de medios para Android
+  void _setupAndroidMediaHandlers() {
+    if (Platform.isAndroid) {
+      NativeAudioPlayer.setupMediaButtonHandlers(
+        onPlay: () {
+          if (!_eventsController.isClosed) {
+            _eventsController.add(PlayEvent());
+          }
+        },
+        onPause: () {
+          if (!_eventsController.isClosed) {
+            _eventsController.add(PauseEvent());
+          }
+        },
+        onNext: () {
+          if (!_eventsController.isClosed) {
+            _eventsController.add(NextEvent());
+          }
+        },
+        onPrevious: () {
+          if (!_eventsController.isClosed) {
+            _eventsController.add(PreviousEvent());
+          }
+        },
+        onStop: () {
+          if (!_eventsController.isClosed) {
+            _eventsController.add(PauseEvent());
+          }
+        },
+        onSeek: (position) {
+          final duration = Duration(milliseconds: position);
+          if (!_eventsController.isClosed) {
+            _eventsController.add(SeekEvent(duration));
+          }
+        },
+      );
+    }
+  }
+
   @override
   Stream<PlayerEvent> get playerEvents => _eventsController.stream;
 
@@ -53,6 +92,11 @@ final class PlayerRepositoryImpl implements PlayerRepository {
     await NativeAudioPlayer.stopTrack();
     _usingNativePlayer = false;
     _usingNativeAndroidPlayer = false;
+
+    // Configurar handlers de medios para Android solo una vez
+    if (Platform.isAndroid) {
+      _setupAndroidMediaHandlers();
+    }
 
     if (Platform.isIOS) {
       if (AudioPlayerConverter.isIpodLibraryUrl(url)) {
@@ -355,6 +399,14 @@ final class PlayerRepositoryImpl implements PlayerRepository {
         artist: artist,
         duration: (duration?.inMilliseconds ?? 0) / 1000.0,
         currentTime: (currentPosition?.inMilliseconds ?? 0) / 1000.0,
+        isPlaying: isPlaying(),
+        artwork: artwork,
+      );
+    } else if (_usingNativeAndroidPlayer && Platform.isAndroid) {
+      // Para Android, usar notificaciones nativas
+      await NativeAudioPlayer.updateNotification(
+        title: title,
+        artist: artist,
         isPlaying: isPlaying(),
         artwork: artwork,
       );
