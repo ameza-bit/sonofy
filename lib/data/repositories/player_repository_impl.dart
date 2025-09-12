@@ -27,6 +27,29 @@ final class PlayerRepositoryImpl implements PlayerRepository {
   final StreamController<PlayerEvent> _eventsController =
       StreamController<PlayerEvent>.broadcast();
 
+  // Constructor
+  PlayerRepositoryImpl() {
+    _setupiOSControlCenterCallbacks();
+  }
+
+  /// Configura los callbacks del Control Center de iOS
+  void _setupiOSControlCenterCallbacks() {
+    if (Platform.isIOS) {
+      AudioPlayerConverter.setupControlCenterCallbacks(
+        onNext: () {
+          if (!_eventsController.isClosed) {
+            _eventsController.add(NextEvent());
+          }
+        },
+        onPrevious: () {
+          if (!_eventsController.isClosed) {
+            _eventsController.add(PreviousEvent());
+          }
+        },
+      );
+    }
+  }
+
   // Configurar handlers de medios para Android
   void _setupAndroidMediaHandlers() {
     if (Platform.isAndroid) {

@@ -3,6 +3,10 @@ import 'package:flutter/services.dart';
 
 class AudioPlayerConverter {
   static const MethodChannel _channel = MethodChannel('ipod_library_converter');
+  
+  // Callbacks para eventos del Control Center
+  static Function()? _onControlCenterNext;
+  static Function()? _onControlCenterPrevious;
 
   static bool get _isIOS => Platform.isIOS;
 
@@ -10,8 +14,24 @@ class AudioPlayerConverter {
     _channel.setMethodCallHandler((call) async {
       if (call.method == 'logFromIOS') {
         call.arguments as String? ?? 'Unknown iOS log';
+      } else if (call.method == 'onControlCenterNext') {
+        _onControlCenterNext?.call();
+      } else if (call.method == 'onControlCenterPrevious') {
+        _onControlCenterPrevious?.call();
       }
     });
+  }
+  
+  /// Configura los callbacks para los eventos del Control Center de iOS
+  static void setupControlCenterCallbacks({
+    Function()? onNext,
+    Function()? onPrevious,
+  }) {
+    if (!_isIOS) return;
+    
+    _onControlCenterNext = onNext;
+    _onControlCenterPrevious = onPrevious;
+    _setupLogReceiver();
   }
 
   static Future<bool> isDrmProtected(String ipodUrl) async {

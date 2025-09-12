@@ -166,6 +166,9 @@ import AVFoundation
     player.setQueue(with: collection)
     player.play()
     
+    // Configurar los controles del Command Center para MPMusicPlayerController
+    setupMPMusicPlayerCommandCenter()
+    
     logToFlutter("🎵 Music player started!")
     result(true)
   }
@@ -399,6 +402,19 @@ import AVFoundation
       return .success
     }
     
+    // Configurar botones de siguiente y anterior
+    commandCenter.nextTrackCommand.addTarget { [weak self] _ in
+      self?.logToFlutter("⏭️ Next track command from Control Center")
+      self?.logChannel?.invokeMethod("onControlCenterNext", arguments: nil)
+      return .success
+    }
+    
+    commandCenter.previousTrackCommand.addTarget { [weak self] _ in
+      self?.logToFlutter("⏮️ Previous track command from Control Center") 
+      self?.logChannel?.invokeMethod("onControlCenterPrevious", arguments: nil)
+      return .success
+    }
+    
     commandCenter.changePlaybackPositionCommand.addTarget { [weak self] event in
       if let event = event as? MPChangePlaybackPositionCommandEvent {
         self?.audioPlayer?.currentTime = event.positionTime
@@ -407,7 +423,21 @@ import AVFoundation
       return .commandFailed
     }
     
-    logToFlutter("🎛️ Remote command center configured")
+    // Habilitar los comandos
+    commandCenter.nextTrackCommand.isEnabled = true
+    commandCenter.previousTrackCommand.isEnabled = true
+    
+    logToFlutter("🎛️ Remote command center configured with next/previous support")
+  }
+  
+  private func setupMPMusicPlayerCommandCenter() {
+    // Los targets ya están configurados en setupRemoteCommandCenter()
+    // Solo necesitamos habilitar los comandos
+    let commandCenter = MPRemoteCommandCenter.shared()
+    commandCenter.nextTrackCommand.isEnabled = true
+    commandCenter.previousTrackCommand.isEnabled = true
+    
+    logToFlutter("🎛️ MPMusicPlayer command center configured")
   }
   
   private func playMP3WithNativePlayer(call: FlutterMethodCall, result: @escaping FlutterResult) {
@@ -443,6 +473,7 @@ import AVFoundation
       if success {
         // Setup remote command center and now playing info
         setupRemoteCommandCenter()
+    setupMPMusicPlayerCommandCenter()
         // No actualizar aquí - Flutter se encarga de la sincronización continua
         logToFlutter("✅ Native MP3 player started!")
       } else {
